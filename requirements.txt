@@ -1,0 +1,5 @@
+google-genai>=2.20
+pytest>=8
+
+# Added in a later milestone (embedding-based conflict candidate detection):
+# sentence-transformers>=3
