@@ -65,7 +65,11 @@ GEMINI_API_KEY=AIza...
 ```
 
 `.env` values override the shell environment; a real env var only wins if the
-loader is called as `load_dotenv(override=False)`.
+loader is called as `load_dotenv(override=False)`. `demo.py` prints a config
+banner at startup (which `.env` was read, the raw `LLM_BACKEND` value, whether a
+shell var was overridden, resolved model, cache path) — check it if a run uses
+the wrong backend. `python -c "from common.llm import resolve_config; print(resolve_config().banner())"`
+shows the same without running anything.
 
 ## Run
 

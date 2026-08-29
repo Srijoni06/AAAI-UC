@@ -18,6 +18,7 @@ import os
 import time
 import urllib.error
 import urllib.request
+from dataclasses import dataclass
 
 from common.cache import LLMCache
 from common.env import load_dotenv
@@ -167,15 +168,98 @@ def _cache_enabled() -> bool:
     return os.environ.get("LLM_CACHE", "1").strip().lower() not in {"0", "false", "no"}
 
 
+DEFAULT_BACKEND = "local"
+
+
+@dataclass
+class LLMResolution:
+    """Everything that determined which backend/model a run will use."""
+
+    backend: str
+    backend_source: str
+    agent_model: str
+    judge_model: str
+    cache_enabled: bool
+    cache_path: str
+    dotenv_path: str
+    dotenv_exists: bool
+    ollama_host: str | None = None
+    gemini_key_status: str | None = None
+    raw_backend_value: str | None = None
+
+    def banner(self) -> str:
+        lines = [
+            "LLM config",
+            f"  .env            : {self.dotenv_path} "
+            f"({'found' if self.dotenv_exists else 'NOT FOUND'})",
+            f"  LLM_BACKEND     : {self.raw_backend_value!r} -> {self.backend!r}",
+            f"  resolved from   : {self.backend_source}",
+            f"  agent model     : {self.agent_model}",
+            f"  judge model     : {self.judge_model}",
+            f"  cache           : {'on' if self.cache_enabled else 'off'} "
+            f"({self.cache_path})",
+        ]
+        if self.backend == "local":
+            lines.append(f"  OLLAMA_HOST     : {self.ollama_host}")
+        if self.backend == "gemini":
+            lines.append(f"  GEMINI_API_KEY  : {self.gemini_key_status}")
+        return "\n".join(lines)
+
+
+def resolve_config() -> LLMResolution:
+    """Load .env and report the backend/model that ``make_llm`` would pick."""
+    report = load_dotenv()
+    raw = os.environ.get("LLM_BACKEND")
+    backend = (raw or DEFAULT_BACKEND).strip().lower()
+    if raw is None:
+        source = f"code default ({DEFAULT_BACKEND!r}); LLM_BACKEND unset"
+    else:
+        source = report.source_of("LLM_BACKEND")
+
+    cache_on = _cache_enabled()
+    common = dict(
+        backend=backend,
+        backend_source=source,
+        cache_enabled=cache_on,
+        cache_path=str(LLMCache().path),
+        dotenv_path=str(report.path),
+        dotenv_exists=report.exists,
+        raw_backend_value=raw,
+    )
+    if backend == "local":
+        host = (
+            os.environ.get("OLLAMA_HOST") or OLLAMA_DEFAULT_HOST
+        ).rstrip("/")
+        return LLMResolution(
+            agent_model=OLLAMA_AGENT_MODEL,
+            judge_model=OLLAMA_JUDGE_MODEL,
+            ollama_host=host,
+            **common,
+        )
+    if backend == "gemini":
+        key = os.environ.get("GEMINI_API_KEY", "")
+        status = (
+            "placeholder / missing" if key in _PLACEHOLDER_KEYS else f"set (len {len(key)})"
+        )
+        return LLMResolution(
+            agent_model=GEMINI_AGENT_MODEL,
+            judge_model=GEMINI_JUDGE_MODEL,
+            gemini_key_status=status,
+            **common,
+        )
+    return LLMResolution(
+        agent_model="?", judge_model="?", **common
+    )
+
+
 def make_llm(*, cache: bool = True) -> LLMClient:
     """Build the LLM client for the configured backend (default: local/Ollama)."""
-    load_dotenv()
-    backend = os.environ.get("LLM_BACKEND", "local").strip().lower()
-    shared_cache = LLMCache() if (cache and _cache_enabled()) else None
-    if backend == "local":
+    res = resolve_config()
+    shared_cache = LLMCache() if (cache and res.cache_enabled) else None
+    if res.backend == "local":
         return OllamaBackend(cache=shared_cache)
-    if backend == "gemini":
+    if res.backend == "gemini":
         return GeminiBackend(cache=shared_cache)
     raise ValueError(
-        f"LLM_BACKEND must be 'local' or 'gemini' (got {backend!r})"
+        f"LLM_BACKEND must be 'local' or 'gemini' (got {res.raw_backend_value!r})"
     )

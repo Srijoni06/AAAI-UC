@@ -4,8 +4,16 @@ from __future__ import annotations
 
 import pytest
 
+from pathlib import Path
+
 from common.cache import LLMCache
-from common.llm import LLMClient, make_llm
+from common.env import DotenvReport, load_dotenv
+from common.llm import LLMClient, make_llm, resolve_config
+
+
+def _no_dotenv(*_a, **_k):
+    """Stand-in for load_dotenv: behaves as if no .env file exists."""
+    return DotenvReport(path=Path("nonexistent.env"), exists=False, override=True)
 
 
 class CountingBackend(LLMClient):
@@ -65,7 +73,7 @@ def test_cache_disabled_always_calls_backend(tmp_path):
 
 def test_make_llm_defaults_to_local(monkeypatch):
     monkeypatch.delenv("LLM_BACKEND", raising=False)
-    monkeypatch.setattr("common.llm.load_dotenv", lambda *a, **k: None)
+    monkeypatch.setattr("common.llm.load_dotenv", _no_dotenv)
     llm = make_llm(cache=False)
     assert llm.backend == "local"
     assert llm.agent_model == "llama3.1:8b"
@@ -73,6 +81,17 @@ def test_make_llm_defaults_to_local(monkeypatch):
 
 def test_make_llm_rejects_unknown_backend(monkeypatch):
     monkeypatch.setenv("LLM_BACKEND", "openai")
-    monkeypatch.setattr("common.llm.load_dotenv", lambda *a, **k: None)
+    monkeypatch.setattr("common.llm.load_dotenv", _no_dotenv)
     with pytest.raises(ValueError):
         make_llm(cache=False)
+
+
+def test_dotenv_overrides_shell_backend(monkeypatch, tmp_path):
+    """A shell LLM_BACKEND=gemini must lose to LLM_BACKEND=local in .env."""
+    monkeypatch.setenv("LLM_BACKEND", "gemini")
+    env_file = tmp_path / ".env"
+    env_file.write_text("LLM_BACKEND=local\n", encoding="utf-8")
+    monkeypatch.setattr("common.llm.load_dotenv", lambda *a, **k: load_dotenv(env_file))
+    res = resolve_config()
+    assert res.backend == "local"
+    assert ".env" in res.backend_source

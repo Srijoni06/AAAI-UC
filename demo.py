@@ -19,7 +19,7 @@ from pathlib import Path
 from agents.orchestrator import DOCUMENTS, run
 from baselines.base import apply_resolution
 from baselines.last_write_wins import LastWriteWins
-from common.llm import make_llm
+from common.llm import make_llm, resolve_config
 from memory.store import MemoryStore, Status, open_store
 
 MEM_PATH = Path("demo_memory.json")
@@ -34,11 +34,19 @@ def show_memory(store: MemoryStore) -> None:
 
 
 def main() -> int:
+    # Print the resolved config BEFORE building any client, so a misread
+    # LLM_BACKEND is visible even if client construction later fails.
+    res = resolve_config()
+    print(res.banner())
+    print()
+
     try:
         llm = make_llm()
     except (RuntimeError, ValueError) as e:
         print(f"error: {e}")
         return 1
+
+    assert llm.backend == res.backend  # make_llm and resolve_config must agree
 
     if MEM_PATH.exists():
         MEM_PATH.unlink()
