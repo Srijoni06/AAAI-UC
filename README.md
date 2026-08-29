@@ -24,16 +24,20 @@ What works now:
 - **`agents/orchestrator.py`** — 2 summarizer agents each read a different
   excerpt of the same document and write a one-sentence claim to shared memory.
   3 hand-built documents, each seeding one genuine contradiction (factual /
-  magnitude / staleness). Agent model is `AGENT_MODEL` in that file — set to
-  `gemini-2.5-flash` because the requested `gemini-2.0-flash` is retired on the
-  API; judge stays `gemini-2.5-pro`.
+  magnitude / staleness).
+- **`common/llm.py`** — LLM backend abstraction: `local` (Ollama, `llama3.1:8b`,
+  default for all dev/testing) or `gemini` (`gemini-2.5-flash` agent /
+  `gemini-2.5-pro` judge — requested `gemini-2.0-flash` is retired on the API).
+  Selected by `LLM_BACKEND`. Every call is cached on disk first
+  (`.cache/llm_cache.json`, keyed by SHA-256 of backend+model+system+temp+prompt;
+  disable with `LLM_CACHE=0`).
 - **`common/env.py`** — minimal `.env` loader (no `python-dotenv` dep).
 - **`baselines/last_write_wins.py`** — newest write wins; the trivial resolver
   that makes the pipeline end-to-end.
-- **`demo.py`** — runs the agents (real Gemini calls), prints the contradiction
-  in memory, then last-write-wins "resolving" it.
-- **`tests/test_store.py`** — pytest coverage of the store + conflict scan +
-  last-write-wins.
+- **`demo.py`** — runs the agents, prints the contradiction in memory, then
+  last-write-wins "resolving" it.
+- **`tests/`** — pytest coverage of the store + conflict scan + last-write-wins
+  (`test_store.py`) and the LLM cache + backend routing (`test_llm_cache.py`).
 
 Everything else in the tree is a **stub with a TODO** describing its milestone.
 
@@ -43,22 +47,31 @@ Everything else in the tree is a **stub with a TODO** describing its milestone.
 python -m venv venv
 venv\Scripts\Activate.ps1          # Windows PowerShell
 pip install -r requirements.txt
+cp .env.example .env               # then edit
 ```
 
-Then put your key in a `.env` file at the repo root (gitignored):
+**Local backend (default, used for all dev/testing):** install Ollama, then
 
 ```
+ollama serve                      # runs the daemon at localhost:11434
+ollama pull llama3.1:8b
+```
+
+**Gemini backend (final verification runs only):** set in `.env`
+
+```
+LLM_BACKEND=gemini
 GEMINI_API_KEY=AIza...
 ```
 
-(or export `GEMINI_API_KEY` in the shell — a real env var wins over `.env`
-only if you call `load_dotenv(override=False)`).
+`.env` values override the shell environment; a real env var only wins if the
+loader is called as `load_dotenv(override=False)`.
 
 ## Run
 
 ```
-python demo.py        # real gemini-2.0-flash calls; writes demo_memory.json
-pytest                # store / conflict-scan tests (no API calls)
+python demo.py        # uses LLM_BACKEND (default local); writes demo_memory.json
+pytest                # store, conflict-scan, and LLM-cache tests (no network)
 ```
 
 ## Layout
@@ -80,6 +93,8 @@ agents/
   orchestrator.py  # [done]  minimal 2-agent loop + hardcoded documents
 common/
   env.py           # [done]  .env loader
+  llm.py           # [done]  local (Ollama) / gemini backend + selection
+  cache.py         # [done]  on-disk LLM response cache
 domain/
   seed_conflicts.py # [stub]  15-20 seeded contradictions w/ gold labels
 eval/

@@ -1,12 +1,14 @@
 """Milestone-1 end-to-end demo.
 
-  1. spin up 2 summarizer agents (real gemini-2.0-flash calls)
+  1. spin up 2 summarizer agents (LLM backend from LLM_BACKEND: local | gemini)
   2. each reads a different excerpt of the same doc and writes a claim to
      shared memory
   3. show the memory contents and the detected contradiction
   4. run last-write-wins to "resolve" it and show the updated memory
 
-Run:  python demo.py         (requires GEMINI_API_KEY in the environment)
+Run:  python demo.py
+  Default backend is local (Ollama at localhost:11434, llama3.1:8b).
+  Set LLM_BACKEND=gemini (+ GEMINI_API_KEY) for a verification run.
 """
 
 from __future__ import annotations
@@ -14,9 +16,10 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from agents.orchestrator import AGENT_MODEL, DOCUMENTS, make_client, run
+from agents.orchestrator import DOCUMENTS, run
 from baselines.base import apply_resolution
 from baselines.last_write_wins import LastWriteWins
+from common.llm import make_llm
 from memory.store import MemoryStore, Status, open_store
 
 MEM_PATH = Path("demo_memory.json")
@@ -32,8 +35,8 @@ def show_memory(store: MemoryStore) -> None:
 
 def main() -> int:
     try:
-        client = make_client()
-    except RuntimeError as e:
+        llm = make_llm()
+    except (RuntimeError, ValueError) as e:
         print(f"error: {e}")
         return 1
 
@@ -41,8 +44,15 @@ def main() -> int:
         MEM_PATH.unlink()
     store = open_store(MEM_PATH)
 
-    print(f"== running 2 agents on {len(DOCUMENTS)} documents ({AGENT_MODEL}) ==\n")
-    run(store, client=client)
+    print(
+        f"== running 2 agents on {len(DOCUMENTS)} documents "
+        f"(backend={llm.backend}, model={llm.agent_model}) ==\n"
+    )
+    try:
+        run(store, llm=llm)
+    except RuntimeError as e:
+        print(f"error: {e}")
+        return 1
 
     print("== shared memory after agent writes ==")
     show_memory(store)

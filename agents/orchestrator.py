@@ -9,23 +9,10 @@ contradiction is in the source material, not model noise.
 
 from __future__ import annotations
 
-import os
-import time
 from dataclasses import dataclass
 
-from google import genai
-from google.genai import errors as genai_errors
-from google.genai import types
-
-from common.env import load_dotenv
+from common.llm import LLMClient, make_llm
 from memory.store import MemoryItem, MemoryStore, Status
-
-# Spec asked for gemini-2.0-flash; that model is retired on the API now, so we
-# use the closest still-available flash-tier model. Flip this one constant to
-# move the agents to a 3.x flash model.
-AGENT_MODEL = "gemini-2.5-flash"
-# Stronger model reserved for the LLM reconciler / judge in later milestones.
-JUDGE_MODEL = "gemini-2.5-pro"
 
 _SYSTEM_INSTRUCTION = (
     "You are a research-literature summarization agent. You are given a single "
@@ -100,56 +87,32 @@ DOCUMENTS: list[Document] = [
 
 
 class SummarizerAgent:
-    def __init__(self, agent_id: str, client: genai.Client, model: str = AGENT_MODEL):
+    def __init__(self, agent_id: str, llm: LLMClient, model: str | None = None):
         self.agent_id = agent_id
-        self.client = client
-        self.model = model
+        self.llm = llm
+        self.model = model or llm.agent_model
 
-    def summarize(self, excerpt: str, question: str, *, max_retries: int = 5) -> str:
+    def summarize(self, excerpt: str, question: str) -> str:
         prompt = f"Excerpt:\n{excerpt}\n\nQuestion: {question}\nOne-sentence answer:"
-        for attempt in range(max_retries):
-            try:
-                resp = self.client.models.generate_content(
-                    model=self.model,
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        system_instruction=_SYSTEM_INSTRUCTION,
-                        temperature=0.2,
-                    ),
-                )
-                break
-            except genai_errors.ServerError:
-                if attempt == max_retries - 1:
-                    raise
-                time.sleep(2 * (attempt + 1))
-        text = (resp.text or "").strip()
-        if not text:
-            raise RuntimeError(f"{self.agent_id}: empty response from {self.model}")
-        return text
-
-
-def make_client() -> genai.Client:
-    load_dotenv()
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key or api_key == "your-gemini-api-key":
-        raise RuntimeError(
-            "GEMINI_API_KEY is not set to a real key. Put it in a .env file at the "
-            "repo root (GEMINI_API_KEY=...) or export it in this shell."
+        return self.llm.generate(
+            prompt,
+            system=_SYSTEM_INSTRUCTION,
+            temperature=0.2,
+            model=self.model,
         )
-    return genai.Client(api_key=api_key)
 
 
 def run(
     store: MemoryStore,
     documents: list[Document] | None = None,
-    client: genai.Client | None = None,
+    llm: LLMClient | None = None,
 ) -> list[MemoryItem]:
     """Run both agents over every document and write their claims to ``store``."""
     documents = documents if documents is not None else DOCUMENTS
-    client = client or make_client()
+    llm = llm or make_llm()
 
-    agent_a = SummarizerAgent("agent_A", client)
-    agent_b = SummarizerAgent("agent_B", client)
+    agent_a = SummarizerAgent("agent_A", llm)
+    agent_b = SummarizerAgent("agent_B", llm)
 
     written: list[MemoryItem] = []
     for doc in documents:
