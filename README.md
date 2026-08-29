@@ -71,6 +71,24 @@ shell var was overridden, resolved model, cache path) — check it if a run uses
 the wrong backend. `python -c "from common.llm import resolve_config; print(resolve_config().banner())"`
 shows the same without running anything.
 
+### Troubleshooting (Windows)
+
+- **`Activate.ps1` fails with a script-execution error:** run
+  `Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned` once in that
+  terminal, then retry activation.
+- **Run everything from inside the project folder** (the one directly containing
+  `demo.py` and `.env`). From a parent directory the tools pick up a different or
+  missing `.env` and you get confusing config errors. Verify with `Get-Location`,
+  and confirm the `.env` path in the config banner `demo.py` prints at startup.
+- **`ollama` not recognized after install:** open a new terminal (PATH only
+  refreshes in new sessions), or call it directly:
+  `& "$env:LOCALAPPDATA\Programs\Ollama\ollama.exe" list`
+- **`ollama pull llama3.1:8b` fails mid-download** (~4.9 GB; e.g. a DNS error):
+  just rerun it — it resumes rather than restarting from zero.
+- **Never paste a real `GEMINI_API_KEY` anywhere but your own `.env`** (not chat,
+  commits, or issues); treat any key pasted elsewhere as compromised and
+  regenerate it at aistudio.google.com/apikey.
+
 ## Run
 
 ```
