@@ -16,11 +16,27 @@ Evaluation domain: a multi-agent literature-summarization pipeline.
 
 What works now:
 
-- **`memory/store.py`** — memory-item schema (`id, agent_id, topic, content,
-  embedding, timestamp, status, source_doc_id, metadata`) and an
-  add / get / list / `list_conflicts` API over a swappable backend
-  (`JsonMemoryStore` today; `MemoryStore` ABC so SQLite can slot in).
-  `list_conflicts` is a **naive** same-topic / differing-content scan for now.
+- **`memory/store.py`** — the conflict-aware item schema and store API:
+  - `MemoryItem` — `id, agent_id, topic, content, embedding, timestamp,
+    status`, plus provenance: `source_type` (`SourceType`), `authority`
+    (`Authority`, ordered), `origin` (`Origin`: tool/retrieval vs model
+    inference), `evidence_span`, `version`, `source_doc_id`, `metadata`.
+  - `Status` — `PROPOSED / CONFIRMED / CONTESTED / SUPERSEDED` with an
+    **enforced state machine**: PROPOSED is entry-only, SUPERSEDED is terminal;
+    an illegal move (e.g. `SUPERSEDED -> PROPOSED`) raises
+    `InvalidTransitionError` instead of silently applying.
+  - `MemoryStore` ABC (`add / get / list / update_status / clear` + a concrete
+    naive `list_conflicts` same-topic / differing-content scan) and `Conflict`
+    (>=2 live items on one topic that disagree).
+  - Backends: **`SqliteMemoryStore` (WAL mode) is the default** — via
+    `open_store(...)`, used by `demo.py` — for safe concurrent writes;
+    `JsonMemoryStore` is kept only as a legacy/compatibility option.
+- **`baselines/base.py`** — the `Resolution` / `Resolver` contract and
+  `apply_resolution`. `Resolution` is now **multi-outcome**: it assigns
+  `CONFIRMED` / `CONTESTED` / `SUPERSEDED` per item (via `ItemOutcome`), so a
+  resolver can keep several claims that validly coexist, or leave a conflict
+  unresolved — not just crown one winner. `winner_id` / `superseded_ids` remain
+  as back-compat views.
 - **`agents/orchestrator.py`** — 2 summarizer agents each read a different
   excerpt of the same document and write a one-sentence claim to shared memory.
   3 hand-built documents, each seeding one genuine contradiction (factual /
@@ -34,10 +50,15 @@ What works now:
 - **`common/env.py`** — minimal `.env` loader (no `python-dotenv` dep).
 - **`baselines/last_write_wins.py`** — newest write wins; the trivial resolver
   that makes the pipeline end-to-end.
-- **`demo.py`** — runs the agents, prints the contradiction in memory, then
-  last-write-wins "resolving" it.
-- **`tests/`** — pytest coverage of the store + conflict scan + last-write-wins
-  (`test_store.py`) and the LLM cache + backend routing (`test_llm_cache.py`).
+- **`demo.py`** — runs the agents, prints the contradiction in shared memory
+  (with a per-item provenance line: `source_type, authority, origin, version,
+  source_doc_id`), then last-write-wins "resolving" it. Writes `demo_memory.db`
+  (SQLite).
+- **`tests/`** — pytest coverage of the store (`test_store.py`, 48 tests:
+  schema + provenance round-trip, the status state machine incl.
+  **invalid-transition blocking**, **concurrent SQLite writes**, the naive
+  conflict scan, multi-outcome `Resolution`, and last-write-wins) and the LLM
+  cache + backend routing (`test_llm_cache.py`).
 
 Everything else in the tree is a **stub with a TODO** describing its milestone.
 
@@ -80,6 +101,12 @@ shows the same without running anything.
   `demo.py` and `.env`). From a parent directory the tools pick up a different or
   missing `.env` and you get confusing config errors. Verify with `Get-Location`,
   and confirm the `.env` path in the config banner `demo.py` prints at startup.
+- **Commands seem to run but changes don't show up, or `git log` looks stale:**
+  you may be in a different copy of the repo than you think — a nested or
+  duplicate git checkout one level up makes your terminal and editor tools
+  silently disagree about which files are real. Check `Get-Location`, confirm
+  you're in *this exact* project folder, and verify with `git status` and
+  `git log --oneline` before trusting any "done" report.
 - **`ollama` not recognized after install:** open a new terminal (PATH only
   refreshes in new sessions), or call it directly:
   `& "$env:LOCALAPPDATA\Programs\Ollama\ollama.exe" list`
@@ -92,27 +119,30 @@ shows the same without running anything.
 ## Run
 
 ```
-python demo.py        # uses LLM_BACKEND (default local); writes demo_memory.json
+python demo.py        # uses LLM_BACKEND (default local); writes demo_memory.db (SQLite)
 pytest                # store, conflict-scan, and LLM-cache tests (no network)
 ```
+
+`demo_memory.db` (and its `-wal` / `-shm` sidecars) is gitignored, as
+`demo_memory.json` was before.
 
 ## Layout
 
 ```
 memory/
-  store.py         # [done]  schema + add/read/list-conflicts
+  store.py         # [done]  schema + status state machine + SQLite(WAL)/JSON backends + naive list-conflicts
   detector.py      # [stub]  embedding clustering + LLM-judge verification
   reconciler.py    # [stub]  CREDIBILITY vs COORDINATION classification
 reliability/
   peer_memory.py   # [stub]  online competence + pairwise correlation
   resolver.py      # [stub]  reliability-weighted credibility resolver (our contribution)
 baselines/
-  base.py                # [done]  Resolution / Resolver contract + apply_resolution
+  base.py                # [done]  multi-outcome Resolution / Resolver contract + apply_resolution
   last_write_wins.py     # [done]
   majority_vote.py       # [stub]
   static_confidence.py   # [stub]  fixed weights, no learning (primary comparison baseline)
 agents/
-  orchestrator.py  # [done]  minimal 2-agent loop + hardcoded documents
+  orchestrator.py  # [done]  minimal 2-agent loop + hardcoded documents (unchanged; 3-5 agent + provenance pass is next)
 common/
   env.py           # [done]  .env loader
   llm.py           # [done]  local (Ollama) / gemini backend + selection
@@ -125,6 +155,12 @@ tests/
 ```
 
 ## Next
+
+`agents/orchestrator.py` is still the untouched 2-agent milestone-1 loop. Its
+next change is a single combined pass: scale to 3-5 agents (including
+deliberately correlated ones that share source/prompt/model) **and** wire real
+provenance (`source_type`, `origin`, `evidence_span`, `source_doc_id`) into the
+items it writes.
 
 1. `domain/seed_conflicts.py` — the 15-20 seed suite with gold labels.
 2. `memory/detector.py` — sentence-transformers embedding clustering +
