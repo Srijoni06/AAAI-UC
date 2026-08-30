@@ -7,5 +7,8 @@ __pycache__/
 .runs/
 .cache/
 demo_memory.json
+demo_memory.db
+demo_memory.db-wal
+demo_memory.db-shm
 *.egg-info/
 .DS_Store

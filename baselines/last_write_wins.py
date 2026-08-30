@@ -17,7 +17,7 @@ class LastWriteWins:
         ordered = sorted(conflict.items, key=lambda it: it.timestamp)
         winner = ordered[-1]
         losers = ordered[:-1]
-        return Resolution(
+        return Resolution.single_winner(
             topic=conflict.topic,
             strategy=self.name,
             winner_id=winner.id,

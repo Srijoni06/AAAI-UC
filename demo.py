@@ -22,7 +22,16 @@ from baselines.last_write_wins import LastWriteWins
 from common.llm import make_llm, resolve_config
 from memory.store import MemoryStore, Status, open_store
 
-MEM_PATH = Path("demo_memory.json")
+MEM_PATH = Path("demo_memory.db")
+
+
+def _fresh(path: Path) -> None:
+    """Remove the SQLite db and its WAL/SHM sidecars so each run starts clean."""
+    base = str(path)
+    for p in (base, base + "-wal", base + "-shm"):
+        fp = Path(p)
+        if fp.exists():
+            fp.unlink()
 
 
 def show_memory(store: MemoryStore) -> None:
@@ -31,6 +40,13 @@ def show_memory(store: MemoryStore) -> None:
         print(f"  [{it.status.value:10}] {it.agent_id}  ({it.topic})")
         print(f"      {it.content}")
         print(f"      src={it.source_doc_id}  ts={ts}")
+        line = (
+            f"      source_type={it.source_type.value}  authority={it.authority.name}  "
+            f"origin={it.origin.value}  version={it.version}"
+        )
+        if it.evidence_span:
+            line += f'  evidence="{it.evidence_span}"'
+        print(line)
 
 
 def main() -> int:
@@ -48,9 +64,8 @@ def main() -> int:
 
     assert llm.backend == res.backend  # make_llm and resolve_config must agree
 
-    if MEM_PATH.exists():
-        MEM_PATH.unlink()
-    store = open_store(MEM_PATH)
+    _fresh(MEM_PATH)
+    store = open_store(MEM_PATH, backend="sqlite")
 
     print(
         f"== running 2 agents on {len(DOCUMENTS)} documents "
