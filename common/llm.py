@@ -47,7 +47,16 @@ class LLMClient(abc.ABC):
         system: str | None = None,
         temperature: float = 0.2,
         model: str | None = None,
+        sample_id: int | str | None = None,
     ) -> str:
+        """Generate a completion, using the on-disk cache when one is attached.
+
+        ``sample_id`` is for deliberate repeated sampling: leave it ``None`` for
+        normal caching (one answer per identical request), or pass distinct ids
+        (``0, 1, 2, ...``) to draw and cache several independent completions for
+        the same prompt. Re-passing a used ``sample_id`` returns that cached
+        draw. Diversity across draws still requires ``temperature > 0``.
+        """
         model = model or self.agent_model
         system = system or ""
         key = None
@@ -58,6 +67,7 @@ class LLMClient(abc.ABC):
                 system=system,
                 temperature=temperature,
                 prompt=prompt,
+                sample_id=sample_id,
             )
             hit = self._cache.get(key)
             if hit is not None:
@@ -70,7 +80,10 @@ class LLMClient(abc.ABC):
             raise RuntimeError(f"empty response from {self.backend}:{model}")
 
         if self._cache is not None and key is not None:
-            self._cache.set(key, text, {"backend": self.backend, "model": model})
+            meta = {"backend": self.backend, "model": model}
+            if sample_id is not None:
+                meta["sample_id"] = sample_id
+            self._cache.set(key, text, meta)
         return text
 
     @abc.abstractmethod

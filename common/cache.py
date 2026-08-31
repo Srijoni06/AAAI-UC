@@ -3,6 +3,12 @@
 Keyed by a SHA-256 of (backend, model, system, temperature, prompt) so a cache
 hit is only reused for a byte-identical request. Stored as a single JSON object
 at ``.cache/llm_cache.json`` (gitignored).
+
+An optional ``sample_id`` widens the key: with no ``sample_id`` the cache
+behaves as before (identical request -> one cached answer forever), but passing
+``sample_id=0, 1, 2, ...`` lets the *same* prompt be re-sampled and each draw
+cached under its own key. Repeated-sampling / self-consistency logic needs this;
+without it, asking the same question twice would always return the first answer.
 """
 
 from __future__ import annotations
@@ -11,7 +17,9 @@ import hashlib
 import json
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
+
+SampleId = Union[int, str]
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 _DEFAULT_PATH = _REPO_ROOT / ".cache" / "llm_cache.json"
@@ -29,19 +37,26 @@ class LLMCache:
 
     @staticmethod
     def key(
-        *, backend: str, model: str, system: str, temperature: float, prompt: str
+        *,
+        backend: str,
+        model: str,
+        system: str,
+        temperature: float,
+        prompt: str,
+        sample_id: Optional[SampleId] = None,
     ) -> str:
-        blob = json.dumps(
-            {
-                "backend": backend,
-                "model": model,
-                "system": system,
-                "temperature": temperature,
-                "prompt": prompt,
-            },
-            sort_keys=True,
-            ensure_ascii=False,
-        )
+        payload = {
+            "backend": backend,
+            "model": model,
+            "system": system,
+            "temperature": temperature,
+            "prompt": prompt,
+        }
+        # Only widen the key when a sample is explicitly requested, so existing
+        # cache entries (and the default single-answer behaviour) are untouched.
+        if sample_id is not None:
+            payload["sample_id"] = sample_id
+        blob = json.dumps(payload, sort_keys=True, ensure_ascii=False)
         return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
     def get(self, key: str) -> Optional[str]:

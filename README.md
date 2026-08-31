@@ -12,7 +12,12 @@ because they share a bias, not because they independently verified something.
 
 Evaluation domain: a multi-agent literature-summarization pipeline.
 
-## Status: milestone 1 (end-to-end skeleton)
+## Status: milestone 2 (agents, seed suite, provenance)
+
+Milestone 1 built the end-to-end skeleton (store + state machine + 2-agent loop).
+Milestone 2 replaces the hardcoded testbed with a real seed suite, scales the
+agent loop to five agents (some **deliberately correlated**), wires real
+provenance into every write, and makes the LLM cache safe for repeated sampling.
 
 What works now:
 
@@ -37,30 +42,58 @@ What works now:
   resolver can keep several claims that validly coexist, or leave a conflict
   unresolved — not just crown one winner. `winner_id` / `superseded_ids` remain
   as back-compat views.
-- **`agents/orchestrator.py`** — 2 summarizer agents each read a different
-  excerpt of the same document and write a one-sentence claim to shared memory.
-  3 hand-built documents, each seeding one genuine contradiction (factual /
-  magnitude / staleness).
+- **`domain/seed_conflicts.py`** — the seeded contradiction suite: **20 source
+  documents**, each with 2+ excerpts that describe the same fact differently, and
+  a **gold label** (`gold_excerpt_id` / `gold_answer`, `conflict_type` ∈
+  `factual | magnitude | staleness | provenance`, `difficulty` ∈
+  `obvious | moderate | subtle`). One seed's gold is `COEXIST` (both claims are
+  legitimately true). The original 3 milestone-1 documents are seeds 1–3.
+- **`agents/orchestrator.py`** — **5 summarizer agents** over the seed suite.
+  `agent_A/C/D` form a correlated group `grp_A` (same model, near-identical
+  prompt, and they read the *same* excerpt) so their agreement is shared bias,
+  not independent verification; `agent_B` and `agent_E` are independent
+  (different prompts, spread over the other excerpts). The grouping is
+  configurable — pass a custom `roster` of `AgentSpec` to `run(...)`; `agent_
+  groups()` / `correlated_groups()` report it so eval can compare "N independent
+  agree" vs "N correlated agree". Every write carries **real provenance**:
+  `source_type=RETRIEVAL`, `origin=TOOL`, `evidence_span` = the verbatim excerpt
+  slice the agent read, `source_doc_id`, and `metadata` (`excerpt_id`, `section`,
+  `source_id = "<doc>#<excerpt>"`, `agent_group`).
 - **`common/llm.py`** — LLM backend abstraction: `local` (Ollama, `llama3.1:8b`,
   default for all dev/testing) or `gemini` (`gemini-2.5-flash` agent /
   `gemini-2.5-pro` judge — requested `gemini-2.0-flash` is retired on the API).
   Selected by `LLM_BACKEND`. Every call is cached on disk first
   (`.cache/llm_cache.json`, keyed by SHA-256 of backend+model+system+temp+prompt;
-  disable with `LLM_CACHE=0`).
+  disable with `LLM_CACHE=0`). `generate(..., sample_id=...)` widens the key so
+  the same prompt can be **deliberately re-sampled** (`0, 1, 2, ...`) and each
+  draw cached separately; with no `sample_id` the key and behaviour are
+  unchanged (one cached answer per identical request).
 - **`common/env.py`** — minimal `.env` loader (no `python-dotenv` dep).
 - **`baselines/last_write_wins.py`** — newest write wins; the trivial resolver
   that makes the pipeline end-to-end.
-- **`demo.py`** — runs the agents, prints the contradiction in shared memory
-  (with a per-item provenance line: `source_type, authority, origin, version,
-  source_doc_id`), then last-write-wins "resolving" it. Writes `demo_memory.db`
-  (SQLite).
-- **`tests/`** — pytest coverage of the store (`test_store.py`, 48 tests:
-  schema + provenance round-trip, the status state machine incl.
-  **invalid-transition blocking**, **concurrent SQLite writes**, the naive
-  conflict scan, multi-outcome `Resolution`, and last-write-wins) and the LLM
-  cache + backend routing (`test_llm_cache.py`).
+- **`demo.py`** — runs the 5 agents over a 4-document subset of the suite (one
+  per conflict type; `--all` for all 20), prints every agent's write **grouped
+  by correlated group vs independent** (marking which agents landed on the gold
+  excerpt), then the
+  detected contradictions and last-write-wins "resolving" them, with a per-item
+  provenance line. Writes `demo_memory.db` (SQLite).
+- **`tests/`** — pytest, no network, 93 tests:
+  - `test_store.py` (48) — schema + provenance round-trip, the status state
+    machine incl. **invalid-transition blocking**, **concurrent SQLite writes**,
+    the naive conflict scan, multi-outcome `Resolution`, last-write-wins.
+  - `test_seed_conflicts.py` (17) — suite is well-formed: 2+ excerpts each,
+    valid `gold_excerpt_id`, unique doc ids / topics, all four conflict types
+    present, difficulty spread, the original 3 seeds retained.
+  - `test_orchestrator.py` (17) — 5-agent run with a fake offline LLM: grouping
+    + configurable roster, excerpt assignment, correlated agents produce
+    identical claims, and **real provenance on every write**.
+  - `test_llm_cache.py` (11) — cache + backend routing, incl. the `sample_id`
+    key widening and repeated-sampling behaviour.
 
-Everything else in the tree is a **stub with a TODO** describing its milestone.
+`memory/detector.py`, `memory/reconciler.py`, `reliability/*`,
+`baselines/majority_vote.py`, `baselines/static_confidence.py`, and
+`eval/run_comparison.py` are still **stubs with a TODO** describing their
+milestone.
 
 ## Setup
 
@@ -119,8 +152,9 @@ shows the same without running anything.
 ## Run
 
 ```
-python demo.py        # uses LLM_BACKEND (default local); writes demo_memory.db (SQLite)
-pytest                # store, conflict-scan, and LLM-cache tests (no network)
+python demo.py        # 5 agents on a 5-doc subset; uses LLM_BACKEND (default local)
+python demo.py --all   # ... on all 20 seed documents
+pytest                 # 93 tests: store, seed suite, orchestration, LLM cache (no network)
 ```
 
 `demo_memory.db` (and its `-wal` / `-shm` sidecars) is gitignored, as
@@ -142,13 +176,13 @@ baselines/
   majority_vote.py       # [stub]
   static_confidence.py   # [stub]  fixed weights, no learning (primary comparison baseline)
 agents/
-  orchestrator.py  # [done]  minimal 2-agent loop + hardcoded documents (unchanged; 3-5 agent + provenance pass is next)
+  orchestrator.py  # [done]  5-agent loop (grp_A correlated + B/E independent) + real provenance
 common/
   env.py           # [done]  .env loader
-  llm.py           # [done]  local (Ollama) / gemini backend + selection
-  cache.py         # [done]  on-disk LLM response cache
+  llm.py           # [done]  local (Ollama) / gemini backend + selection; generate(sample_id=...)
+  cache.py         # [done]  on-disk LLM response cache; optional sample_id key widening
 domain/
-  seed_conflicts.py # [stub]  15-20 seeded contradictions w/ gold labels
+  seed_conflicts.py # [done]  20 seeded contradictions w/ gold labels (type + difficulty)
 eval/
   run_comparison.py # [stub]  four-condition comparison + logging
 tests/
@@ -156,18 +190,11 @@ tests/
 
 ## Next
 
-`agents/orchestrator.py` is still the untouched 2-agent milestone-1 loop. Its
-next change is a single combined pass: scale to 3-5 agents (including
-deliberately correlated ones that share source/prompt/model) **and** wire real
-provenance (`source_type`, `origin`, `evidence_span`, `source_doc_id`) into the
-items it writes.
-
-1. `domain/seed_conflicts.py` — the 15-20 seed suite with gold labels.
-2. `memory/detector.py` — sentence-transformers embedding clustering +
+1. `memory/detector.py` — sentence-transformers embedding clustering +
    `gemini-2.5-pro` judge to replace the naive `list_conflicts` scan
    (needs `pip install sentence-transformers`).
-3. `baselines/majority_vote.py`, `baselines/static_confidence.py`.
-4. `memory/reconciler.py` + `reliability/peer_memory.py` +
+2. `baselines/majority_vote.py`, `baselines/static_confidence.py`.
+3. `memory/reconciler.py` + `reliability/peer_memory.py` +
    `reliability/resolver.py` — the actual contribution.
-5. `eval/run_comparison.py` — resolution accuracy + downstream task accuracy
+4. `eval/run_comparison.py` — resolution accuracy + downstream task accuracy
    across all four conditions.
