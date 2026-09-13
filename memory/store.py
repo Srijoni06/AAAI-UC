@@ -255,12 +255,32 @@ class MemoryStore(abc.ABC):
         if not can_transition(current, requested):
             raise InvalidTransitionError(current, requested)
 
-    def list_conflicts(self) -> list[Conflict]:
-        """Naive conflict scan: group live items by topic, flag disagreement.
+    _detector: Optional[Any] = None
 
-        "Live" means not SUPERSEDED. A topic is in conflict when its live items
-        carry more than one distinct normalized content string.
+    @property
+    def detector(self) -> Optional[Any]:
+        return self._detector
+
+    @detector.setter
+    def detector(self, value: Any) -> None:
+        self._detector = value
+
+    def list_conflicts(
+        self,
+        *,
+        detector: Optional[Any] = None,
+        relationships: Optional[set[Any]] = None,
+    ) -> list[Conflict]:
+        """List conflicts in the store.
+
+        If a ``detector`` is provided (or set on ``store.detector``), runs two-stage
+        contradiction detection via :class:`memory.detector.ConflictDetector`.
+        Otherwise, performs the fast same-topic differing-content scan for offline testing.
         """
+        active_detector = detector if detector is not None else self._detector
+        if active_detector is not None:
+            return active_detector.list_conflicts(self, relationships=relationships)
+
         live = [it for it in self.list() if it.status != Status.SUPERSEDED]
         by_topic: dict[str, list[MemoryItem]] = {}
         for it in live:
