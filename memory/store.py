@@ -36,7 +36,10 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from enum import Enum, IntEnum
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import TYPE_CHECKING, Any, Iterable, Optional
+
+if TYPE_CHECKING:
+    from memory.detector import ConflictDetector, Relationship
 
 
 class Status(str, Enum):
@@ -255,21 +258,21 @@ class MemoryStore(abc.ABC):
         if not can_transition(current, requested):
             raise InvalidTransitionError(current, requested)
 
-    _detector: Optional[Any] = None
+    _detector: Optional[ConflictDetector] = None
 
     @property
-    def detector(self) -> Optional[Any]:
+    def detector(self) -> Optional[ConflictDetector]:
         return self._detector
 
     @detector.setter
-    def detector(self, value: Any) -> None:
+    def detector(self, value: Optional[ConflictDetector]) -> None:
         self._detector = value
 
     def list_conflicts(
         self,
         *,
-        detector: Optional[Any] = None,
-        relationships: Optional[set[Any]] = None,
+        detector: Optional[ConflictDetector] = None,
+        relationships: Optional[set[Relationship]] = None,
     ) -> list[Conflict]:
         """List conflicts in the store.
 
