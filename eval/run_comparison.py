@@ -333,6 +333,12 @@ def _score_condition(
             decision["rationale"] = resolution.rationale
             rec.decisions.append(decision)
 
+        # Update reliability memory if resolver supports it
+        if hasattr(resolver, "update_memory"):
+            resolver.update_memory(
+                live_items, resolution, correct=confirmed_excerpts and is_correct
+            )
+
     return rec
 
 
