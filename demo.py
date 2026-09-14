@@ -37,7 +37,8 @@ from baselines.base import apply_resolution
 from baselines.last_write_wins import LastWriteWins
 from common.llm import make_llm, resolve_config
 from domain.seed_conflicts import COEXIST, SEED_CONFLICTS, SEEDS_BY_ID, type_counts
-from memory.store import MemoryStore, open_store
+from memory.detector import ALL_RELATIONSHIPS, ConflictDetector, Relationship
+from memory.store import Conflict, MemoryStore, Status, open_store
 
 MEM_PATH = Path("demo_memory.db")
 
@@ -174,21 +175,56 @@ def main() -> int:
     print("\n== agent writes (grouped) ==")
     print_writes_by_doc(writes)
 
+    detector = ConflictDetector(llm=llm)
+    store.detector = detector
+
+    # Run Stage 1 & Stage 2 with all relationships for full observability
+    all_pairs = detector.list_conflicts(store, relationships=ALL_RELATIONSHIPS)
+    entailments = [p for p in all_pairs if p.relationship == Relationship.ENTAILMENT]
+    neutrals = [p for p in all_pairs if p.relationship == Relationship.NEUTRAL]
+    contradictions = [p for p in all_pairs if p.relationship == Relationship.CONTRADICTION]
+
+    print(
+        f"\n\n== two-stage contradiction detector: evaluated {len(all_pairs)} candidate pair(s) "
+        f"(similarity >= {detector.similarity_threshold}) =="
+    )
+    print(
+        f"   breakdown: {len(contradictions)} CONTRADICTION(S), "
+        f"{len(entailments)} ENTAILMENT(S) [paraphrases filtered], "
+        f"{len(neutrals)} NEUTRAL"
+    )
+
+    if entailments:
+        print("\n  [Stage 2 ENTAILMENT examples - paraphrases correctly NOT flagged as conflicts]")
+        for p in entailments[:3]:
+            print(f"    - [{p.topic}] {p.item_a.agent_id} vs {p.item_b.agent_id} (sim={p.similarity:.3f}):")
+            print(f"        A: {p.item_a.content}")
+            print(f"        B: {p.item_b.content}")
+            print(f"        Judge: {p.rationale}")
+
+    # Default list_conflicts() returns ONLY confirmed contradictions
     conflicts = store.list_conflicts()
-    print(f"\n\n== detected {len(conflicts)} conflict(s) via naive same-topic scan ==")
+    print(f"\n== detected {len(conflicts)} confirmed conflict pair(s) via detector ==")
     for c in conflicts:
-        seed = SEEDS_BY_ID.get(c.items[0].source_doc_id)
+        seed = SEEDS_BY_ID.get(c.item_a.source_doc_id)
         gold = seed.gold_excerpt_id if seed else "?"
-        print(f"\n  topic: {c.topic}  (gold excerpt: {gold})")
-        for it in c.items:
-            grp = it.metadata.get("agent_group", "?")
-            exc = it.metadata.get("excerpt_id", "?")
-            print(f"    - {it.agent_id:8} [{grp:11} | {exc:10}] {it.content}")
+        grp_a = c.item_a.metadata.get("agent_group", "?")
+        grp_b = c.item_b.metadata.get("agent_group", "?")
+        exc_a = c.item_a.metadata.get("excerpt_id", "?")
+        exc_b = c.item_b.metadata.get("excerpt_id", "?")
+        print(f"\n  topic: {c.topic} (gold excerpt: {gold}, sim={c.similarity:.3f})")
+        print(f"    - {c.item_a.agent_id:8} [{grp_a:11} | {exc_a:10}] {c.item_a.content}")
+        print(f"    - {c.item_b.agent_id:8} [{grp_b:11} | {exc_b:10}] {c.item_b.content}")
+        print(f"    Judge: {c.rationale}")
 
     resolver = LastWriteWins()
-    print(f"\n== resolving every conflict with '{resolver.name}' ==")
+    print(f"\n== resolving confirmed conflicts with '{resolver.name}' ==")
     for c in conflicts:
-        resolution = resolver.resolve(c)
+        live_items = [it for it in c.items if store.get(it.id).status != Status.SUPERSEDED]
+        if len(live_items) < 2:
+            continue
+        c_live = Conflict(topic=c.topic, items=live_items)
+        resolution = resolver.resolve(c_live)
         apply_resolution(store, resolution)
         winner = store.get(resolution.winner_id)
         print(f"\n  topic: {c.topic}")

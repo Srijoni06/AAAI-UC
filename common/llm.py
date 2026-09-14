@@ -120,21 +120,29 @@ class OllamaBackend(LLMClient):
             headers={"Content-Type": "application/json"},
             method="POST",
         )
-        try:
-            with urllib.request.urlopen(req, timeout=180) as resp:
-                payload = json.loads(resp.read())
-        except urllib.error.HTTPError as e:
-            detail = e.read().decode("utf-8", "replace")
-            raise RuntimeError(
-                f"Ollama HTTP {e.code} for model {model!r}: {detail}. "
-                f"Pull it with `ollama pull {model}`."
-            ) from e
-        except urllib.error.URLError as e:
-            raise RuntimeError(
-                f"Ollama at {self.host} is unreachable ({e.reason}). "
-                f"Start it with `ollama serve` and pull `{model}`."
-            ) from e
-        return payload.get("response", "")
+        for attempt in range(3):
+            try:
+                with urllib.request.urlopen(req, timeout=180) as resp:
+                    payload = json.loads(resp.read())
+                    return payload.get("response", "")
+            except urllib.error.HTTPError as e:
+                detail = e.read().decode("utf-8", "replace")
+                if e.code == 500 and attempt < 2:
+                    time.sleep(2 * (attempt + 1))
+                    continue
+                raise RuntimeError(
+                    f"Ollama HTTP {e.code} for model {model!r}: {detail}. "
+                    f"Pull it with `ollama pull {model}`."
+                ) from e
+            except urllib.error.URLError as e:
+                if attempt < 2:
+                    time.sleep(2 * (attempt + 1))
+                    continue
+                raise RuntimeError(
+                    f"Ollama at {self.host} is unreachable ({e.reason}). "
+                    f"Start it with `ollama serve` and pull `{model}`."
+                ) from e
+        return ""
 
 
 class GeminiBackend(LLMClient):

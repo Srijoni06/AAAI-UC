@@ -36,7 +36,10 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from enum import Enum, IntEnum
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import TYPE_CHECKING, Any, Iterable, Optional
+
+if TYPE_CHECKING:
+    from memory.detector import ConflictDetector, Relationship
 
 
 class Status(str, Enum):
@@ -255,12 +258,32 @@ class MemoryStore(abc.ABC):
         if not can_transition(current, requested):
             raise InvalidTransitionError(current, requested)
 
-    def list_conflicts(self) -> list[Conflict]:
-        """Naive conflict scan: group live items by topic, flag disagreement.
+    _detector: Optional[ConflictDetector] = None
 
-        "Live" means not SUPERSEDED. A topic is in conflict when its live items
-        carry more than one distinct normalized content string.
+    @property
+    def detector(self) -> Optional[ConflictDetector]:
+        return self._detector
+
+    @detector.setter
+    def detector(self, value: Optional[ConflictDetector]) -> None:
+        self._detector = value
+
+    def list_conflicts(
+        self,
+        *,
+        detector: Optional[ConflictDetector] = None,
+        relationships: Optional[set[Relationship]] = None,
+    ) -> list[Conflict]:
+        """List conflicts in the store.
+
+        If a ``detector`` is provided (or set on ``store.detector``), runs two-stage
+        contradiction detection via :class:`memory.detector.ConflictDetector`.
+        Otherwise, performs the fast same-topic differing-content scan for offline testing.
         """
+        active_detector = detector if detector is not None else self._detector
+        if active_detector is not None:
+            return active_detector.list_conflicts(self, relationships=relationships)
+
         live = [it for it in self.list() if it.status != Status.SUPERSEDED]
         by_topic: dict[str, list[MemoryItem]] = {}
         for it in live:
