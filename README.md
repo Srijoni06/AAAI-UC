@@ -14,18 +14,17 @@ Evaluation domain: a multi-agent literature-summarization pipeline.
 
 ## Status
 
-**Done.** The shared memory store is hardened (conflict-aware schema + an
-*enforced* status state machine + SQLite/WAL persistence + rich provenance), the
-resolution contract is multi-outcome, and the agent loop is a real **5-agent**
-orchestration — including a deliberately **correlated** group — running over a
-**20-document seeded-contradiction suite** with gold labels, writing real
-provenance on every claim.
+**Done.** The full evaluation pipeline is working end-to-end:
+- Shared memory store with enforced status state machine + SQLite/WAL persistence + rich provenance.
+- Two-stage contradiction detection: embedding candidate clustering + LLM-judge NLI classification.
+- Conflict classification: deterministic scope check (COORDINATION vs CREDIBILITY) + LLM fallback.
+- Baselines: last-write-wins, majority vote, static confidence.
+- Evaluation harness: runs all conditions against the 20-document seeded suite, produces detection
+  P/R/F1, resolution accuracy, per-type breakdowns, and escalation rate.
+- 133 offline tests (no network).
 
-**Not built yet.** Conflict *detection* is still a naive same-topic /
-differing-content scan (`list_conflicts`), not semantic contradiction detection.
-The reliability signal and the peer-correlation-aware resolver — the novel
-contribution — do not exist yet, nor do the other baselines or the evaluation
-harness.
+**Not built yet.** The reliability engine — `reliability/peer_memory.py` and
+`reliability/resolver.py` — is the novel contribution (Srijoni's lead).
 
 ### What works now
 
@@ -44,83 +43,90 @@ harness.
     `PROPOSED` is entry-only, `SUPERSEDED` is terminal. An illegal move (e.g.
     `SUPERSEDED → PROPOSED`) raises **`InvalidTransitionError`** instead of
     silently mutating the item.
-  - **`MemoryStore` ABC** (`add / get / list / update_status / clear` + a
-    concrete `list_conflicts`) with two backends: **`SqliteMemoryStore` — WAL
-    mode, the default** (via `open_store(...)`, used by `demo.py`), safe for
-    concurrent writers; **`JsonMemoryStore`** kept only for small fixtures /
-    legacy.
-- **`baselines/base.py`** — the `Resolution` / `Resolver` contract. `Resolution`
-  is **multi-outcome**: it assigns one of `CONFIRMED` / `CONTESTED` /
-  `SUPERSEDED` to *every* item in a conflict (via `ItemOutcome`), so a resolver
-  can keep several claims that legitimately coexist, or leave a conflict
-  unresolved — not just crown a single winner. `apply_resolution` writes each
-  outcome back through `update_status`, so the state machine still applies;
-  `winner_id` / `superseded_ids` remain as back-compat views.
-  `baselines/last_write_wins.py` is the trivial resolver built on it.
-- **`agents/orchestrator.py`** — the **5-agent** summarization loop over the seed
-  suite. Each agent reads one excerpt of a document and writes a one-sentence
-  claim to shared memory. `DEFAULT_ROSTER`:
-  - **`agent_A`, `agent_C`, `agent_D` — a deliberately correlated group
-    (`grp_A`)**: the same underlying model, near-identical system prompts, and
-    they all read the **same excerpt**. When `agent_A` misreads that excerpt,
-    `agent_C` / `agent_D` tend to misread it the same way — three of them
-    agreeing is shared bias, not independent verification.
-  - **`agent_B`, `agent_E` — independent**: different system prompts, spread
-    across the *other* excerpts, so they can genuinely contradict the group.
-  - Grouping is configurable — pass a `roster` of `AgentSpec` to `run(...)`;
-    `agent_groups()` / `correlated_groups()` / `independent_agents()` expose it
-    so evaluation can contrast "N independent agents agree" against "N
-    correlated agents agree" as different situations.
-  - Every `store.add(...)` writes **real provenance**, not schema defaults:
-    `source_type=RETRIEVAL`, `origin=TOOL` (the claim is grounded in a retrieved
-    excerpt), `evidence_span` = the verbatim excerpt slice the agent actually
-    read, `source_doc_id`, and `metadata["source_id"] = "<doc_id>#<excerpt_id>"`
-    (with `excerpt_id`, `section`, `agent_group` alongside).
+  - **`MemoryStore` ABC** with two backends: **`SqliteMemoryStore` — WAL
+    mode, the default** (safe for concurrent writers); **`JsonMemoryStore`**
+    kept only for small fixtures / legacy.
+
+- **`memory/detector.py`** — two-stage contradiction detection:
+  - **Stage 1:** Semantic similarity filtering via sentence-transformers.
+    Items on the same topic are embedded and compared pairwise via cosine
+    similarity. Pairs exceeding a similarity threshold (default 0.5) become
+    candidate conflicts.
+  - **Stage 2:** LLM-judge NLI classification. Each candidate pair is
+    classified into exactly one of ENTAILMENT (paraphrase), CONTRADICTION
+    (genuine conflict), or NEUTRAL (same topic, different aspects).
+
+- **`memory/reconciler.py`** — conflict classification before resolution:
+  - **Deterministic layer:** `pairwise_scopes_agree` — when both claims cite
+    the same evidence_span, the disagreement is scope confusion → COORDINATION.
+  - **LLM layer:** For pairs with genuinely different evidence, the judge LLM
+    classifies CREDIBILITY (one should win) vs COORDINATION (both valid).
+  - **Fallback:** Unparseable LLM response → CREDIBILITY (decisive default).
+
+- **`baselines/`** — three baseline resolvers:
+  - **`last_write_wins.py`** — newest claim wins (trivial).
+  - **`majority_vote.py`** — cluster claims by meaning (provenance-aware);
+    largest cluster wins. Ties → all CONTESTED. **Key finding:** treats
+    correlated group agreement as independent confirmation — the signature
+    failure mode our contribution targets.
+  - **`static_confidence.py`** — fixed weight table over authority, origin,
+    source_type, capped corroboration bonus per distinct agent group, and
+    recency tie-break. Stateless. **Key finding:** when all agents carry
+    identical provenance, corroboration by distinct groups + recency = same as
+    LWW.
+
+- **`agents/orchestrator.py`** — the **5-agent** summarization loop over the
+  seed suite. `DEFAULT_ROSTER`:
+  - `agent_A`, `agent_C`, `agent_D` — deliberately correlated group (`grp_A`).
+  - `agent_B`, `agent_E` — independent.
+
 - **`domain/seed_conflicts.py`** — the **20-document seeded-contradiction
-  suite**. Each `SeedConflict` has 2+ `Excerpt`s that state the same fact
-  differently, plus a **gold label**: `gold_excerpt_id` (which excerpt is
-  correct, or the `COEXIST` sentinel when both legitimately hold), `gold_answer`,
-  `conflict_type`, `difficulty` (`obvious` / `moderate` / `subtle`), and `notes`
-  explaining the call. Conflict-type breakdown:
-  - `factual` (7) — a discrete fact two excerpts state differently (primary
-    benchmark: CoNLL-2003 vs OntoNotes 5.0).
-  - `magnitude` (5) — the same quantity at a materially different size (speedup
-    "up to 3×" on accepted tokens vs "1.4×" wall-clock).
-  - `staleness` (5) — an older claim overturned by a newer correction (a SOTA
-    result retracted by a v2 erratum after test-set contamination was found).
-  - `provenance` (3) — a result or method credited to the wrong source (an
-    88.5 EM table row claimed as "ours" vs credited to Chen et al. (2021)).
+  suite** with gold labels (4 conflict types × difficulty spread).
 
-  The 3 original hand-built documents are seeds 1–3.
-- **`common/cache.py` / `common/llm.py`** — on-disk LLM response cache
-  (`.cache/llm_cache.json`), keyed by SHA-256 of
-  `backend + model + system + temperature + prompt`; disable with `LLM_CACHE=0`.
-  `LLMCache.key(..., sample_id=...)` and `LLMClient.generate(..., sample_id=...)`
-  add an **optional sample id** to the key: with no `sample_id` the cache is
-  unchanged (one answer per identical request, forever); passing
-  `sample_id=0, 1, 2, ...` lets the *same* prompt be re-sampled with each draw
-  cached under its own key — so future self-consistency / repeated-sampling
-  logic isn't silently handed one frozen answer. Backends: `local` (Ollama,
-  `llama3.1:8b`, default for all dev/testing) or `gemini` (`gemini-2.5-flash`
-  agent / `gemini-2.5-pro` judge), selected by `LLM_BACKEND`.
-  `common/env.py` is the minimal `.env` loader (no `python-dotenv` dep).
-- **`tests/`** — 93 tests, no network:
-  - `test_store.py` (48) — schema + provenance round-trip, the status state
-    machine incl. **invalid-transition blocking**, **concurrent SQLite writes**,
-    the naive conflict scan, multi-outcome `Resolution`, last-write-wins.
-  - `test_seed_conflicts.py` (17) — the suite is well-formed: 2+ excerpts each,
-    valid `gold_excerpt_id`, unique doc ids / topics, all four conflict types
-    present, a difficulty spread, the original 3 seeds retained.
-  - `test_orchestrator.py` (17) — the 5-agent run with a fake offline LLM:
-    grouping + configurable roster, excerpt assignment, correlated agents
-    produce identical claims, and **real provenance on every write**.
-  - `test_llm_cache.py` (11) — cache + backend routing, incl. `sample_id` key
-    widening and repeated-sampling behaviour.
+- **`eval/run_comparison.py`** — the comparison harness:
+  - Runs agents once, detects contradictions once, replays per condition.
+  - Conditions: null (no resolution), LWW, majority vote, static confidence.
+  - Auto-plugs in reliability resolver when available.
+  - Metrics: detection P/R/F1, resolution accuracy, per-type breakdown,
+    escalation rate.
+  - Outputs `results/run_comparison.json` + `results/summary.md`.
 
-`memory/detector.py`, `memory/reconciler.py`, `reliability/*`,
-`baselines/majority_vote.py`, `baselines/static_confidence.py`, and
-`eval/run_comparison.py` are still **stubs with a TODO** describing their
-milestone.
+- **`eval/fake_backend.py`** — deterministic offline LLM backends + hash-based
+  embedder. No network, no model download. `ScopedFakeLLM` (agent + judge),
+  `FakeEmbedder`.
+
+- **`tests/`** — 133 tests, all offline:
+  - `test_store.py` (48) — schema, provenance, state machine, concurrent writes.
+  - `test_seed_conflicts.py` (17) — suite structure and gold labels.
+  - `test_orchestrator.py` (17) — 5-agent offline run, grouping, provenance.
+  - `test_detector.py` (18) — two-stage detection, paraphrase rejection.
+  - `test_baselines.py` (14) — majority vote clustering, static confidence scoring.
+  - `test_reconciler.py` (8) — deterministic scope check, LLM classification.
+  - `test_run_comparison.py` (8) — full pipeline, accuracy, detection metrics.
+  - `test_llm_cache.py` (11) — cache + backend routing.
+
+## Evaluation Results (offline, fake backend, 20 docs)
+
+| Condition          | Accuracy | Correct | Contested | Escalation |
+|--------------------|----------|---------|-----------|------------|
+| null (control)     | 100.0%   | 1/1     | 19        | 95.0%      |
+| last_write_wins    | 100.0%   | 20/20   | 0         | 0.0%       |
+| majority_vote      | 5.0%     | 1/20    | 0         | 0.0%       |
+| static_confidence  | 100.0%   | 20/20   | 0         | 0.0%       |
+
+**Detection:** P=0.950, R=1.000, F1=0.974 (6 false positives from COEXIST seed).
+
+**Why these numbers matter for the paper:**
+- **Majority vote at 5%** is the strawman — the 3-agent correlated group
+  always outvotes the 2 independent agents, confirming the wrong answer in
+  19/20 cases. This is the exact failure mode the reliability engine targets.
+- **LWW and static confidence at 100%** is an honest baseline ceiling on this
+  suite — agent_E (last writer) happens to always be on the gold excerpt, and
+  static confidence reduces to recency because all writes share identical
+  provenance. The novel contribution's job is to match or exceed this on
+  harder suites where last-writer luck doesn't hold.
+- **Null at 100%/1 decisive** shows the reconciler correctly identifies
+  doc-languages as COORDINATION (both claims true) and keeps both.
 
 ## Setup
 
@@ -179,48 +185,29 @@ shows the same without running anything.
 ## Run
 
 ```
-python demo.py         # 5 agents over a 4-doc subset (one per conflict type)
-python demo.py --all    # ... over all 20 seed documents
-pytest                  # 93 tests: store, seed suite, orchestration, LLM cache (no network)
+python demo.py                     # 5 agents over a 4-doc subset (one per conflict type)
+python demo.py --all               # ... over all 20 seed documents
+pytest                             # 133 tests: all modules, no network
+python -m eval.run_comparison      # offline: all 20 docs, fake backend
+python -m eval.run_comparison --limit 4   # quick smoke test
+python -m eval.run_comparison --backend real   # Ollama/Gemini + real embeddings
 ```
-
-`demo.py` uses `LLM_BACKEND` (default `local`) and prints, in order:
-
-1. the resolved LLM-config banner;
-2. the **agent roster** — which agents are in the correlated group `grp_A` and
-   which are independent;
-3. **every agent's write, grouped by correlated group vs. independent** — the
-   excerpt each agent read and whether it landed on the gold excerpt
-   (`(gold)` / `(off-gold)`);
-4. **naive conflict detection** — the same-topic / differing-content scan, one
-   block per topic, each claim tagged with its agent group and excerpt id;
-5. **resolution** with `last_write_wins`, then the full shared-memory dump with a
-   per-item provenance line (`source_type`, `origin`, `authority`, `version`,
-   `source_id`, `evidence_span`).
-
-The correlated group's shared-bias behaviour is visible directly in step 3:
-`agent_A/C/D` produce the same answer — right or wrong — because they read the
-same excerpt with near-identical prompts, while `agent_B/E` on the other excerpt
-can disagree.
-
-`demo_memory.db` (and its `-wal` / `-shm` sidecars) is gitignored, as
-`demo_memory.json` was before.
 
 ## Layout
 
 ```
 memory/
-  store.py         # [done]  schema + status state machine + SQLite(WAL)/JSON backends + naive list-conflicts
-  detector.py      # [stub]  embedding candidate clustering + LLM NLI (entailment/contradiction/neutral)
-  reconciler.py    # [stub]  CREDIBILITY vs COORDINATION classification
+  store.py         # [done]  schema + state machine + SQLite(WAL) + naive list-conflicts
+  detector.py      # [done]  two-stage: embedding candidate clustering + LLM-judge NLI
+  reconciler.py    # [done]  CREDIBILITY vs COORDINATION classification (deterministic + LLM)
 reliability/
   peer_memory.py   # [stub]  online per-agent competence + pairwise correlation
-  resolver.py      # [stub]  reliability-weighted resolver, discounts correlated agreement (our contribution)
+  resolver.py      # [stub]  reliability-weighted resolver (our contribution — Srijoni)
 baselines/
-  base.py                # [done]  multi-outcome Resolution / Resolver contract + apply_resolution
+  base.py                # [done]  multi-outcome Resolution / Resolver contract
   last_write_wins.py     # [done]
-  majority_vote.py       # [stub]
-  static_confidence.py   # [stub]  fixed weights, no learning (primary comparison baseline)
+  majority_vote.py       # [done]  meaning-cluster voting; largest cluster wins
+  static_confidence.py   # [done]  fixed provenance weight table + capped corroboration
 agents/
   orchestrator.py  # [done]  5-agent loop (grp_A correlated + B/E independent) + real provenance
 common/
@@ -230,28 +217,32 @@ common/
 domain/
   seed_conflicts.py # [done]  20 seeded contradictions w/ gold labels (type + difficulty)
 eval/
-  run_comparison.py # [stub]  baselines vs full model: resolution accuracy + detection P/R/F1
+  fake_backend.py      # [done]  ScopedFakeLLM + FakeEmbedder (offline, deterministic)
+  run_comparison.py    # [done]  baselines vs full model: resolution accuracy + detection P/R/F1
 tests/
+  test_store.py             # [done]  48 tests
+  test_seed_conflicts.py    # [done]  17 tests
+  test_orchestrator.py      # [done]  17 tests
+  test_detector.py          # [done]  18 tests
+  test_baselines.py         # [done]  14 tests
+  test_reconciler.py        # [done]   8 tests
+  test_run_comparison.py    # [done]   8 tests
+  test_llm_cache.py         # [done]  11 tests
 ```
 
 ## Next
 
-In order:
-
-1. **Real contradiction detection** (`memory/detector.py`) — replace the naive
-   same-topic `list_conflicts` scan with (a) embedding-based candidate
-   clustering to group claims that are *about* the same thing, then (b) an
-   LLM-based NLI step classifying each candidate pair as **entailment /
-   contradiction / neutral**. Only genuine contradictions become `Conflict`s.
-   (Needs `pip install sentence-transformers`.)
-2. **The remaining baselines** — `baselines/majority_vote.py` and
-   `baselines/static_confidence.py` (fixed evidence-type weights, no learning;
-   the primary comparison baseline).
-3. **The novel contribution** — `reliability/peer_memory.py` (online per-agent
+1. **The novel contribution** — `reliability/peer_memory.py` (online per-agent
    competence + pairwise correlation estimates) and `reliability/resolver.py`
    (a resolver that weights each claim by its source's reliability *and
-   discounts agreement between correlated agents*).
-4. **Evaluation** (`eval/run_comparison.py`) — run every baseline and the full
-   model over the seed suite and report real metrics: resolution accuracy
-   against the gold labels, and detection **precision / recall / F1** against
-   the known seeded contradictions.
+   discounts agreement between correlated agents*). This is Srijoni's lead.
+2. **Real LLM evaluation** — run the harness with `--backend real` (Ollama or
+   Gemini) to measure performance when the judge and agent LLMs produce
+   non-trivial claims. The fake backend validates pipeline correctness;
+   real LLM runs produce the research numbers.
+3. **Rotate anchor excerpt index** per seed in the orchestrator so the
+   correlated group is wrong ~half the time (currently always reads excerpt 0).
+   This makes the majority-vote failure rate less uniform and gives the
+   reliability engine a fairer comparison surface.
+4. **AAAI UC paper** — finalize figures, draft the 2-page summary, and prepare
+   the poster + supplementary code/checkpoint release.
