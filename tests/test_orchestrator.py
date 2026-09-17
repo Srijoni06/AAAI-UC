@@ -17,6 +17,7 @@ from agents.orchestrator import (
     assign_excerpts,
     correlated_groups,
     independent_agents,
+    rotated_anchor_index,
     run,
 )
 from common.llm import LLMClient
@@ -115,6 +116,41 @@ def test_anchor_excerpt_index_is_configurable():
     assert mapping["agent_B"].excerpt_id == "intro"
 
 
+# --------------------------------------------------------------------------- #
+# anchor rotation (run() defaults to per-seed rotation, not a fixed index)
+# --------------------------------------------------------------------------- #
+def test_rotated_anchor_index_is_deterministic_per_seed():
+    seed = get("doc-benchmark")
+    assert rotated_anchor_index(seed) == rotated_anchor_index(seed)
+    assert 0 <= rotated_anchor_index(seed) < len(seed.excerpts)
+
+
+def test_rotated_anchor_index_varies_across_seeds():
+    indices = {seed.doc_id: rotated_anchor_index(seed) for seed in SEED_CONFLICTS}
+    # not every seed should land on the same excerpt position - that was the bug
+    assert len(set(indices.values())) > 1
+
+
+def test_run_default_rotates_anchor_instead_of_always_index_zero(store, llm):
+    # across the full suite, the correlated group's excerpt_id should not be
+    # the same position (e.g. always excerpts[0]) for every seed
+    writes = run(store, seeds=SEED_CONFLICTS, llm=llm)
+    grp_a_excerpt_positions = {
+        w.seed.doc_id: w.seed.excerpt_ids.index(w.excerpt.excerpt_id)
+        for w in writes
+        if w.agent_id == "agent_A"
+    }
+    assert len(set(grp_a_excerpt_positions.values())) > 1
+
+
+def test_run_anchor_excerpt_index_override_still_pins_every_seed(store, llm):
+    writes = run(store, seeds=SEED_CONFLICTS, llm=llm, anchor_excerpt_index=0)
+    for w in writes:
+        if w.agent_id != "agent_A":
+            continue
+        assert w.excerpt.excerpt_id == w.seed.excerpt_ids[0]
+
+
 def test_independents_spread_over_multiple_non_anchor_excerpts():
     seed = get("doc-benchmark")
     roster = [
@@ -206,8 +242,8 @@ def test_items_are_proposed_on_write(store, llm, two_seeds):
 
 
 def test_correct_flag_tracks_gold_excerpt(store, llm):
-    # doc-benchmark gold = "results"; correlated group reads "intro" -> off-gold
-    writes = run(store, seeds=[get("doc-benchmark")], llm=llm)
+    # doc-benchmark gold = "results"; pin the anchor to "intro" (index 0) -> off-gold
+    writes = run(store, seeds=[get("doc-benchmark")], llm=llm, anchor_excerpt_index=0)
     by_agent = {w.agent_id: w for w in writes}
     assert by_agent["agent_A"].correct is False
     assert by_agent["agent_B"].correct is True

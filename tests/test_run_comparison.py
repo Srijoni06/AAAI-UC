@@ -61,13 +61,21 @@ class TestRunComparison:
         assert det["precision"] < 1.0
         assert det["TP"] > 0
 
-    def test_null_condition_worst(self, tmp_path):
+    def test_null_resolves_fewer_conflicts_than_lww(self, tmp_path):
         seeds = _make_seeds()
         report = run_comparison(seeds, backend="fake", threshold=0.0, out_dir=str(tmp_path))
-        null_acc = report["conditions"]["null"]["accuracy"]
-        lww_acc = report["conditions"]["last_write_wins"]["accuracy"]
-        # Null always worse than LWW (no resolution vs some resolution)
-        assert null_acc <= lww_acc
+        null = report["conditions"]["null"]
+        lww = report["conditions"]["last_write_wins"]
+        # Null applies no resolver, so every genuine CREDIBILITY conflict stays
+        # CONTESTED; only COORDINATION cases (kept as-is) are ever "decisive".
+        # NOTE: comparing *accuracy* (null_acc <= lww_acc) is not a safe
+        # invariant here - null's accuracy is computed over a tiny decisive
+        # subset (often just 1 trivially-correct COORDINATION case), so it can
+        # exceed LWW's accuracy over its full, harder set once the anchor
+        # excerpt rotates per seed instead of always landing on excerpt 0.
+        assert null["contested"] > 0
+        assert lww["contested"] == 0
+        assert null["decisive"] < lww["decisive"]
 
     def test_lww_accuracy_above_zero(self, tmp_path):
         seeds = _make_seeds()

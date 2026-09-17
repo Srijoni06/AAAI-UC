@@ -14,17 +14,21 @@ Evaluation domain: a multi-agent literature-summarization pipeline.
 
 ## Status
 
-**Done.** The full evaluation pipeline is working end-to-end:
+**Done.** The full pipeline, including the novel contribution, is working end-to-end:
 - Shared memory store with enforced status state machine + SQLite/WAL persistence + rich provenance.
 - Two-stage contradiction detection: embedding candidate clustering + LLM-judge NLI classification.
 - Conflict classification: deterministic scope check (COORDINATION vs CREDIBILITY) + LLM fallback.
 - Baselines: last-write-wins, majority vote, static confidence.
-- Evaluation harness: runs all conditions against the 20-document seeded suite, produces detection
-  P/R/F1, resolution accuracy, per-type breakdowns, and escalation rate.
-- 133 offline tests (no network).
+- Reliability engine (the novel contribution): online per-agent competence + pairwise
+  peer-correlation tracking, used as the credibility-weighting function for CREDIBILITY conflicts.
+- Evaluation harness: runs all conditions — including the reliability-aware resolver — against the
+  20-document seeded suite, produces detection P/R/F1, resolution accuracy, per-type breakdowns,
+  and escalation rate.
+- 150 offline tests (no network).
 
-**Not built yet.** The reliability engine — `reliability/peer_memory.py` and
-`reliability/resolver.py` — is the novel contribution (Srijoni's lead).
+**Not built at the module level.** What's left is evaluation quality, not code: running the
+harness against a real LLM backend so the reliability engine has genuine per-agent competence
+variance to learn from, rather than the fake backend's deterministic claims (see **Next**).
 
 ### What works now
 
@@ -75,6 +79,18 @@ Evaluation domain: a multi-agent literature-summarization pipeline.
     identical provenance, corroboration by distinct groups + recency = same as
     LWW.
 
+- **`reliability/`** — the novel contribution:
+  - **`peer_memory.py`** — `PeerMemory`: per-agent competence (EMA from a 0.5
+    prior toward the empirical confirmation rate) and pairwise correlation
+    (do two agents tend to agree/disagree together, i.e. share a bias?),
+    both updated from resolution outcomes.
+  - **`resolver.py`** — `ReliabilityResolver`: scores each claim as provenance
+    base weight + competence boost, then applies a correlation discount
+    across agents who share an answer, so agreement between historically
+    correlated agents counts for less than agreement between independents.
+    Updates `PeerMemory` after every decision; auto-plugs into
+    `eval/run_comparison.py` when present.
+
 - **`agents/orchestrator.py`** — the **5-agent** summarization loop over the
   seed suite. `DEFAULT_ROSTER`:
   - `agent_A`, `agent_C`, `agent_D` — deliberately correlated group (`grp_A`).
@@ -95,13 +111,14 @@ Evaluation domain: a multi-agent literature-summarization pipeline.
   embedder. No network, no model download. `ScopedFakeLLM` (agent + judge),
   `FakeEmbedder`.
 
-- **`tests/`** — 133 tests, all offline:
+- **`tests/`** — 150 tests, all offline:
   - `test_store.py` (48) — schema, provenance, state machine, concurrent writes.
   - `test_seed_conflicts.py` (17) — suite structure and gold labels.
   - `test_orchestrator.py` (17) — 5-agent offline run, grouping, provenance.
   - `test_detector.py` (18) — two-stage detection, paraphrase rejection.
   - `test_baselines.py` (14) — majority vote clustering, static confidence scoring.
   - `test_reconciler.py` (8) — deterministic scope check, LLM classification.
+  - `test_reliability.py` (17) — competence EMA, correlation tracking, resolver scoring.
   - `test_run_comparison.py` (8) — full pipeline, accuracy, detection metrics.
   - `test_llm_cache.py` (11) — cache + backend routing.
 
@@ -110,23 +127,36 @@ Evaluation domain: a multi-agent literature-summarization pipeline.
 | Condition          | Accuracy | Correct | Contested | Escalation |
 |--------------------|----------|---------|-----------|------------|
 | null (control)     | 100.0%   | 1/1     | 19        | 95.0%      |
-| last_write_wins    | 100.0%   | 20/20   | 0         | 0.0%       |
-| majority_vote      | 5.0%     | 1/20    | 0         | 0.0%       |
-| static_confidence  | 100.0%   | 20/20   | 0         | 0.0%       |
+| last_write_wins    | 65.0%    | 13/20   | 0         | 0.0%       |
+| majority_vote      | 40.0%    | 8/20    | 0         | 0.0%       |
+| static_confidence  | 65.0%    | 13/20   | 0         | 0.0%       |
+| reliability_aware  | 60.0%    | 12/20   | 0         | 0.0%       |
+
+Captured after the anchor-rotation fix (`agents/orchestrator.rotated_anchor_index`,
+below) via `python -m eval.run_comparison` on the fake backend. Rotating the anchor
+per seed removed the artificial 100% ceiling LWW/static-confidence used to sit at —
+their real accuracy on this suite is 65%.
 
 **Detection:** P=0.950, R=1.000, F1=0.974 (6 false positives from COEXIST seed).
 
-**Why these numbers matter for the paper:**
-- **Majority vote at 5%** is the strawman — the 3-agent correlated group
-  always outvotes the 2 independent agents, confirming the wrong answer in
-  19/20 cases. This is the exact failure mode the reliability engine targets.
-- **LWW and static confidence at 100%** is an honest baseline ceiling on this
-  suite — agent_E (last writer) happens to always be on the gold excerpt, and
-  static confidence reduces to recency because all writes share identical
-  provenance. The novel contribution's job is to match or exceed this on
-  harder suites where last-writer luck doesn't hold.
+**Why these numbers matter for the paper — and what they don't show yet:**
+- **Majority vote at 40%** (up from a pre-fix 5%) still clearly loses to every
+  other condition: the 3-agent correlated group's block vote wins the
+  plurality regardless of whether it's on the gold excerpt, so majority vote
+  is wrong whenever the group happens to be wrong. This is the exact failure
+  mode the reliability engine targets.
+- **reliability_aware at 60%** beats majority_vote by 20 points, but on *this*
+  run it trails LWW/static-confidence (65%) rather than leading them. That is
+  an honest result, not a setback to hide: the fake backend is a fixed
+  deterministic function of excerpt text, so there is no real per-agent
+  competence signal for `PeerMemory` to learn from across resolutions — it can
+  only exploit the correlation signal, not the competence one. The paper's
+  actual claim (reliability-aware beats static provenance weighting) needs
+  the real-LLM run in **Next**, where agents genuinely vary in how well they
+  read an excerpt.
 - **Null at 100%/1 decisive** shows the reconciler correctly identifies
-  doc-languages as COORDINATION (both claims true) and keeps both.
+  doc-languages as COORDINATION (both claims true) and keeps both; it is not
+  a meaningful comparison point since it only ever scores that one case.
 
 ## Setup
 
@@ -187,7 +217,7 @@ shows the same without running anything.
 ```
 python demo.py                     # 5 agents over a 4-doc subset (one per conflict type)
 python demo.py --all               # ... over all 20 seed documents
-pytest                             # 133 tests: all modules, no network
+pytest                             # 150 tests: all modules, no network
 python -m eval.run_comparison      # offline: all 20 docs, fake backend
 python -m eval.run_comparison --limit 4   # quick smoke test
 python -m eval.run_comparison --backend real   # Ollama/Gemini + real embeddings
@@ -201,8 +231,8 @@ memory/
   detector.py      # [done]  two-stage: embedding candidate clustering + LLM-judge NLI
   reconciler.py    # [done]  CREDIBILITY vs COORDINATION classification (deterministic + LLM)
 reliability/
-  peer_memory.py   # [stub]  online per-agent competence + pairwise correlation
-  resolver.py      # [stub]  reliability-weighted resolver (our contribution — Srijoni)
+  peer_memory.py   # [done]  online per-agent competence + pairwise correlation
+  resolver.py      # [done]  reliability-weighted resolver (our contribution — Srijoni)
 baselines/
   base.py                # [done]  multi-outcome Resolution / Resolver contract
   last_write_wins.py     # [done]
@@ -226,23 +256,19 @@ tests/
   test_detector.py          # [done]  18 tests
   test_baselines.py         # [done]  14 tests
   test_reconciler.py        # [done]   8 tests
+  test_reliability.py       # [done]  17 tests
   test_run_comparison.py    # [done]   8 tests
   test_llm_cache.py         # [done]  11 tests
 ```
 
 ## Next
 
-1. **The novel contribution** — `reliability/peer_memory.py` (online per-agent
-   competence + pairwise correlation estimates) and `reliability/resolver.py`
-   (a resolver that weights each claim by its source's reliability *and
-   discounts agreement between correlated agents*). This is Srijoni's lead.
-2. **Real LLM evaluation** — run the harness with `--backend real` (Ollama or
+1. **Real LLM evaluation** — run the harness with `--backend real` (Ollama or
    Gemini) to measure performance when the judge and agent LLMs produce
-   non-trivial claims. The fake backend validates pipeline correctness;
-   real LLM runs produce the research numbers.
-3. **Rotate anchor excerpt index** per seed in the orchestrator so the
-   correlated group is wrong ~half the time (currently always reads excerpt 0).
-   This makes the majority-vote failure rate less uniform and gives the
-   reliability engine a fairer comparison surface.
-4. **AAAI UC paper** — finalize figures, draft the 2-page summary, and prepare
+   non-trivial claims. This is now the priority: on the fake backend
+   `reliability_aware` trails LWW/static-confidence (see Evaluation Results)
+   because a deterministic fake LLM gives `PeerMemory` no real competence
+   signal to learn from, only the correlation signal. The paper's central
+   claim needs agents that actually vary in reading-comprehension quality.
+2. **AAAI UC paper** — finalize figures, draft the 2-page summary, and prepare
    the poster + supplementary code/checkpoint release.

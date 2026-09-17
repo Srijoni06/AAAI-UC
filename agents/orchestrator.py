@@ -27,6 +27,7 @@ evaluation code can compare "N independent agree" against "N correlated agree".
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass, field
 from typing import Iterable
 
@@ -141,6 +142,24 @@ def _group_sizes(roster: list[AgentSpec]) -> dict[str, int]:
     return sizes
 
 
+def rotated_anchor_index(seed: SeedConflict) -> int:
+    """Deterministic per-seed anchor index, stable across runs and subsets.
+
+    ``run()`` used to pass a single fixed ``anchor_excerpt_index`` (default 0)
+    to every seed, so the correlated group always read ``excerpts[0]``. Whether
+    that happened to be the gold excerpt was then baked into how each seed's
+    ``excerpts`` tuple was hand-ordered (see the note in
+    ``domain/seed_conflicts.py``) rather than decided per run. Hashing the
+    seed's own ``doc_id`` spreads the anchor across excerpts without relying on
+    that ordering, and without depending on the seed's position in whatever
+    list is passed to ``run()`` (a `--limit` subset or a custom seed list gets
+    the same anchor per doc as a full-suite run).
+    """
+    n = len(seed.excerpts)
+    digest = hashlib.sha256(seed.doc_id.encode("utf-8")).digest()
+    return digest[0] % n
+
+
 def assign_excerpts(
     seed: SeedConflict,
     roster: list[AgentSpec] | None = None,
@@ -226,9 +245,15 @@ def run(
     llm: LLMClient | None = None,
     *,
     roster: list[AgentSpec] | None = None,
-    anchor_excerpt_index: int = 0,
+    anchor_excerpt_index: int | None = None,
 ) -> list[AgentWrite]:
     """Run every agent over every seed and write their claims to ``store``.
+
+    ``anchor_excerpt_index``: ``None`` (the default) rotates the anchor per
+    seed via :func:`rotated_anchor_index`, so the correlated group is not
+    reading the same excerpt position - and therefore not right or wrong for
+    the same structural reason - on every seed. Pass an explicit int to pin
+    every seed to that one index instead (e.g. for a reproducible ablation).
 
     Returns one :class:`AgentWrite` per (seed, agent), in roster order within
     each seed.
@@ -241,9 +266,12 @@ def run(
 
     writes: list[AgentWrite] = []
     for seed in seeds:
-        excerpt_for = assign_excerpts(
-            seed, roster, anchor_excerpt_index=anchor_excerpt_index
+        anchor_idx = (
+            anchor_excerpt_index
+            if anchor_excerpt_index is not None
+            else rotated_anchor_index(seed)
         )
+        excerpt_for = assign_excerpts(seed, roster, anchor_excerpt_index=anchor_idx)
         for agent in agents:
             excerpt = excerpt_for[agent.agent_id]
             claim = agent.summarize(excerpt.text, seed.question)

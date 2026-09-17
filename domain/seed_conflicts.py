@@ -79,10 +79,12 @@ class SeedConflict:
 
 
 # --------------------------------------------------------------------------- #
-# The suite. Excerpt order matters: the correlated agent group in
-# agents/orchestrator.py reads ``excerpts[0]`` by default, so seeds are ordered
-# to put the *wrong* claim first in roughly half the cases - that is what makes
-# "three correlated agents agree" sometimes mean "agree on a mistake".
+# The suite. ``agents/orchestrator.run`` (default settings) picks each seed's
+# anchor excerpt - the one the correlated group reads - via a per-``doc_id``
+# hash (``rotated_anchor_index``), not a fixed index, so which excerpt is
+# "first" here does not decide whether the correlated group lands on the gold
+# excerpt. That is what makes "three correlated agents agree" sometimes mean
+# "agree on a mistake" across the suite, without hand-tuning excerpt order.
 # --------------------------------------------------------------------------- #
 SEED_CONFLICTS: list[SeedConflict] = [
     # -- 1. original milestone-1 seed -------------------------------------- #
