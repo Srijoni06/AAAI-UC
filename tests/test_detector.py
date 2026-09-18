@@ -311,3 +311,81 @@ def test_judge_response_parsing_variants():
     # Plain text with keyword
     rel, rat = _parse_judge_response("Based on analysis, this is clearly a CONTRADICTION between two dates.")
     assert rel == Relationship.CONTRADICTION
+
+
+# --------------------------------------------------------------------------- #
+# Pair ordering, question-in-prompt, and Stage-1 threshold semantics
+# --------------------------------------------------------------------------- #
+class CapturingJudge(LLMClient):
+    backend = "test"
+    agent_model = "test-agent"
+    judge_model = "test-judge"
+
+    def __init__(self):
+        super().__init__(cache=None)
+        self.prompts: list[str] = []
+        self.systems: list[str] = []
+
+    def _raw_generate(self, prompt, *, system, temperature, model):
+        self.prompts.append(prompt)
+        self.systems.append(system)
+        return '{"relationship": "CONTRADICTION", "rationale": "test"}'
+
+
+def _same_vec_embedder() -> SentenceEmbedder:
+    return SentenceEmbedder(embed_fn=lambda texts: [[1.0, 0.0] for _ in texts])
+
+
+def test_pair_order_is_independent_of_item_ids():
+    # ids are random uuids in real runs; order must not follow them
+    a = make_item("t", "claim one", agent_id="agent_A", item_id="zzz")
+    b = make_item("t", "claim two", agent_id="agent_B", item_id="aaa")
+    for x, y in ((a, b), (b, a)):
+        pair = CandidatePair(x, y, 1.0, "t")
+        assert pair.item_a is a and pair.item_b is b
+
+
+def test_pair_order_same_agent_falls_back_to_content_then_id():
+    first = make_item("t", "alpha", agent_id="agent_A", item_id="2")
+    second = make_item("t", "beta", agent_id="agent_A", item_id="1")
+    pair = CandidatePair(second, first, 1.0, "t")
+    assert pair.item_a is first and pair.item_b is second
+
+
+def test_judge_prompt_includes_question_when_present():
+    llm = CapturingJudge()
+    detector = ConflictDetector(llm=llm, embedder=_same_vec_embedder(), similarity_threshold=-1.0)
+    a = make_item("supervision", "The method does not require human-labeled training data.", agent_id="agent_A")
+    b = make_item("supervision", "Yes.", agent_id="agent_E")
+    for it in (a, b):
+        it.metadata["question"] = "Does the method require human-labeled training data?"
+
+    detector.detect([a, b], relationships=ALL_RELATIONSHIPS)
+
+    assert len(llm.prompts) == 1
+    assert "Question: Does the method require human-labeled training data?" in llm.prompts[0]
+    assert '"Yes."' in llm.prompts[0]
+    assert "Question" in llm.systems[0]  # system prompt explains how to read it
+
+
+def test_judge_prompt_omits_question_line_when_absent():
+    llm = CapturingJudge()
+    detector = ConflictDetector(llm=llm, embedder=_same_vec_embedder(), similarity_threshold=-1.0)
+    a = make_item("t", "claim one", agent_id="agent_A")
+    b = make_item("t", "claim two", agent_id="agent_B")
+
+    detector.detect([a, b], relationships=ALL_RELATIONSHIPS)
+
+    assert "Question:" not in llm.prompts[0]
+
+
+def test_negative_similarity_pair_dropped_at_zero_threshold_kept_at_minus_one():
+    # cosine([1, 0], [-0.1, 1]) is about -0.1: real "Yes." vs sentence pairs land here
+    embed = lambda texts: [[1.0, 0.0] if t == "left" else [-0.1, 1.0] for t in texts]
+    detector = ConflictDetector(embedder=SentenceEmbedder(embed_fn=embed))
+    a = make_item("t", "left", agent_id="agent_A")
+    b = make_item("t", "right", agent_id="agent_B")
+
+    assert detector.find_candidates([a, b], threshold=0.0) == []
+    kept = detector.find_candidates([a, b], threshold=-1.0)
+    assert len(kept) == 1 and kept[0].similarity < 0.0

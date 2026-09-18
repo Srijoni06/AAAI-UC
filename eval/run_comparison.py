@@ -15,8 +15,9 @@ Usage (offline, deterministic, no network)::
     python -m eval.run_comparison --limit 4    # demo subset
     python -m eval.run_comparison --backend real   # Ollama / Gemini
 
-Outputs ``results/run_comparison.json`` + ``results/summary.md`` and prints
-the summary to stdout.
+Outputs ``results/run_comparison.json`` + ``results/summary.md`` and
+``results/detection_pairs.json`` (every same-topic pair: claim text, similarity,
+judge verdict, TP/FP/FN/TN), and prints the summary to stdout.
 """
 
 from __future__ import annotations
@@ -43,7 +44,13 @@ from domain.seed_conflicts import (
     SeedConflict,
     type_counts,
 )
-from memory.detector import ConflictDetector, Relationship
+from memory.detector import (
+    ALL_RELATIONSHIPS,
+    ConflictDetector,
+    Relationship,
+    cosine_similarity,
+    order_pair,
+)
 from memory.store import Conflict
 from memory.reconciler import (
     Classification,
@@ -87,6 +94,7 @@ class Snapshot:
     detection_tp: int = 0
     detection_fp: int = 0
     detection_fn: int = 0
+    pair_records: list[dict] = field(default_factory=list)  # every same-topic pair
 
     @property
     def topics(self) -> list[str]:
@@ -101,10 +109,18 @@ def _snapshot_writes(writes, seeds: list[SeedConflict]) -> Snapshot:
 
 
 def _detect_pairs(snapshot: Snapshot, detector: ConflictDetector) -> None:
-    """Run two-stage detection and store pair specs (mutates snapshot)."""
+    """Run two-stage detection; store CONTRADICTION pair specs and per-pair records.
+
+    The judge is called on every Stage-1 candidate regardless of the verdict, so
+    asking for all relationships costs nothing extra and lets us record *why* a
+    gold contradiction was missed (judged ENTAILMENT/NEUTRAL vs never judged).
+    """
     items = [MemoryItem.from_dict(d) for d in snapshot.item_dicts]
-    pairs = detector.detect(items, relationships={Relationship.CONTRADICTION})
-    for p in pairs:
+    judged = detector.detect(items, relationships=ALL_RELATIONSHIPS)
+    verdicts = {frozenset([p.item_a.id, p.item_b.id]): p for p in judged}
+    for p in judged:
+        if p.relationship != Relationship.CONTRADICTION:
+            continue
         snapshot.pair_specs.append(
             {
                 "item_a_id": p.item_a.id,
@@ -114,6 +130,62 @@ def _detect_pairs(snapshot: Snapshot, detector: ConflictDetector) -> None:
                 "rationale": p.rationale,
             }
         )
+    # detect() filled in item.embedding, needed for similarity of never-judged pairs
+    snapshot.pair_records = _pair_records(snapshot, items, verdicts)
+
+
+def _item_view(it: MemoryItem) -> dict:
+    return {
+        "item_id": it.id,
+        "agent_id": it.agent_id,
+        "agent_group": it.metadata.get("agent_group"),
+        "excerpt_id": it.metadata.get("excerpt_id"),
+        "text": it.content,
+    }
+
+
+def _pair_records(snapshot: Snapshot, items: list[MemoryItem], verdicts: dict) -> list[dict]:
+    """One record per same-topic pair, with the outcome scored like ``_detection_metrics``."""
+    by_topic: dict[str, list[MemoryItem]] = defaultdict(list)
+    for it in items:
+        by_topic[it.topic].append(it)
+
+    records: list[dict] = []
+    for topic, titems in by_topic.items():
+        seed = SEEDS_BY_ID.get(snapshot.seed_topic_map.get(topic, ""))
+        coexist = seed is not None and seed.gold_excerpt_id == COEXIST
+        for i in range(len(titems)):
+            for j in range(i + 1, len(titems)):
+                a, b = order_pair(titems[i], titems[j])  # same order the judge saw
+                cross = a.metadata.get("excerpt_id") != b.metadata.get("excerpt_id")
+                gold_positive = cross and not coexist
+                judged = verdicts.get(frozenset([a.id, b.id]))
+                verdict = judged.relationship.value if judged else None
+                sim = judged.similarity if judged else cosine_similarity(a.embedding or [], b.embedding or [])
+                flagged = verdict == Relationship.CONTRADICTION.value
+                if flagged:
+                    outcome = "TP" if gold_positive else "FP"
+                else:
+                    outcome = "FN" if gold_positive else "TN"
+                records.append(
+                    {
+                        "doc_id": seed.doc_id if seed else None,
+                        "topic": topic,
+                        "conflict_type": seed.conflict_type.value if seed else None,
+                        "difficulty": seed.difficulty.value if seed else None,
+                        "gold_excerpt_id": seed.gold_excerpt_id if seed else None,
+                        "question": a.metadata.get("question"),
+                        "gold_positive": gold_positive,
+                        "outcome": outcome,
+                        "judged": judged is not None,
+                        "verdict": verdict,
+                        "rationale": judged.rationale if judged else None,
+                        "similarity": round(sim, 4),
+                        "claim_1": _item_view(a),
+                        "claim_2": _item_view(b),
+                    }
+                )
+    return records
 
 
 # ---------------------------------------------------------------------------
@@ -351,6 +423,7 @@ def _write_summary(
     results: dict[str, ConditionResult],
     out_dir: Path,
     config: dict,
+    pair_records: Optional[list[dict]] = None,
 ) -> str:
     lines = []
     lines.append("# Evaluation Summary")
@@ -368,6 +441,23 @@ def _write_summary(
     for k, v in detection.items():
         lines.append(f"| {k} | {v} |")
     lines.append("")
+
+    missed = [r for r in (pair_records or []) if r["outcome"] == "FN"]
+    if pair_records is not None:
+        lines.append(f"## Missed contradictions (false negatives): {len(missed)}")
+        lines.append("")
+        lines.append("All judged pairs: `detection_pairs.json`.")
+        lines.append("")
+        for r in missed:
+            why = f"judged {r['verdict']}" if r["judged"] else "never judged (below Stage-1 threshold)"
+            lines.append(
+                f"- **{r['doc_id']}** ({r['conflict_type']}/{r['difficulty']}) - {why}, "
+                f"sim {r['similarity']}"
+            )
+            for key in ("claim_1", "claim_2"):
+                c = r[key]
+                lines.append(f"  - {c['agent_id']} [{c['excerpt_id']}]: \"{c['text']}\"")
+        lines.append("")
 
     lines.append("## Resolution Accuracy")
     lines.append("")
@@ -411,7 +501,7 @@ def run_comparison(
     seeds: list[SeedConflict] | None = None,
     *,
     backend: str = "fake",
-    threshold: float = 0.0,
+    threshold: float = -1.0,
     out_dir: str = "results",
     llm_client=None,
     embedder_obj=None,
@@ -489,7 +579,15 @@ def run_comparison(
     }
     report = {"config": config, "detection": det_metrics, "conditions": {k: v.to_dict() for k, v in results.items()}}
     (out_path / "run_comparison.json").write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
-    summary = _write_summary(det_metrics, results, out_path, config)
+    (out_path / "detection_pairs.json").write_text(
+        json.dumps(
+            {"config": config, "counts": det_metrics, "pairs": snapshot.pair_records},
+            indent=2,
+            default=str,
+        ),
+        encoding="utf-8",
+    )
+    summary = _write_summary(det_metrics, results, out_path, config, snapshot.pair_records)
     print(f"\n[phase D] results written to {out_path}/")
 
     return report
@@ -505,7 +603,14 @@ def main() -> int:
     parser.add_argument("--all", action="store_true", help="Use all 20 seeds (default)")
     parser.add_argument("--limit", type=int, default=None, help="Use first N seeds")
     parser.add_argument("--out", default="results", help="Output directory")
-    parser.add_argument("--threshold", type=float, default=0.0, help="Stage-1 similarity threshold")
+    parser.add_argument(
+        "--threshold",
+        type=float,
+        default=-1.0,
+        help="Stage-1 cosine-similarity threshold. Cosine spans [-1, 1], so the default "
+        "-1.0 sends every same-topic pair to the judge; 0.0 would silently drop "
+        "negative-similarity pairs.",
+    )
     args = parser.parse_args()
 
     seeds = SEED_CONFLICTS

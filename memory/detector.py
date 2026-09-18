@@ -89,6 +89,18 @@ class SentenceEmbedder:
         return [e.tolist() for e in embeddings]
 
 
+def order_pair(x: MemoryItem, y: MemoryItem) -> tuple[MemoryItem, MemoryItem]:
+    """Canonical (Claim 1, Claim 2) order for a pair, stable across runs.
+
+    Keyed on ``(agent_id, content)`` rather than the item id: ids are random
+    uuids, so ordering by id made "Claim 1 / Claim 2" - and therefore the judge's
+    cache key and, for order-sensitive verdicts, the verdict itself - change on
+    every run. ``id`` is only the final tie-break for identical agent + content.
+    """
+    kx, ky = (x.agent_id, x.content, x.id), (y.agent_id, y.content, y.id)
+    return (x, y) if kx <= ky else (y, x)
+
+
 @dataclass
 class CandidatePair:
     """A pair of memory items on the same topic that passed Stage 1 similarity filtering."""
@@ -99,9 +111,7 @@ class CandidatePair:
     topic: str
 
     def __post_init__(self) -> None:
-        # Canonical order by id to guarantee deterministic caching and comparisons
-        if self.item_a.id > self.item_b.id:
-            self.item_a, self.item_b = self.item_b, self.item_a
+        self.item_a, self.item_b = order_pair(self.item_a, self.item_b)
 
 
 @dataclass
@@ -131,6 +141,8 @@ Your task is to classify the logical relationship between two claims on the same
 1. ENTAILMENT: The two claims agree in substance or affirm the same underlying fact, even if phrased with different words, different sentence structures, or varying detail levels (e.g. paraphrases, synonyms, or logically equivalent statements).
 2. CONTRADICTION: The two claims make conflicting, mutually incompatible, or opposing factual assertions (e.g. different numbers, opposing outcomes, conflicting attributions, or one asserting what the other refutes).
 3. NEUTRAL: Both claims are on the same general topic, but they assert different non-conflicting facts or aspects that can both be true simultaneously without entailing or contradicting each other.
+
+If a Question is given, read each claim as an answer to that question, so a short answer such as "Yes." or "No." is interpreted in the context of the question.
 
 You must respond in JSON format with exactly two keys:
 {
@@ -251,8 +263,12 @@ class ConflictDetector:
 
     def classify_pair(self, candidate: CandidatePair) -> ConflictPair:
         """Stage 2: Classify the relationship of a candidate pair using the judge LLM."""
+        # Agents answer a specific question; without it a bare "Yes." is unjudgeable.
+        question = candidate.item_a.metadata.get("question") or candidate.item_b.metadata.get("question")
+        question_line = f"Question: {question}\n" if question else ""
         prompt = (
-            f"Topic: {candidate.topic}\n\n"
+            f"Topic: {candidate.topic}\n"
+            f"{question_line}\n"
             f"Claim 1 (by {candidate.item_a.agent_id}):\n\"{candidate.item_a.content}\"\n\n"
             f"Claim 2 (by {candidate.item_b.agent_id}):\n\"{candidate.item_b.content}\"\n\n"
             f"Classify the relationship between Claim 1 and Claim 2 as ENTAILMENT, CONTRADICTION, or NEUTRAL:"

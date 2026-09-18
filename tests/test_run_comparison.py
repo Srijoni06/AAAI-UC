@@ -118,3 +118,58 @@ class TestRunComparison:
         for cond in ["null", "last_write_wins", "majority_vote", "static_confidence"]:
             assert r1["conditions"][cond]["accuracy"] == r2["conditions"][cond]["accuracy"]
             assert r1["conditions"][cond]["correct"] == r2["conditions"][cond]["correct"]
+
+
+# --------------------------------------------------------------------------- #
+# Pair-level detection output (results/detection_pairs.json)
+# --------------------------------------------------------------------------- #
+class TestDetectionPairsOutput:
+    def _run(self, tmp_path, **kw):
+        report = run_comparison(_make_seeds(), backend="fake", out_dir=str(tmp_path), **kw)
+        data = json.loads((tmp_path / "detection_pairs.json").read_text(encoding="utf-8"))
+        return report, data
+
+    def test_default_threshold_sends_every_pair_to_the_judge(self):
+        import inspect
+
+        # cosine spans [-1, 1]; 0.0 silently dropped negative-similarity pairs
+        assert inspect.signature(run_comparison).parameters["threshold"].default == -1.0
+
+    def test_record_outcomes_match_reported_metrics(self, tmp_path):
+        report, data = self._run(tmp_path)
+        det = report["detection"]
+        by_outcome = {o: sum(p["outcome"] == o for p in data["pairs"]) for o in ("TP", "FP", "FN", "TN")}
+        assert (by_outcome["TP"], by_outcome["FP"], by_outcome["FN"]) == (det["TP"], det["FP"], det["FN"])
+        assert data["counts"] == det
+
+    def test_every_same_topic_pair_is_recorded_with_claim_text(self, tmp_path):
+        _, data = self._run(tmp_path)
+        assert len(data["pairs"]) == 4 * 10  # 4 docs x C(5 agents, 2)
+        for p in data["pairs"]:
+            assert p["claim_1"]["text"] and p["claim_2"]["text"]
+            assert p["claim_1"]["agent_id"] != p["claim_2"]["agent_id"]
+            assert p["doc_id"] and p["conflict_type"] and p["difficulty"]
+            assert p["judged"] is True and p["verdict"] in {"ENTAILMENT", "CONTRADICTION", "NEUTRAL"}
+
+    def test_records_use_deterministic_claim_order(self, tmp_path):
+        _, data = self._run(tmp_path)
+        for p in data["pairs"]:
+            k1 = (p["claim_1"]["agent_id"], p["claim_1"]["text"])
+            k2 = (p["claim_2"]["agent_id"], p["claim_2"]["text"])
+            assert k1 <= k2
+
+    def test_pairs_below_stage1_threshold_are_recorded_as_never_judged(self, tmp_path):
+        # cosine can't exceed 1.0, so a threshold of 2.0 drops every pair at Stage 1
+        report, data = self._run(tmp_path, threshold=2.0)
+        fns = [p for p in data["pairs"] if p["outcome"] == "FN"]
+        assert fns and report["detection"]["FN"] == len(fns)
+        assert all(p["judged"] is False and p["verdict"] is None for p in data["pairs"])
+        summary = (tmp_path / "summary.md").read_text(encoding="utf-8")
+        assert "never judged" in summary
+
+    def test_summary_lists_missed_pairs_with_claim_text(self, tmp_path):
+        _, data = self._run(tmp_path, threshold=2.0)
+        summary = (tmp_path / "summary.md").read_text(encoding="utf-8")
+        assert "Missed contradictions" in summary
+        fn = next(p for p in data["pairs"] if p["outcome"] == "FN")
+        assert fn["claim_1"]["text"] in summary and fn["claim_2"]["text"] in summary
