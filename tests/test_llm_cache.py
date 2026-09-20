@@ -8,7 +8,14 @@ from pathlib import Path
 
 from common.cache import LLMCache
 from common.env import DotenvReport, load_dotenv
-from common.llm import LLMClient, make_llm, resolve_config
+from common.llm import (
+    GEMINI_JUDGE_MODEL,
+    GeminiBackend,
+    LLMClient,
+    make_judge_llm,
+    make_llm,
+    resolve_config,
+)
 
 
 def _no_dotenv(*_a, **_k):
@@ -142,3 +149,131 @@ def test_dotenv_overrides_shell_backend(monkeypatch, tmp_path):
     res = resolve_config()
     assert res.backend == "local"
     assert ".env" in res.backend_source
+
+
+# --------------------------------------------------------------------------- #
+# judge-role routing (JUDGE_BACKEND) - agents stay on the main backend
+# --------------------------------------------------------------------------- #
+def test_judge_follows_main_backend_when_unset(monkeypatch):
+    monkeypatch.delenv("LLM_BACKEND", raising=False)
+    monkeypatch.delenv("JUDGE_BACKEND", raising=False)
+    monkeypatch.setattr("common.llm.load_dotenv", _no_dotenv)
+    assert resolve_config().judge_backend is None
+    assert make_judge_llm(cache=False).backend == "local"
+
+
+def test_judge_backend_same_is_a_noop(monkeypatch):
+    monkeypatch.setenv("LLM_BACKEND", "local")
+    monkeypatch.setenv("JUDGE_BACKEND", "same")
+    monkeypatch.setattr("common.llm.load_dotenv", _no_dotenv)
+    assert resolve_config().judge_backend is None
+
+
+def test_judge_backend_gemini_only_moves_the_judge_role(monkeypatch):
+    monkeypatch.setenv("LLM_BACKEND", "local")
+    monkeypatch.setenv("JUDGE_BACKEND", "gemini")
+    monkeypatch.setenv("GEMINI_API_KEY", "test-key-not-real")
+    monkeypatch.setattr("common.llm.load_dotenv", _no_dotenv)
+
+    agents = make_llm(cache=False)
+    judge = make_judge_llm(cache=False)
+
+    assert agents.backend == "local" and agents.agent_model == "llama3.1:8b"
+    assert judge.backend == "gemini" and judge.judge_model == GEMINI_JUDGE_MODEL
+    res = resolve_config()
+    assert res.judge_backend == "gemini" and res.judge_model == GEMINI_JUDGE_MODEL
+    assert res.agent_model == "llama3.1:8b"  # agents unchanged
+    assert "JUDGE_BACKEND   : gemini" in res.banner()
+
+
+def test_judge_backend_rejects_unknown_value(monkeypatch):
+    monkeypatch.setenv("LLM_BACKEND", "local")
+    monkeypatch.setenv("JUDGE_BACKEND", "openai")
+    monkeypatch.setattr("common.llm.load_dotenv", _no_dotenv)
+    with pytest.raises(ValueError, match="JUDGE_BACKEND"):
+        make_judge_llm(cache=False)
+
+
+# --------------------------------------------------------------------------- #
+# Gemini retry policy (free-tier 429s and 5xx retry; other 4xx do not)
+# --------------------------------------------------------------------------- #
+class _FlakyModels:
+    def __init__(self, errors):
+        self.errors = list(errors)
+        self.calls = 0
+
+    def generate_content(self, *, model, contents, config):
+        self.calls += 1
+        if self.errors:
+            raise self.errors.pop(0)
+
+        class _Resp:
+            text = "ok"
+
+        return _Resp()
+
+
+def _gemini_with(models, monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "test-key-not-real")
+    monkeypatch.setattr("common.llm.time.sleep", lambda *_: None)
+    be = GeminiBackend(cache=None, max_retries=3)
+    be._client = type("C", (), {"models": models})()
+    return be
+
+
+def _api_error(cls_name, code):
+    from google.genai import errors
+
+    return getattr(errors, cls_name)(code, {"error": {"code": code, "message": "x", "status": "X"}})
+
+
+def test_gemini_retries_rate_limit_then_succeeds(monkeypatch):
+    models = _FlakyModels([_api_error("ClientError", 429), _api_error("ServerError", 503)])
+    be = _gemini_with(models, monkeypatch)
+    assert be.generate("hi", system="s", temperature=0.0, model="m") == "ok"
+    assert models.calls == 3
+
+
+def test_gemini_does_not_retry_other_client_errors(monkeypatch):
+    from google.genai import errors
+
+    models = _FlakyModels([_api_error("ClientError", 400)])
+    be = _gemini_with(models, monkeypatch)
+    with pytest.raises(errors.ClientError):
+        be.generate("hi", system="s", temperature=0.0, model="m")
+    assert models.calls == 1
+
+
+def test_gemini_gives_up_after_max_retries(monkeypatch):
+    from google.genai import errors
+
+    models = _FlakyModels([_api_error("ClientError", 429)] * 5)
+    be = _gemini_with(models, monkeypatch)
+    with pytest.raises(errors.ClientError):
+        be.generate("hi", system="s", temperature=0.0, model="m")
+    assert models.calls == 3  # max_retries
+
+
+def test_gemini_judge_model_env_override(monkeypatch):
+    monkeypatch.setenv("LLM_BACKEND", "local")
+    monkeypatch.setenv("JUDGE_BACKEND", "gemini")
+    monkeypatch.setenv("GEMINI_API_KEY", "test-key-not-real")
+    monkeypatch.setenv("GEMINI_JUDGE_MODEL", "gemini-3.5-flash")
+    monkeypatch.setattr("common.llm.load_dotenv", _no_dotenv)
+    assert make_judge_llm(cache=False).judge_model == "gemini-3.5-flash"
+    assert resolve_config().judge_model == "gemini-3.5-flash"
+
+
+def test_gemini_fails_fast_on_daily_quota(monkeypatch):
+    from google.genai import errors
+
+    daily = errors.ClientError(
+        429,
+        {"error": {"code": 429, "status": "RESOURCE_EXHAUSTED",
+                   "message": "Quota exceeded: GenerateRequestsPerDayPerProjectPerModel-FreeTier"}},
+    )
+    models = _FlakyModels([daily])
+    be = _gemini_with(models, monkeypatch)
+    with pytest.raises(errors.ClientError):
+        be.generate("hi", system="s", temperature=0.0, model="m")
+    assert models.calls == 1  # no pointless backoff on a per-day quota

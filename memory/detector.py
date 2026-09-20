@@ -144,6 +144,8 @@ Your task is to classify the logical relationship between two claims on the same
 
 If a Question is given, read each claim as an answer to that question, so a short answer such as "Yes." or "No." is interpreted in the context of the question.
 
+Numeric rule: when both claims state a value for the same quantity (a number, count, percentage, score, size, or date) and the values differ materially, classify the pair as CONTRADICTION even if the direction or general description is the same (for example "a +4.2 improvement" and "a +0.5 improvement" contradict each other; they are not the same fact at different levels of detail). Differences that are only rounding, units, or formatting (for example "10,000" vs "10k") are not material.
+
 You must respond in JSON format with exactly two keys:
 {
   "relationship": "ENTAILMENT" | "CONTRADICTION" | "NEUTRAL",

@@ -418,6 +418,10 @@ def _score_condition(
 # Markdown summary
 # ---------------------------------------------------------------------------
 
+def _llm_label(llm, model_attr: str) -> str:
+    return f"{getattr(llm, 'backend', '?')}:{getattr(llm, model_attr, '?')}"
+
+
 def _write_summary(
     detection: dict,
     results: dict[str, ConditionResult],
@@ -432,6 +436,8 @@ def _write_summary(
     lines.append(f"**Documents:** {config['n_docs']}  ")
     lines.append(f"**Agents:** {len(DEFAULT_ROSTER)}  ")
     lines.append(f"**Similarity threshold:** {config['threshold']}  ")
+    lines.append(f"**Agent LLM:** {config.get('agent_llm')}  ")
+    lines.append(f"**Judge LLM:** {config.get('judge_llm')}  ")
     lines.append("")
 
     lines.append("## Detection Metrics (pair-level)")
@@ -506,6 +512,7 @@ def run_comparison(
     llm_client=None,
     embedder_obj=None,
     reconcile_llm=None,
+    judge_llm=None,
 ) -> dict:
     """Full comparison pipeline. Returns results dict."""
     from eval.fake_backend import FakeEmbedder, ScopedFakeLLM
@@ -517,13 +524,17 @@ def run_comparison(
         llm_client = llm_client or ScopedFakeLLM()
         embedder_obj = embedder_obj or FakeEmbedder()
         reconcile_llm = reconcile_llm or ScopedFakeLLM()
+        judge_llm = judge_llm or llm_client
     else:
-        from common.llm import make_llm
+        from common.llm import make_judge_llm, make_llm
         from memory.detector import SentenceEmbedder
 
         llm_client = llm_client or make_llm()
         embedder_obj = embedder_obj or SentenceEmbedder()
-        reconcile_llm = reconcile_llm or llm_client
+        # The judge role (detector NLI + reconciler) may run on a different backend
+        # from the agents (JUDGE_BACKEND); it follows LLM_BACKEND when unset.
+        judge_llm = judge_llm or make_judge_llm()
+        reconcile_llm = reconcile_llm or judge_llm
 
     # --- Phase A: run agents once, capture writes --------------------------
     import tempfile as _tmp
@@ -534,7 +545,7 @@ def run_comparison(
 
     # --- Phase B: detect contradictions once -------------------------------
     snapshot = _snapshot_writes(writes, seeds)
-    detector = ConflictDetector(llm=llm_client, embedder=embedder_obj, similarity_threshold=threshold)
+    detector = ConflictDetector(llm=judge_llm, embedder=embedder_obj, similarity_threshold=threshold)
     _detect_pairs(snapshot, detector)
     det_metrics = _detection_metrics(snapshot)
     n_flagged = len(snapshot.pair_specs)
@@ -575,6 +586,8 @@ def run_comparison(
         "backend": backend,
         "n_docs": len(seeds),
         "threshold": threshold,
+        "agent_llm": _llm_label(llm_client, "agent_model"),
+        "judge_llm": _llm_label(judge_llm, "judge_model"),
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
     }
     report = {"config": config, "detection": det_metrics, "conditions": {k: v.to_dict() for k, v in results.items()}}

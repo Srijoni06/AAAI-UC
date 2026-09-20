@@ -389,3 +389,12 @@ def test_negative_similarity_pair_dropped_at_zero_threshold_kept_at_minus_one():
     assert detector.find_candidates([a, b], threshold=0.0) == []
     kept = detector.find_candidates([a, b], threshold=-1.0)
     assert len(kept) == 1 and kept[0].similarity < 0.0
+
+
+def test_judge_system_prompt_treats_different_magnitudes_as_contradiction():
+    from memory.detector import JUDGE_SYSTEM_PROMPT
+
+    assert "Numeric rule" in JUDGE_SYSTEM_PROMPT
+    assert "differ materially" in JUDGE_SYSTEM_PROMPT and "CONTRADICTION" in JUDGE_SYSTEM_PROMPT
+    # formatting/rounding differences must not be flagged
+    assert "10,000" in JUDGE_SYSTEM_PROMPT and "not material" in JUDGE_SYSTEM_PROMPT

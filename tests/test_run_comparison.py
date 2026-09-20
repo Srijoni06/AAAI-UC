@@ -173,3 +173,27 @@ class TestDetectionPairsOutput:
         assert "Missed contradictions" in summary
         fn = next(p for p in data["pairs"] if p["outcome"] == "FN")
         assert fn["claim_1"]["text"] in summary and fn["claim_2"]["text"] in summary
+
+
+def test_judge_llm_is_used_for_detection_and_recorded(tmp_path):
+    """Detector judge calls go to ``judge_llm``, not the agent client."""
+
+    class Spy(ScopedFakeLLM):
+        judge_model = "spy-judge"
+
+        def __init__(self):
+            super().__init__()
+            self.judge_prompts = 0
+
+        def _raw_generate(self, prompt, *, system, temperature, model):
+            if "Classify the relationship" in prompt:
+                self.judge_prompts += 1
+            return super()._raw_generate(prompt, system=system, temperature=temperature, model=model)
+
+    agent, judge = Spy(), Spy()
+    report = run_comparison(
+        _make_seeds(), backend="fake", out_dir=str(tmp_path), llm_client=agent, judge_llm=judge
+    )
+    assert judge.judge_prompts == 4 * 10 and agent.judge_prompts == 0
+    assert report["config"]["judge_llm"] == "scoped_fake:spy-judge"
+    assert "Judge LLM:" in (tmp_path / "summary.md").read_text(encoding="utf-8")

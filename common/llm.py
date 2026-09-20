@@ -3,8 +3,13 @@
 Backend is chosen by the ``LLM_BACKEND`` env var / ``.env`` entry:
   - ``local``  (default) -> Ollama at ``OLLAMA_HOST`` (default localhost:11434),
                              model ``llama3.1:8b``. Used for all dev/testing.
-  - ``gemini``            -> google-genai, gemini-2.5-flash (agent) /
-                             gemini-2.5-pro (judge). For final verification runs.
+  - ``gemini``            -> google-genai, gemini-2.5-flash for agent and judge
+                             (override the judge with ``GEMINI_JUDGE_MODEL``).
+                             For final verification runs.
+
+The *judge role* (contradiction NLI in ``memory/detector.py`` and the reconciler)
+can run on a different backend from the agents: set ``JUDGE_BACKEND=gemini`` (or
+``local``) and use :func:`make_judge_llm`. Unset / ``same`` = follow ``LLM_BACKEND``.
 
 Every ``generate`` call checks the on-disk cache (``common.cache.LLMCache``)
 before hitting either backend. Disable with ``LLM_CACHE=0``.
@@ -27,7 +32,9 @@ OLLAMA_DEFAULT_HOST = "http://localhost:11434"
 OLLAMA_AGENT_MODEL = "llama3.1:8b"
 OLLAMA_JUDGE_MODEL = "llama3.1:8b"  # only one local model for now
 GEMINI_AGENT_MODEL = "gemini-2.5-flash"  # gemini-2.0-flash is retired on the API
-GEMINI_JUDGE_MODEL = "gemini-2.5-pro"
+# gemini-2.5-pro is closed to new API users and gemini-3.1-pro-preview has no
+# free-tier quota, so the judge defaults to flash; override with GEMINI_JUDGE_MODEL.
+GEMINI_JUDGE_MODEL = "gemini-2.5-flash"
 
 _PLACEHOLDER_KEYS = {"", "your-gemini-api-key"}
 
@@ -162,6 +169,7 @@ class GeminiBackend(LLMClient):
             )
         self._client = genai.Client(api_key=api_key)
         self._max_retries = max_retries
+        self.judge_model = _gemini_judge_model()
 
     def _raw_generate(
         self, prompt: str, *, system: str, temperature: float, model: str
@@ -178,10 +186,17 @@ class GeminiBackend(LLMClient):
                     model=model, contents=prompt, config=config
                 )
                 return resp.text or ""
-            except genai_errors.ServerError:
-                if attempt == self._max_retries - 1:
+            except (genai_errors.ServerError, genai_errors.ClientError) as e:
+                rate_limited = getattr(e, "code", None) == 429
+                # a per-DAY quota will not clear within a retry window; fail fast
+                daily_quota = rate_limited and "PerDay" in str(e)
+                retriable = isinstance(e, genai_errors.ServerError) or (
+                    rate_limited and not daily_quota
+                )
+                if not retriable or attempt == self._max_retries - 1:
                     raise
-                time.sleep(2 * (attempt + 1))
+                # free-tier quotas are per-minute windows, so back off much longer on 429
+                time.sleep((15 if rate_limited else 2) * (attempt + 1))
         return ""  # unreachable
 
 
@@ -207,6 +222,7 @@ class LLMResolution:
     ollama_host: str | None = None
     gemini_key_status: str | None = None
     raw_backend_value: str | None = None
+    judge_backend: str | None = None  # None = judge follows ``backend``
 
     def banner(self) -> str:
         lines = [
@@ -222,13 +238,44 @@ class LLMResolution:
         ]
         if self.backend == "local":
             lines.append(f"  OLLAMA_HOST     : {self.ollama_host}")
-        if self.backend == "gemini":
+        if self.judge_backend:
+            lines.append(f"  JUDGE_BACKEND   : {self.judge_backend} (judge role only)")
+        if self.gemini_key_status is not None:
             lines.append(f"  GEMINI_API_KEY  : {self.gemini_key_status}")
         return "\n".join(lines)
 
 
+def _gemini_judge_model() -> str:
+    return (os.environ.get("GEMINI_JUDGE_MODEL") or "").strip() or GEMINI_JUDGE_MODEL
+
+
+def _judge_model_for(backend: str) -> str:
+    if backend == "local":
+        return OLLAMA_JUDGE_MODEL
+    if backend == "gemini":
+        return _gemini_judge_model()
+    return "?"
+
+
+def _gemini_key_status() -> str:
+    key = os.environ.get("GEMINI_API_KEY", "")
+    return "placeholder / missing" if key in _PLACEHOLDER_KEYS else f"set (len {len(key)})"
+
+
 def resolve_config() -> LLMResolution:
-    """Load .env and report the backend/model that ``make_llm`` would pick."""
+    """Load .env and report the backend/model that ``make_llm`` would pick,
+    plus the judge backend when ``JUDGE_BACKEND`` sends the judge role elsewhere."""
+    res = _resolve_main_config()
+    raw_judge = (os.environ.get("JUDGE_BACKEND") or "").strip().lower()
+    if raw_judge not in {"", "same"} and raw_judge != res.backend:
+        res.judge_backend = raw_judge
+        res.judge_model = _judge_model_for(raw_judge)
+        if raw_judge == "gemini":
+            res.gemini_key_status = _gemini_key_status()
+    return res
+
+
+def _resolve_main_config() -> LLMResolution:
     report = load_dotenv()
     raw = os.environ.get("LLM_BACKEND")
     backend = (raw or DEFAULT_BACKEND).strip().lower()
@@ -258,14 +305,10 @@ def resolve_config() -> LLMResolution:
             **common,
         )
     if backend == "gemini":
-        key = os.environ.get("GEMINI_API_KEY", "")
-        status = (
-            "placeholder / missing" if key in _PLACEHOLDER_KEYS else f"set (len {len(key)})"
-        )
         return LLMResolution(
             agent_model=GEMINI_AGENT_MODEL,
-            judge_model=GEMINI_JUDGE_MODEL,
-            gemini_key_status=status,
+            judge_model=_gemini_judge_model(),
+            gemini_key_status=_gemini_key_status(),
             **common,
         )
     return LLMResolution(
@@ -283,4 +326,23 @@ def make_llm(*, cache: bool = True) -> LLMClient:
         return GeminiBackend(cache=shared_cache)
     raise ValueError(
         f"LLM_BACKEND must be 'local' or 'gemini' (got {res.raw_backend_value!r})"
+    )
+
+
+def make_judge_llm(*, cache: bool = True) -> LLMClient:
+    """Build the client for the judge role (detector NLI + reconciler).
+
+    Follows ``LLM_BACKEND`` unless ``JUDGE_BACKEND`` names a different backend,
+    so agents can stay on local Ollama while a stronger model judges.
+    """
+    res = resolve_config()
+    if res.judge_backend is None:
+        return make_llm(cache=cache)
+    shared_cache = LLMCache() if (cache and res.cache_enabled) else None
+    if res.judge_backend == "local":
+        return OllamaBackend(cache=shared_cache)
+    if res.judge_backend == "gemini":
+        return GeminiBackend(cache=shared_cache)
+    raise ValueError(
+        f"JUDGE_BACKEND must be 'same', 'local' or 'gemini' (got {res.judge_backend!r})"
     )
