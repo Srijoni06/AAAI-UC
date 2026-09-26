@@ -33,7 +33,7 @@ OLLAMA_DEFAULT_HOST = "http://localhost:11434"
 # model load on a slow/CPU machine doesn't spuriously time out client-side.
 OLLAMA_REQUEST_TIMEOUT = 600
 OLLAMA_AGENT_MODEL = "llama3.1:8b"
-OLLAMA_JUDGE_MODEL = "llama3.1:8b"  # only one local model for now
+OLLAMA_JUDGE_MODEL = "llama3.1:8b"  # override with OLLAMA_JUDGE_MODEL, e.g. a larger local model
 GEMINI_AGENT_MODEL = "gemini-2.5-flash"  # gemini-2.0-flash is retired on the API
 # gemini-2.5-pro is closed to new API users and gemini-3.1-pro-preview has no
 # free-tier quota, so the judge defaults to flash; override with GEMINI_JUDGE_MODEL.
@@ -112,6 +112,7 @@ class OllamaBackend(LLMClient):
         self.host = (host or os.environ.get("OLLAMA_HOST") or OLLAMA_DEFAULT_HOST).rstrip(
             "/"
         )
+        self.judge_model = _ollama_judge_model()
 
     def _raw_generate(
         self, prompt: str, *, system: str, temperature: float, model: str
@@ -253,13 +254,17 @@ class LLMResolution:
         return "\n".join(lines)
 
 
+def _ollama_judge_model() -> str:
+    return (os.environ.get("OLLAMA_JUDGE_MODEL") or "").strip() or OLLAMA_JUDGE_MODEL
+
+
 def _gemini_judge_model() -> str:
     return (os.environ.get("GEMINI_JUDGE_MODEL") or "").strip() or GEMINI_JUDGE_MODEL
 
 
 def _judge_model_for(backend: str) -> str:
     if backend == "local":
-        return OLLAMA_JUDGE_MODEL
+        return _ollama_judge_model()
     if backend == "gemini":
         return _gemini_judge_model()
     return "?"
@@ -308,7 +313,7 @@ def _resolve_main_config() -> LLMResolution:
         ).rstrip("/")
         return LLMResolution(
             agent_model=OLLAMA_AGENT_MODEL,
-            judge_model=OLLAMA_JUDGE_MODEL,
+            judge_model=_ollama_judge_model(),
             ollama_host=host,
             **common,
         )

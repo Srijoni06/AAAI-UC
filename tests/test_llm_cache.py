@@ -360,3 +360,20 @@ def test_ollama_request_timeout_exceeds_load_timeout():
     # Ollama's own OLLAMA_LOAD_TIMEOUT default is 5 minutes; our client timeout
     # must exceed it or a cold model load always loses the race.
     assert OLLAMA_REQUEST_TIMEOUT > 300
+
+
+def test_ollama_judge_model_env_override(monkeypatch):
+    monkeypatch.setenv("LLM_BACKEND", "local")
+    monkeypatch.delenv("JUDGE_BACKEND", raising=False)
+    monkeypatch.setenv("OLLAMA_JUDGE_MODEL", "qwen2.5:14b")
+    monkeypatch.setattr("common.llm.load_dotenv", _no_dotenv)
+    assert make_llm(cache=False).judge_model == "qwen2.5:14b"
+    assert resolve_config().judge_model == "qwen2.5:14b"
+
+
+def test_ollama_judge_model_defaults_to_agent_model(monkeypatch):
+    monkeypatch.setenv("LLM_BACKEND", "local")
+    monkeypatch.delenv("JUDGE_BACKEND", raising=False)
+    monkeypatch.delenv("OLLAMA_JUDGE_MODEL", raising=False)
+    monkeypatch.setattr("common.llm.load_dotenv", _no_dotenv)
+    assert make_llm(cache=False).judge_model == "llama3.1:8b"
