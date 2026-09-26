@@ -24,6 +24,8 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Iterable
 
+from baselines.base import Resolution
+
 
 def _pair_key(a: str, b: str) -> frozenset[str]:
     """Canonical unordered pair key for the correlation matrix."""
@@ -68,18 +70,28 @@ class PeerMemory:
 
     # -- update --------------------------------------------------------- #
 
-    def update(self, items: Iterable, *, correct: bool = True) -> None:
+    def update(self, items: Iterable, resolution: Resolution, *, correct: bool = True) -> None:
         """Update competence and correlation from a resolution decision.
 
         ``items``: the full list of MemoryItem objects that were in the
-        conflict (not just the winner or loser — the full topic group).
+        conflict (not just the winner or loser — the full topic group). Used
+        for correlation tracking (which agents proposed which answer, via
+        each item's own ``cluster_key`` — independent of status).
+
+        ``resolution``: the ``Resolution`` that decided this conflict.
+        Confirmed/superseded ids come directly from
+        ``resolution.confirmed_ids`` / ``.superseded_ids`` — authoritative,
+        and *not* dependent on ``items`` reflecting post-resolution store
+        state. (A caller holding a pre-resolution snapshot of ``items`` used
+        to make every item look "confirmed" via a stale ``.status``,
+        collapsing every agent's competence update together — see
+        ``tests/test_reliability.py::test_update_derives_winner_loser_from_resolution_not_item_status``.)
 
         ``correct``: whether the resolver's decision was right (matched
         gold label). When False (incorrect), competence of confirmed agents
-        is penalized.
-
-        Competence update: exponential moving average toward the observed
-        outcome (1.0 for confirmed agents, 0.0 for superseded agents).
+        is penalised and superseded agents get a slight boost (they were
+        right after all). Contested items — or any item id the resolution
+        doesn't cover at all — get no competence update: no signal either way.
 
         Correlation update: agents whose claims share the same answer key
         (i.e. they agreed on the same excerpt/source) are "in agreement"
@@ -94,25 +106,18 @@ class PeerMemory:
         # -- Competence update ------------------------------------------ #
         from baselines.majority_vote import cluster_key as _ck
 
-        confirmed_ids: set[str] = set()
-        superseded_ids: set[str] = set()
-        # We don't have the Resolution here — extract from items directly.
-        # Items still PROPOSED or CONFIRMED were "not superseded" in the
-        # most recent decision; items that were SUPERSEDED were losers.
-        for it in items:
-            from memory.store import Status
-            if it.status in (Status.PROPOSED, Status.CONFIRMED):
-                confirmed_ids.add(it.id)
-            else:
-                superseded_ids.add(it.id)
+        confirmed_ids = set(resolution.confirmed_ids)
+        superseded_ids = set(resolution.superseded_ids)
 
         alpha_c = self.COMPETENCE_EMA_ALPHA
         for it in items:
-            old = self.get_competence(it.agent_id)
             if it.id in confirmed_ids:
                 target = 1.0 if correct else 0.0
-            else:
+            elif it.id in superseded_ids:
                 target = 0.0 if correct else 1.0
+            else:
+                continue  # contested, or not covered by this resolution: no signal
+            old = self.get_competence(it.agent_id)
             new = old + alpha_c * (target - old)
             self.competence[it.agent_id] = max(
                 self.MIN_COMPETENCE, min(self.MAX_COMPETENCE, new)

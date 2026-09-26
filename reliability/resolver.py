@@ -146,7 +146,7 @@ class ReliabilityResolver:
         penalised and superseded agents get a slight boost (they were right
         after all).
         """
-        self.peer_memory.update(all_items, correct=correct)
+        self.peer_memory.update(all_items, resolution, correct=correct)
 
     # ------------------------------------------------------------------ #
     # Scoring helpers                                                     #

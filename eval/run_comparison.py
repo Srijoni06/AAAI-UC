@@ -362,9 +362,15 @@ def _score_one_topic(
         decision["correct"] = False
         decision["rationale"] = resolution.rationale
 
-    # Update reliability memory if resolver supports it
+    # Update reliability memory if resolver supports it. Re-fetch from the
+    # store rather than reusing `live_items` (captured before apply_resolution
+    # ran): PeerMemory.update() no longer trusts item.status either way (it
+    # reads confirmed/superseded ids straight from `resolution`), but a stale
+    # pre-resolution snapshot is wrong to hand to a resolver update on general
+    # principle, so this stops doing it regardless of what the callee needs.
     if hasattr(resolver, "update_memory"):
-        resolver.update_memory(live_items, resolution, correct=bool(confirmed_excerpts) and is_correct)
+        post_items = store.list(topic=topic)
+        resolver.update_memory(post_items, resolution, correct=bool(confirmed_excerpts) and is_correct)
 
     return decision
 
