@@ -362,9 +362,11 @@ def test_judge_prompt_includes_question_when_present():
 
     detector.detect([a, b], relationships=ALL_RELATIONSHIPS)
 
-    assert len(llm.prompts) == 1
-    assert "Question: Does the method require human-labeled training data?" in llm.prompts[0]
-    assert '"Yes."' in llm.prompts[0]
+    # both-orders judging (classify_pair): one call per ordering
+    assert len(llm.prompts) == 2
+    for prompt in llm.prompts:
+        assert "Question: Does the method require human-labeled training data?" in prompt
+        assert '"Yes."' in prompt
     assert "Question" in llm.systems[0]  # system prompt explains how to read it
 
 
@@ -376,7 +378,49 @@ def test_judge_prompt_omits_question_line_when_absent():
 
     detector.detect([a, b], relationships=ALL_RELATIONSHIPS)
 
-    assert "Question:" not in llm.prompts[0]
+    assert len(llm.prompts) == 2
+    for prompt in llm.prompts:
+        assert "Question:" not in prompt
+
+
+class OrderSensitiveJudge(LLMClient):
+    """Returns CONTRADICTION only when a specific agent is Claim 1, NEUTRAL
+    otherwise - a stand-in for a real judge whose verdict flips with order."""
+
+    backend = "test"
+    agent_model = "test-agent"
+    judge_model = "test-judge"
+
+    def __init__(self, contradiction_when_claim1: str):
+        super().__init__(cache=None)
+        self.contradiction_when_claim1 = contradiction_when_claim1
+
+    def _raw_generate(self, prompt, *, system, temperature, model):
+        if f"Claim 1 (by {self.contradiction_when_claim1})" in prompt:
+            return '{"relationship": "CONTRADICTION", "rationale": "flagged when this agent is Claim 1"}'
+        return '{"relationship": "NEUTRAL", "rationale": "not flagged in this order"}'
+
+
+def test_classify_pair_confirms_contradiction_if_either_order_does():
+    """One order says CONTRADICTION, the other says NEUTRAL -> the merged
+    verdict is CONTRADICTION. Order-sensitivity is a judge artifact, not a real
+    symmetry break in the relation, so a lucky NEUTRAL order must not hide a
+    real conflict the other order caught."""
+    llm = OrderSensitiveJudge(contradiction_when_claim1="agent_A")
+    detector = ConflictDetector(llm=llm, embedder=_same_vec_embedder(), similarity_threshold=-1.0)
+    a = make_item("t", "claim one", agent_id="agent_A")
+    b = make_item("t", "claim two", agent_id="agent_B")
+
+    pair = detector.classify_pair(CandidatePair(a, b, 1.0, "t"))
+
+    assert pair.relationship == Relationship.CONTRADICTION
+    # both individual per-order verdicts/rationales are kept, not discarded
+    assert pair.verdict_a_first == Relationship.CONTRADICTION
+    assert pair.verdict_b_first == Relationship.NEUTRAL
+    assert "flagged when this agent is Claim 1" in pair.rationale_a_first
+    assert "not flagged in this order" in pair.rationale_b_first
+    assert "flagged when this agent is Claim 1" in pair.rationale
+    assert "not flagged in this order" in pair.rationale
 
 
 def test_negative_similarity_pair_dropped_at_zero_threshold_kept_at_minus_one():

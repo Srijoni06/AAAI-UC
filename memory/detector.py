@@ -120,11 +120,20 @@ class ConflictPair(Conflict):
 
     Subclasses :class:`memory.store.Conflict` so it seamlessly interoperates with
     resolvers expecting a ``Conflict`` object with ``items=[item_a, item_b]``.
+
+    ``relationship``/``rationale`` are the merged, both-orders-judged verdict (see
+    :meth:`ConflictDetector.classify_pair`). ``verdict_a_first``/``verdict_b_first``
+    (and their rationales) are the two individual judge calls that fed the merge,
+    kept for transparency rather than discarded once merged.
     """
 
     relationship: Relationship = Relationship.CONTRADICTION
     similarity: float = 1.0
     rationale: str = ""
+    verdict_a_first: Optional[Relationship] = None
+    rationale_a_first: str = ""
+    verdict_b_first: Optional[Relationship] = None
+    rationale_b_first: str = ""
 
     @property
     def item_a(self) -> MemoryItem:
@@ -192,6 +201,31 @@ def _parse_judge_response(raw_text: str) -> tuple[Relationship, str]:
         return Relationship.NEUTRAL, rationale
 
     return Relationship.NEUTRAL, f"Unable to parse judge response: {raw_text[:100]}"
+
+
+_RELATIONSHIP_PRIORITY = {
+    Relationship.CONTRADICTION: 2,
+    Relationship.ENTAILMENT: 1,
+    Relationship.NEUTRAL: 0,
+}
+
+
+def _merge_orders(
+    rel_a_first: Relationship,
+    why_a_first: str,
+    rel_b_first: Relationship,
+    why_b_first: str,
+) -> tuple[Relationship, str]:
+    """Merge both-orders judge verdicts for one pair.
+
+    The judge can be order-sensitive - a prompt-position artifact, not a real
+    asymmetry in ENTAILMENT/CONTRADICTION/NEUTRAL - so a pair is classified as
+    CONTRADICTION if EITHER order says so, else ENTAILMENT if either does, else
+    NEUTRAL. Ties (both orders agree) resolve to that shared verdict.
+    """
+    winner = max((rel_a_first, rel_b_first), key=lambda r: _RELATIONSHIP_PRIORITY[r])
+    rationale = f"[a-first={rel_a_first.value}] {why_a_first} | [b-first={rel_b_first.value}] {why_b_first}"
+    return winner, rationale
 
 
 class ConflictDetector:
@@ -265,33 +299,49 @@ class ConflictDetector:
                         )
         return candidates
 
-    def classify_pair(self, candidate: CandidatePair) -> ConflictPair:
-        """Stage 2: Classify the relationship of a candidate pair using the judge LLM."""
+    def _judge_once(self, claim1: MemoryItem, claim2: MemoryItem, topic: str) -> tuple[Relationship, str]:
+        """One judge call with ``claim1``/``claim2`` in the given order."""
         # Agents answer a specific question; without it a bare "Yes." is unjudgeable.
-        question = candidate.item_a.metadata.get("question") or candidate.item_b.metadata.get("question")
+        question = claim1.metadata.get("question") or claim2.metadata.get("question")
         question_line = f"Question: {question}\n" if question else ""
         prompt = (
-            f"Topic: {candidate.topic}\n"
+            f"Topic: {topic}\n"
             f"{question_line}\n"
-            f"Claim 1 (by {candidate.item_a.agent_id}):\n\"{candidate.item_a.content}\"\n\n"
-            f"Claim 2 (by {candidate.item_b.agent_id}):\n\"{candidate.item_b.content}\"\n\n"
+            f"Claim 1 (by {claim1.agent_id}):\n\"{claim1.content}\"\n\n"
+            f"Claim 2 (by {claim2.agent_id}):\n\"{claim2.content}\"\n\n"
             f"Classify the relationship between Claim 1 and Claim 2 as ENTAILMENT, CONTRADICTION, or NEUTRAL:"
         )
-
         response = self.llm.generate(
             prompt,
             system=JUDGE_SYSTEM_PROMPT,
             model=self.llm.judge_model,
             temperature=0.0,
         )
+        return _parse_judge_response(response)
 
-        rel, rationale = _parse_judge_response(response)
+    def classify_pair(self, candidate: CandidatePair) -> ConflictPair:
+        """Stage 2: classify a candidate pair by judging both claim orderings.
+
+        Roughly doubles judge calls per pair (one with ``item_a`` as Claim 1,
+        one with ``item_b`` as Claim 1) to catch order-sensitive judge errors;
+        see :func:`_merge_orders` for how the two verdicts combine. Both
+        individual verdicts/rationales are kept on the returned
+        :class:`ConflictPair` for transparency, not just the merged result.
+        """
+        rel_a_first, why_a_first = self._judge_once(candidate.item_a, candidate.item_b, candidate.topic)
+        rel_b_first, why_b_first = self._judge_once(candidate.item_b, candidate.item_a, candidate.topic)
+        merged, merged_rationale = _merge_orders(rel_a_first, why_a_first, rel_b_first, why_b_first)
+
         return ConflictPair(
             topic=candidate.topic,
             items=[candidate.item_a, candidate.item_b],
-            relationship=rel,
+            relationship=merged,
             similarity=candidate.similarity,
-            rationale=rationale,
+            rationale=merged_rationale,
+            verdict_a_first=rel_a_first,
+            rationale_a_first=why_a_first,
+            verdict_b_first=rel_b_first,
+            rationale_b_first=why_b_first,
         )
 
     def detect(

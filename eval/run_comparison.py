@@ -180,6 +180,12 @@ def _pair_records(snapshot: Snapshot, items: list[MemoryItem], verdicts: dict) -
                         "judged": judged is not None,
                         "verdict": verdict,
                         "rationale": judged.rationale if judged else None,
+                        # Both-orders judging (memory.detector._merge_orders): the
+                        # individual per-order verdicts that fed the merged one above.
+                        "verdict_a_first": judged.verdict_a_first.value if judged and judged.verdict_a_first else None,
+                        "rationale_a_first": judged.rationale_a_first if judged else None,
+                        "verdict_b_first": judged.verdict_b_first.value if judged and judged.verdict_b_first else None,
+                        "rationale_b_first": judged.rationale_b_first if judged else None,
                         "similarity": round(sim, 4),
                         "claim_1": _item_view(a),
                         "claim_2": _item_view(b),

@@ -195,7 +195,8 @@ def test_judge_llm_is_used_for_detection_and_recorded(tmp_path):
     report = run_comparison(
         _make_seeds(), backend="fake", out_dir=str(tmp_path), llm_client=agent, judge_llm=judge
     )
-    assert judge.judge_prompts == 4 * 10 and agent.judge_prompts == 0
+    # both-orders judging (classify_pair): 2 judge calls per pair
+    assert judge.judge_prompts == 4 * 10 * 2 and agent.judge_prompts == 0
     assert report["config"]["judge_llm"] == "scoped_fake:spy-judge"
     assert "Judge LLM:" in (tmp_path / "summary.md").read_text(encoding="utf-8")
 
