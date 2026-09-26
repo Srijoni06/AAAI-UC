@@ -93,11 +93,17 @@ class PeerMemory:
         right after all). Contested items — or any item id the resolution
         doesn't cover at all — get no competence update: no signal either way.
 
-        Correlation update: agents whose claims share the same answer key
-        (i.e. they agreed on the same excerpt/source) are "in agreement"
-        on this topic; agents on different answer keys are "in disagreement".
-        Agreement within a topic pushes correlation positive; disagreement
-        pushes it negative.
+        Correlation update: agreement alone is not evidence of shared bias -
+        two agents can agree because they are both independently right. The
+        signal this project actually needs is *correlated error*:
+          - agree (same answer key) AND that answer was incorrect -> push
+            correlation toward 1.0 (shared bias: they were wrong together).
+          - agree AND that answer was correct -> no update at all; leave the
+            existing score unchanged (valid corroboration is not evidence of
+            bias either way, in either direction).
+          - disagree (different answer keys) -> push correlation toward -1.0,
+            regardless of correctness (disagreement is still evidence of
+            independence).
         """
         items = list(items)
         if not items:
@@ -147,8 +153,12 @@ class PeerMemory:
                 b_key = _ck(items[b_idx])
                 agreed = a_key == b_key
 
-                old_corr = self.get_correlation(a_id, b_id)
+                if agreed and correct:
+                    continue  # valid corroboration - not evidence of shared bias
+
+                # agreed (and incorrect) -> shared bias; disagreed -> independent
                 target = 1.0 if agreed else -1.0
+                old_corr = self.get_correlation(a_id, b_id)
                 new_corr = old_corr + alpha_r * (target - old_corr)
                 new_corr = max(-self.MAX_CORRELATION, min(self.MAX_CORRELATION, new_corr))
                 self.correlation[_pair_key(a_id, b_id)] = new_corr

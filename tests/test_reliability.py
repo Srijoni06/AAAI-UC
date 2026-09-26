@@ -90,12 +90,44 @@ class TestPeerMemory:
             pm.update(items, resolution, correct=True)
         assert pm.get_competence("a") <= 0.95
 
-    def test_correlation_agreement_positive(self):
-        """Agents on the same answer key → positive correlation."""
+    # ----------------------------------------------------------------- #
+    # Regression: correlation must track *correlated error*, not agreement
+    # alone. The real bug: `agreed = a_key == b_key` fed the correlation EMA
+    # with no reference to `correct` at all - two agents correctly right
+    # together and two agents incorrectly wrong together produced identical
+    # correlation trajectories (confirmed empirically: both climbed to
+    # 0.6404 after 8 rounds). That directly undermines the project's central
+    # claim, since it can't distinguish shared bias from valid corroboration.
+    # ----------------------------------------------------------------- #
+    def test_correlation_unchanged_on_correct_agreement(self):
+        """Agents who agree on the CORRECT answer: not evidence of shared
+        bias either way - correlation must be left unchanged, not pushed up."""
         pm = PeerMemory()
         items = [
             _item("a", "A", source_id="d#e0"),
             _item("b", "A", source_id="d#e0"),
+        ]
+        resolution = Resolution.coexist(topic="t", strategy="test", item_ids=[it.id for it in items])
+        pm.update(items, resolution, correct=True)
+        assert pm.get_correlation("a", "b") == 0.0  # untouched, not pushed positive
+
+    def test_correlation_increases_on_incorrect_agreement(self):
+        """Agents who agree on an INCORRECT answer: this is the real
+        shared-bias signal - correlation must rise."""
+        pm = PeerMemory()
+        items = [
+            _item("a", "A", source_id="d#e0"),
+            _item("b", "A", source_id="d#e0"),
+        ]
+        resolution = Resolution.coexist(topic="t", strategy="test", item_ids=[it.id for it in items])
+        pm.update(items, resolution, correct=False)
+        assert pm.get_correlation("a", "b") > 0
+
+    def test_correlation_disagreement_negative_regardless_of_correctness(self):
+        """Disagreement is still evidence of independence either way."""
+        pm = PeerMemory()
+        items = [
+            _item("a", "A", source_id="d#e0"),
             _item("c", "B", source_id="d#e1"),
         ]
         resolution = Resolution(
@@ -103,15 +135,16 @@ class TestPeerMemory:
             strategy="test",
             outcomes=[
                 ItemOutcome(items[0].id, Outcome.CONFIRMED),
-                ItemOutcome(items[1].id, Outcome.CONFIRMED),
-                ItemOutcome(items[2].id, Outcome.SUPERSEDED),
+                ItemOutcome(items[1].id, Outcome.SUPERSEDED),
             ],
         )
         pm.update(items, resolution, correct=True)
-        assert pm.get_correlation("a", "b") > 0  # agreed
-        assert pm.get_correlation("a", "c") < 0  # disagreed
+        assert pm.get_correlation("a", "c") < 0
 
     def test_correlation_bounded(self):
+        """Repeated INCORRECT agreement (the actual shared-bias case) must
+        still hit the upper clamp - correct agreement no longer moves
+        correlation at all, so it can't be used to test the bound."""
         pm = PeerMemory()
         items = [
             _item("a", "A", source_id="d#e0"),
@@ -119,7 +152,7 @@ class TestPeerMemory:
         ]
         resolution = Resolution.coexist(topic="t", strategy="test", item_ids=[it.id for it in items])
         for _ in range(100):
-            pm.update(items, resolution, correct=True)
+            pm.update(items, resolution, correct=False)
         assert abs(pm.get_correlation("a", "b")) <= 0.95
 
     def test_pair_key_is_canonical(self):
