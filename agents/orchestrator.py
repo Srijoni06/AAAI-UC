@@ -75,8 +75,13 @@ _PROMPT_SKEPTIC = (
 )
 
 _PROMPT_TERSE = (
-    "Extract the single factual answer to the question from the excerpt. "
-    "Reply with one short sentence and no preamble."
+    "Extract the single factual answer to the question from the excerpt, and state "
+    "it as one full declarative sentence - never a bare 'Yes.', 'No.', or a sentence "
+    "fragment. Restate the specific fact from the excerpt, including any qualifying "
+    "words the excerpt itself uses for it (for example whether it is about training "
+    "data vs. evaluation data, a raw vs. filtered count, an original vs. corrected "
+    "value, and so on) - do not compress that qualification away. One sentence, no "
+    "preamble, and no added claims beyond what the excerpt states."
 )
 
 
