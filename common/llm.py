@@ -29,6 +29,9 @@ from common.cache import LLMCache
 from common.env import load_dotenv
 
 OLLAMA_DEFAULT_HOST = "http://localhost:11434"
+# Generously exceeds Ollama's own OLLAMA_LOAD_TIMEOUT (5m default), so a cold
+# model load on a slow/CPU machine doesn't spuriously time out client-side.
+OLLAMA_REQUEST_TIMEOUT = 600
 OLLAMA_AGENT_MODEL = "llama3.1:8b"
 OLLAMA_JUDGE_MODEL = "llama3.1:8b"  # only one local model for now
 GEMINI_AGENT_MODEL = "gemini-2.5-flash"  # gemini-2.0-flash is retired on the API
@@ -129,7 +132,7 @@ class OllamaBackend(LLMClient):
         )
         for attempt in range(3):
             try:
-                with urllib.request.urlopen(req, timeout=180) as resp:
+                with urllib.request.urlopen(req, timeout=OLLAMA_REQUEST_TIMEOUT) as resp:
                     payload = json.loads(resp.read())
                     return payload.get("response", "")
             except urllib.error.HTTPError as e:
@@ -141,13 +144,18 @@ class OllamaBackend(LLMClient):
                     f"Ollama HTTP {e.code} for model {model!r}: {detail}. "
                     f"Pull it with `ollama pull {model}`."
                 ) from e
-            except urllib.error.URLError as e:
+            except (urllib.error.URLError, TimeoutError) as e:
+                # A bare socket TimeoutError (e.g. a slow cold model load on CPU)
+                # is not a urllib.error.URLError and was previously uncaught here.
                 if attempt < 2:
                     time.sleep(2 * (attempt + 1))
                     continue
+                reason = getattr(e, "reason", e)
                 raise RuntimeError(
-                    f"Ollama at {self.host} is unreachable ({e.reason}). "
-                    f"Start it with `ollama serve` and pull `{model}`."
+                    f"Ollama at {self.host} is unreachable or timed out ({reason}). "
+                    f"Start it with `ollama serve` and pull `{model}`. A large model's "
+                    f"first call after (re)starting Ollama can be slow while it loads "
+                    f"into memory, especially on CPU."
                 ) from e
         return ""
 

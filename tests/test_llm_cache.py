@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import io
+import urllib.error
+
 import pytest
 
 from pathlib import Path
@@ -12,6 +15,7 @@ from common.llm import (
     GEMINI_JUDGE_MODEL,
     GeminiBackend,
     LLMClient,
+    OllamaBackend,
     make_judge_llm,
     make_llm,
     resolve_config,
@@ -277,3 +281,82 @@ def test_gemini_fails_fast_on_daily_quota(monkeypatch):
     with pytest.raises(errors.ClientError):
         be.generate("hi", system="s", temperature=0.0, model="m")
     assert models.calls == 1  # no pointless backoff on a per-day quota
+
+
+# --------------------------------------------------------------------------- #
+# Ollama retry policy (HTTP 500s and socket timeouts retry; other errors do not)
+# --------------------------------------------------------------------------- #
+class _FakeHTTPResponse:
+    def __init__(self, body: bytes):
+        self._body = body
+
+    def read(self):
+        return self._body
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        return False
+
+
+def _ollama_with(urlopen_fn, monkeypatch):
+    monkeypatch.setattr("common.llm.time.sleep", lambda *_: None)
+    monkeypatch.setattr("common.llm.urllib.request.urlopen", urlopen_fn)
+    return OllamaBackend(cache=None)
+
+
+def test_ollama_retries_socket_timeout_then_succeeds(monkeypatch):
+    """A bare TimeoutError (e.g. a slow cold model load) is not a URLError and
+    was previously uncaught, crashing the whole call instead of retrying."""
+    calls = {"n": 0}
+
+    def fake_urlopen(req, timeout):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise TimeoutError("timed out")
+        return _FakeHTTPResponse(b'{"response": "ok"}')
+
+    be = _ollama_with(fake_urlopen, monkeypatch)
+    assert be.generate("hi", system="s", temperature=0.0, model="big-model") == "ok"
+    assert calls["n"] == 2
+
+
+def test_ollama_retries_http_500_then_succeeds(monkeypatch):
+    calls = {"n": 0}
+
+    def fake_urlopen(req, timeout):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise urllib.error.HTTPError(req.full_url, 500, "err", {}, io.BytesIO(b"boom"))
+        return _FakeHTTPResponse(b'{"response": "ok"}')
+
+    be = _ollama_with(fake_urlopen, monkeypatch)
+    assert be.generate("hi", system="s", temperature=0.0, model="m") == "ok"
+    assert calls["n"] == 2
+
+
+def test_ollama_does_not_retry_other_http_errors(monkeypatch):
+    def fake_urlopen(req, timeout):
+        raise urllib.error.HTTPError(req.full_url, 404, "not found", {}, io.BytesIO(b"no such model"))
+
+    be = _ollama_with(fake_urlopen, monkeypatch)
+    with pytest.raises(RuntimeError, match="404"):
+        be.generate("hi", system="s", temperature=0.0, model="missing-model")
+
+
+def test_ollama_gives_up_after_max_retries_on_timeout(monkeypatch):
+    def fake_urlopen(req, timeout):
+        raise TimeoutError("timed out")
+
+    be = _ollama_with(fake_urlopen, monkeypatch)
+    with pytest.raises(RuntimeError, match="timed out|unreachable"):
+        be.generate("hi", system="s", temperature=0.0, model="big-model")
+
+
+def test_ollama_request_timeout_exceeds_load_timeout():
+    from common.llm import OLLAMA_REQUEST_TIMEOUT
+
+    # Ollama's own OLLAMA_LOAD_TIMEOUT default is 5 minutes; our client timeout
+    # must exceed it or a cold model load always loses the race.
+    assert OLLAMA_REQUEST_TIMEOUT > 300
