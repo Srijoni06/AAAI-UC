@@ -6,6 +6,7 @@ All tests use the fake backend (no network, deterministic, <10s).
 from __future__ import annotations
 
 import json
+from collections import defaultdict
 from pathlib import Path
 
 import pytest
@@ -197,3 +198,30 @@ def test_judge_llm_is_used_for_detection_and_recorded(tmp_path):
     assert judge.judge_prompts == 4 * 10 and agent.judge_prompts == 0
     assert report["config"]["judge_llm"] == "scoped_fake:spy-judge"
     assert "Judge LLM:" in (tmp_path / "summary.md").read_text(encoding="utf-8")
+
+
+# --------------------------------------------------------------------------- #
+# per_type_accuracy() (was silently always {} - decision dicts key the gold
+# label as "gold_excerpt", not "gold")
+# --------------------------------------------------------------------------- #
+class TestPerTypeAccuracy:
+    def test_per_type_accuracy_is_not_empty(self, tmp_path):
+        report = run_comparison(_make_seeds(), backend="fake", out_dir=str(tmp_path))
+        for cond in report["conditions"].values():
+            assert cond["per_type_accuracy"], f"expected non-empty per_type_accuracy in {cond}"
+
+    def test_per_type_accuracy_matches_conflict_types_in_decisions(self, tmp_path):
+        report = run_comparison(_make_seeds(), backend="fake", out_dir=str(tmp_path))
+        lww = report["conditions"]["last_write_wins"]
+        types_in_decisions = {d["conflict_type"] for d in lww["decisions"]}
+        assert set(lww["per_type_accuracy"]) == types_in_decisions
+
+    def test_per_type_accuracy_values_are_fractions_of_correct(self, tmp_path):
+        report = run_comparison(_make_seeds(), backend="fake", out_dir=str(tmp_path))
+        lww = report["conditions"]["last_write_wins"]
+        by_type = defaultdict(list)
+        for d in lww["decisions"]:
+            by_type[d["conflict_type"]].append(d["correct"])
+        expected = {t: sum(v) / len(v) for t, v in by_type.items()}
+        for t, acc in expected.items():
+            assert lww["per_type_accuracy"][t] == round(acc, 4)

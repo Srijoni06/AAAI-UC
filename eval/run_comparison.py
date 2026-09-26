@@ -270,7 +270,10 @@ class ConditionResult:
     def per_type_accuracy(self) -> dict[str, float]:
         by_type: dict[str, list[bool]] = defaultdict(list)
         for d in self.decisions:
-            if d.get("gold") is not None:
+            # decision dicts key the gold label as "gold_excerpt" (set in
+            # _score_condition); this used to check "gold", a key that is
+            # never present, so per_type_accuracy() always returned {}.
+            if d.get("gold_excerpt") is not None:
                 by_type[d["conflict_type"]].append(d["correct"])
         return {t: sum(v) / len(v) for t, v in by_type.items() if v}
 
