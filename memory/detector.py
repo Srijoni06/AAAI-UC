@@ -146,6 +146,8 @@ If a Question is given, read each claim as an answer to that question, so a shor
 
 Numeric rule: when both claims state a value for the same quantity (a number, count, percentage, score, size, or date) and the values differ materially, classify the pair as CONTRADICTION even if the direction or general description is the same (for example "a +4.2 improvement" and "a +0.5 improvement" contradict each other; they are not the same fact at different levels of detail). Differences that are only rounding, units, or formatting (for example "10,000" vs "10k") are not material.
 
+Scope carve-out to the numeric rule: different values are NOT automatically a contradiction when they describe different processing stages, populations, or measurement contexts that can genuinely coexist -- for example "trained on 90 languages" vs "evaluated on 46 languages" (a training population vs a narrower evaluation subset), or "the raw crawl contains 1,000,000 pairs" vs "the filtered training set has 312,000 pairs" (before vs after filtering). Prefer NEUTRAL for these. This carve-out does NOT apply, and the numeric rule still governs, when both claims report the same measurement of the same result under materially the same conditions and one is simply described as more careful, controlled, or corrected than the other, or one is presented as superseding, auditing, or correcting the other (for example a headline abstract figure vs a value from a controlled re-measurement "after controlling for X", or an original result vs an erratum's corrected value) -- those remain CONTRADICTION, not different stages.
+
 You must respond in JSON format with exactly two keys:
 {
   "relationship": "ENTAILMENT" | "CONTRADICTION" | "NEUTRAL",
