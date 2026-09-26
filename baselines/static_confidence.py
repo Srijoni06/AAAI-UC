@@ -68,9 +68,22 @@ def weight_table() -> dict[str, dict[str, float]]:
 
 
 def _support_group(item: MemoryItem) -> str:
-    """Which group's backing this claim represents (falls back to the agent)."""
+    """Which group's backing this claim represents.
+
+    A real correlated-group label (e.g. ``"grp_A"``) is returned as-is, so
+    those agents still count as ONE shared group among themselves - the
+    whole point of the corroboration cap. An item with no real group -
+    ``agent_group`` missing, or equal to the orchestrator's literal
+    ``INDEPENDENT`` placeholder string - is instead keyed by its own
+    ``agent_id``, so two independent agents who happen to agree are counted
+    as two distinct groups corroborating each other, not one group agreeing
+    with itself (which produced a corroboration bonus of 0.0 no matter how
+    many independent agents agreed).
+    """
     grp = item.metadata.get("agent_group")
-    return str(grp) if grp else item.agent_id
+    if grp and str(grp) != INDEPENDENT:
+        return str(grp)
+    return item.agent_id
 
 
 def _answer_key(item: MemoryItem) -> str:

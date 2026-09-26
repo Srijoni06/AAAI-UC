@@ -5,7 +5,14 @@ from __future__ import annotations
 import pytest
 
 from baselines.majority_vote import MajorityVote, cluster_key
-from baselines.static_confidence import StaticConfidence, _answer_key
+from baselines.static_confidence import (
+    CORROBORATION_BONUS,
+    INDEPENDENT,
+    RECENCY_BONUS,
+    StaticConfidence,
+    _answer_key,
+    _support_group,
+)
 from memory.store import (
     Authority,
     Conflict,
@@ -169,6 +176,70 @@ class TestStaticConfidence:
         res = sc.resolve(Conflict(topic="t", items=items))
         winner = next(it for it in items if it.id == res.winner_id)
         assert _answer_key(winner) == "d#e0"  # X wins (more distinct groups)
+
+    # ------------------------------------------------------------------- #
+    # Regression: independent agents must corroborate EACH OTHER as distinct
+    # groups, not collapse into one shared "independent" label.
+    #
+    # The real bug: _support_group() returned the literal string
+    # "independent" for every agent with no real correlated-group membership,
+    # instead of falling back to that agent's own id. Two genuinely
+    # independent agents who agreed therefore looked like ONE group backing
+    # its own answer (n_other_groups=0), so their corroboration bonus was
+    # always 0.0 - identical to a single unsupported claim, and
+    # indistinguishable from correlated agents (who are SUPPOSED to score 0.0
+    # for agreeing with their own group).
+    # ------------------------------------------------------------------- #
+    def test_support_group_keys_independents_by_agent_id(self):
+        """Unit-level: two independents get DIFFERENT support groups; two
+        correlated-group members still get the SAME one (unchanged, by design)."""
+        b1 = _make_item("b1", "X", agent_group=INDEPENDENT)
+        b2 = _make_item("b2", "X", agent_group=INDEPENDENT)
+        a1 = _make_item("a1", "Y", agent_group="grp_A")
+        a2 = _make_item("a2", "Y", agent_group="grp_A")
+
+        assert _support_group(b1) != _support_group(b2)
+        assert _support_group(b1) == "b1"
+        assert _support_group(b2) == "b2"
+        assert _support_group(a1) == _support_group(a2) == "grp_A"
+
+    def test_independent_agents_corroborate_each_other(self):
+        """Two independent agents agreeing get a nonzero corroboration bonus -
+        distinguishable from a single unsupported claim (0.0) and computed the
+        same way correlated-group agents would earn it from an OUTSIDE group
+        (not from each other, which stays 0.0, by design)."""
+        sc = StaticConfidence()
+        items = [
+            # Two independents agree on X: 2 distinct groups -> nonzero bonus.
+            _make_item("b1", "X", source_id="d#e0", agent_group=INDEPENDENT),
+            _make_item("b2", "X", source_id="d#e0", agent_group=INDEPENDENT),
+            # A lone, unsupported claim on Y: no other group -> 0.0.
+            _make_item("c1", "Y", source_id="d#e1", agent_group=INDEPENDENT),
+            # grp_A members agreeing with EACH OTHER on Z: still 0.0, by design.
+            _make_item("a1", "Z", source_id="d#e2", agent_group="grp_A"),
+            _make_item("a2", "Z", source_id="d#e2", agent_group="grp_A"),
+        ]
+        res = sc.resolve(Conflict(topic="t", items=items))
+
+        # All 5 items share one conflict, so they share one recency ranking
+        # (RECENCY_BONUS per rank, stable-sorted by timestamp - all 0.0 here,
+        # so ranked by list position). Subtract that out to isolate the
+        # origin+source_type+authority+corroboration terms being compared.
+        ordered = sorted(items, key=lambda it: it.timestamp, reverse=True)
+        rank_of = {it.id: r for r, it in enumerate(ordered)}
+        n = len(items)
+
+        def without_recency(it) -> float:
+            return res.scores[it.id] - RECENCY_BONUS * (n - 1 - rank_of[it.id])
+
+        b1_flat, b2_flat = without_recency(items[0]), without_recency(items[1])
+        c1_flat = without_recency(items[2])
+        a1_flat, a2_flat = without_recency(items[3]), without_recency(items[4])
+
+        assert b1_flat - c1_flat == pytest.approx(CORROBORATION_BONUS)
+        assert b2_flat - c1_flat == pytest.approx(CORROBORATION_BONUS)
+        assert a1_flat == pytest.approx(c1_flat)  # grp_A-with-itself: no bonus, ~= lone claim
+        assert a2_flat == pytest.approx(c1_flat)
 
     def test_stateless(self):
         """Two resolve calls give the same result (no memory)."""
