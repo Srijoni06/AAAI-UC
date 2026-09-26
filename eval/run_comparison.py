@@ -108,32 +108,6 @@ def _snapshot_writes(writes, seeds: list[SeedConflict]) -> Snapshot:
     return Snapshot(seeds=seeds, item_dicts=item_dicts, pair_specs=[], seed_topic_map=topic_map)
 
 
-def _detect_pairs(snapshot: Snapshot, detector: ConflictDetector) -> None:
-    """Run two-stage detection; store CONTRADICTION pair specs and per-pair records.
-
-    The judge is called on every Stage-1 candidate regardless of the verdict, so
-    asking for all relationships costs nothing extra and lets us record *why* a
-    gold contradiction was missed (judged ENTAILMENT/NEUTRAL vs never judged).
-    """
-    items = [MemoryItem.from_dict(d) for d in snapshot.item_dicts]
-    judged = detector.detect(items, relationships=ALL_RELATIONSHIPS)
-    verdicts = {frozenset([p.item_a.id, p.item_b.id]): p for p in judged}
-    for p in judged:
-        if p.relationship != Relationship.CONTRADICTION:
-            continue
-        snapshot.pair_specs.append(
-            {
-                "item_a_id": p.item_a.id,
-                "item_b_id": p.item_b.id,
-                "topic": p.topic,
-                "similarity": p.similarity,
-                "rationale": p.rationale,
-            }
-        )
-    # detect() filled in item.embedding, needed for similarity of never-judged pairs
-    snapshot.pair_records = _pair_records(snapshot, items, verdicts)
-
-
 def _item_view(it: MemoryItem) -> dict:
     return {
         "item_id": it.id,
@@ -144,106 +118,104 @@ def _item_view(it: MemoryItem) -> dict:
     }
 
 
-def _pair_records(snapshot: Snapshot, items: list[MemoryItem], verdicts: dict) -> list[dict]:
-    """One record per same-topic pair, with the outcome scored like ``_detection_metrics``."""
-    by_topic: dict[str, list[MemoryItem]] = defaultdict(list)
-    for it in items:
-        by_topic[it.topic].append(it)
+def _detect_one_doc(
+    seed: SeedConflict, doc_items: list[MemoryItem], detector: ConflictDetector
+) -> tuple[list[dict], list[dict]]:
+    """Run two-stage detection for exactly one document's items.
 
+    Returns ``(pair_specs, pair_records)`` scoped to this document only - the
+    checkpointable unit of Phase B work. A topic's candidate pairs never cross
+    into another topic (``find_candidates`` groups by topic internally), so
+    detecting one document's items in isolation is identical to detecting them
+    as part of a larger batch.
+
+    The judge is called on every Stage-1 candidate regardless of the verdict,
+    so asking for all relationships costs nothing extra and lets us record
+    *why* a gold contradiction was missed (judged ENTAILMENT/NEUTRAL vs never
+    judged).
+    """
+    judged = detector.detect(doc_items, relationships=ALL_RELATIONSHIPS)
+    verdicts = {frozenset([p.item_a.id, p.item_b.id]): p for p in judged}
+
+    specs = [
+        {
+            "item_a_id": p.item_a.id,
+            "item_b_id": p.item_b.id,
+            "topic": p.topic,
+            "similarity": p.similarity,
+            "rationale": p.rationale,
+        }
+        for p in judged
+        if p.relationship == Relationship.CONTRADICTION
+    ]
+
+    coexist = seed.gold_excerpt_id == COEXIST
     records: list[dict] = []
-    for topic, titems in by_topic.items():
-        seed = SEEDS_BY_ID.get(snapshot.seed_topic_map.get(topic, ""))
-        coexist = seed is not None and seed.gold_excerpt_id == COEXIST
-        for i in range(len(titems)):
-            for j in range(i + 1, len(titems)):
-                a, b = order_pair(titems[i], titems[j])  # same order the judge saw
-                cross = a.metadata.get("excerpt_id") != b.metadata.get("excerpt_id")
-                gold_positive = cross and not coexist
-                judged = verdicts.get(frozenset([a.id, b.id]))
-                verdict = judged.relationship.value if judged else None
-                sim = judged.similarity if judged else cosine_similarity(a.embedding or [], b.embedding or [])
-                flagged = verdict == Relationship.CONTRADICTION.value
-                if flagged:
-                    outcome = "TP" if gold_positive else "FP"
-                else:
-                    outcome = "FN" if gold_positive else "TN"
-                records.append(
-                    {
-                        "doc_id": seed.doc_id if seed else None,
-                        "topic": topic,
-                        "conflict_type": seed.conflict_type.value if seed else None,
-                        "difficulty": seed.difficulty.value if seed else None,
-                        "gold_excerpt_id": seed.gold_excerpt_id if seed else None,
-                        "question": a.metadata.get("question"),
-                        "gold_positive": gold_positive,
-                        "outcome": outcome,
-                        "judged": judged is not None,
-                        "verdict": verdict,
-                        "rationale": judged.rationale if judged else None,
-                        # Both-orders judging (memory.detector._merge_orders): the
-                        # individual per-order verdicts that fed the merged one above.
-                        "verdict_a_first": judged.verdict_a_first.value if judged and judged.verdict_a_first else None,
-                        "rationale_a_first": judged.rationale_a_first if judged else None,
-                        "verdict_b_first": judged.verdict_b_first.value if judged and judged.verdict_b_first else None,
-                        "rationale_b_first": judged.rationale_b_first if judged else None,
-                        "similarity": round(sim, 4),
-                        "claim_1": _item_view(a),
-                        "claim_2": _item_view(b),
-                    }
-                )
-    return records
+    for i in range(len(doc_items)):
+        for j in range(i + 1, len(doc_items)):
+            a, b = order_pair(doc_items[i], doc_items[j])  # same order the judge saw
+            cross = a.metadata.get("excerpt_id") != b.metadata.get("excerpt_id")
+            gold_positive = cross and not coexist
+            judged_pair = verdicts.get(frozenset([a.id, b.id]))
+            verdict = judged_pair.relationship.value if judged_pair else None
+            sim = (
+                judged_pair.similarity
+                if judged_pair
+                else cosine_similarity(a.embedding or [], b.embedding or [])
+            )
+            flagged = verdict == Relationship.CONTRADICTION.value
+            if flagged:
+                outcome = "TP" if gold_positive else "FP"
+            else:
+                outcome = "FN" if gold_positive else "TN"
+            records.append(
+                {
+                    "doc_id": seed.doc_id,
+                    "topic": seed.topic,
+                    "conflict_type": seed.conflict_type.value,
+                    "difficulty": seed.difficulty.value,
+                    "gold_excerpt_id": seed.gold_excerpt_id,
+                    "question": a.metadata.get("question"),
+                    "gold_positive": gold_positive,
+                    "outcome": outcome,
+                    "judged": judged_pair is not None,
+                    "verdict": verdict,
+                    "rationale": judged_pair.rationale if judged_pair else None,
+                    # Both-orders judging (memory.detector._merge_orders): the
+                    # individual per-order verdicts that fed the merged one above.
+                    "verdict_a_first": judged_pair.verdict_a_first.value
+                    if judged_pair and judged_pair.verdict_a_first
+                    else None,
+                    "rationale_a_first": judged_pair.rationale_a_first if judged_pair else None,
+                    "verdict_b_first": judged_pair.verdict_b_first.value
+                    if judged_pair and judged_pair.verdict_b_first
+                    else None,
+                    "rationale_b_first": judged_pair.rationale_b_first if judged_pair else None,
+                    "similarity": round(sim, 4),
+                    "claim_1": _item_view(a),
+                    "claim_2": _item_view(b),
+                }
+            )
+    return specs, records
 
 
 # ---------------------------------------------------------------------------
 # Detection metrics
 # ---------------------------------------------------------------------------
 
-def _detection_metrics(snapshot: Snapshot) -> dict:
-    """Pair-level detection precision/recall/F1 against gold labels."""
-    items_by_id = {d["id"]: MemoryItem.from_dict(d) for d in snapshot.item_dicts}
-    tp = fp = fn = 0
-    gold_negative_topics = set()
-    for d in snapshot.seed_topic_map:
-        seed = SEEDS_BY_ID.get(snapshot.seed_topic_map[d])
-        if seed and seed.gold_excerpt_id == COEXIST:
-            gold_negative_topics.add(d)
+def _detection_metrics(pair_records: list[dict]) -> dict:
+    """Pair-level detection precision/recall/F1, tallied from ``pair_records``.
 
-    flagged: set[frozenset] = set()
-    for ps in snapshot.pair_specs:
-        fid = frozenset([ps["item_a_id"], ps["item_b_id"]])
-        flagged.add(fid)
-        item_a = items_by_id[ps["item_a_id"]]
-        item_b = items_by_id[ps["item_b_id"]]
-        exc_a = item_a.metadata.get("excerpt_id", "")
-        exc_b = item_b.metadata.get("excerpt_id", "")
-        is_cross_excerpt = exc_a != exc_b
-        is_gold_negative = ps["topic"] in gold_negative_topics
-        if is_cross_excerpt and not is_gold_negative:
-            tp += 1
-        else:
-            fp += 1
-
-    # False negatives: cross-excerpt pairs in non-COEXIST topics not flagged
-    # Build ground-truth cross-excerpt pairs
-    items_by_topic: dict[str, list[MemoryItem]] = defaultdict(list)
-    for it in items_by_id.values():
-        items_by_topic[it.topic].append(it)
-    for topic, titems in items_by_topic.items():
-        if topic in gold_negative_topics:
-            continue
-        excerpt_groups: dict[str, list[MemoryItem]] = defaultdict(list)
-        for it in titems:
-            eid = it.metadata.get("excerpt_id", "")
-            excerpt_groups[eid].append(it)
-        for eid_a, items_a in excerpt_groups.items():
-            for eid_b, items_b in excerpt_groups.items():
-                if eid_a < eid_b:
-                    for ia in items_a:
-                        for ib in items_b:
-                            fid = frozenset([ia.id, ib.id])
-                            if fid not in flagged:
-                                fn += 1
-
+    Each record's ``outcome`` (TP/FP/FN/TN) was already decided per-pair, per
+    document, in ``_detect_one_doc`` - a pure tally here (rather than
+    re-deriving TP/FP/FN by looking pairs back up by item id, as this used to)
+    keeps this self-contained and safe to compute after a checkpoint resume,
+    where resumed docs' records come from a *different* run whose items have
+    different random ids than the current run's freshly-generated ones.
+    """
+    tp = sum(1 for r in pair_records if r["outcome"] == "TP")
+    fp = sum(1 for r in pair_records if r["outcome"] == "FP")
+    fn = sum(1 for r in pair_records if r["outcome"] == "FN")
     precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
     recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
     f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
@@ -299,127 +271,128 @@ class ConditionResult:
         }
 
 
-def _score_condition(
+def _score_one_topic(
     name: str,
     resolver,
+    store: SqliteMemoryStore,
     snapshot: Snapshot,
+    topic: str,
     reconciler_llm=None,
-    tmp_dir: str | None = None,
-) -> ConditionResult:
-    """Replay detection results into a fresh store, resolve, and score."""
-    import tempfile
-    import os
-    db_dir = tmp_dir or tempfile.mkdtemp()
-    db_path = os.path.join(db_dir, f"cond_{name}.db")
-    store = SqliteMemoryStore(db_path)
-    items = [MemoryItem.from_dict(d) for d in snapshot.item_dicts]
-    for it in items:
-        store.add(it)
+) -> Optional[dict]:
+    """Score exactly one topic's conflict under one condition.
 
-    rec = ConditionResult(name=name)
+    Returns the decision dict, or ``None`` if the topic has fewer than 2 live
+    items (mirrors the original loop's silent skip of such topics: no decision
+    is recorded and it does not count toward ``total_conflicts``). This is the
+    checkpointable unit of Phase C work - one ``(condition, doc)`` pair.
+    """
+    all_items = store.list(topic=topic)
+    live_items = [it for it in all_items if it.status != Status.SUPERSEDED]
+    if len(live_items) < 2:
+        return None
+    conflict = Conflict(topic=topic, items=live_items)
 
-    # Group pairs by topic -> conflict groups
-    topic_pairs: dict[str, list[dict]] = defaultdict(list)
-    for ps in snapshot.pair_specs:
-        topic_pairs[ps["topic"]].append(ps)
+    seed = SEEDS_BY_ID.get(snapshot.seed_topic_map.get(topic, ""))
+    gold = seed.gold_excerpt_id if seed else "?"
+    all_excerpt_ids = {it.metadata.get("excerpt_id", "") for it in live_items}
 
-    for topic, pairs in topic_pairs.items():
-        all_items = store.list(topic=topic)
-        live_items = [it for it in all_items if it.status != Status.SUPERSEDED]
-        if len(live_items) < 2:
-            continue
-        conflict = Conflict(topic=topic, items=live_items)
+    # Classify: CREDIBILITY vs COORDINATION
+    if reconciler_llm is not None:
+        llm_rec = LLMReconciler(reconciler_llm).classify(conflict)
+    else:
+        llm_rec = Reconciliation(
+            topic=topic,
+            classification=Classification.CREDIBILITY,
+            rationale="no reconciler (default CREDIBILITY)",
+        )
 
-        rec.total_conflicts += 1
-        seed = SEEDS_BY_ID.get(snapshot.seed_topic_map.get(topic, ""))
-        gold = seed.gold_excerpt_id if seed else "?"
-        all_excerpt_ids = {it.metadata.get("excerpt_id", "") for it in live_items}
+    decision = {
+        "topic": topic,
+        "doc_id": snapshot.seed_topic_map.get(topic, ""),
+        "conflict_type": seed.conflict_type.value if seed else "?",
+        "difficulty": seed.difficulty.value if seed else "?",
+        "gold_excerpt": gold,
+        "classification": llm_rec.classification.value,
+    }
 
-        # Classify: CREDIBILITY vs COORDINATION
-        if reconciler_llm is not None:
-            llm_rec = LLMReconciler(reconciler_llm).classify(conflict)
-        else:
-            llm_rec = Reconciliation(
-                topic=topic,
-                classification=Classification.CREDIBILITY,
-                rationale="no reconciler (default CREDIBILITY)",
-            )
+    # --- COORDINATION: all live claims coexist ---
+    if llm_rec.is_coordination():
+        from baselines.base import Resolution
 
-        decision = {
-            "topic": topic,
-            "doc_id": snapshot.seed_topic_map.get(topic, ""),
-            "conflict_type": seed.conflict_type.value if seed else "?",
-            "difficulty": seed.difficulty.value if seed else "?",
-            "gold_excerpt": gold,
-            "classification": llm_rec.classification.value,
-        }
-
-        # --- COORDINATION: all live claims coexist ---
-        if llm_rec.is_coordination():
-            rec.coordination += 1
-            from baselines.base import Resolution
-            resolution = Resolution.coexist(
-                topic=topic,
-                strategy="coordination",
-                item_ids=[it.id for it in live_items],
-                rationale=llm_rec.rationale,
-            )
-            apply_resolution(store, resolution)
-            confirmed_excerpts = all_excerpt_ids
-            if gold == COEXIST:
-                is_correct = True  # all excerpts expected
-            else:
-                is_correct = gold in confirmed_excerpts
-            rec.decisive += 1
-            decision["correct"] = is_correct
-            decision["rationale"] = llm_rec.rationale
-            rec.decisions.append(decision)
-            if is_correct:
-                rec.correct += 1
-            else:
-                rec.incorrect += 1
-            continue
-
-        # --- CREDIBILITY: delegate to resolver ---
-        if name == "null":
-            rec.contested += 1
-            decision["correct"] = False
-            decision["rationale"] = "null resolver: no resolution applied"
-            rec.decisions.append(decision)
-            continue
-
-        resolution = resolver.resolve(conflict)
+        resolution = Resolution.coexist(
+            topic=topic,
+            strategy="coordination",
+            item_ids=[it.id for it in live_items],
+            rationale=llm_rec.rationale,
+        )
         apply_resolution(store, resolution)
+        confirmed_excerpts = all_excerpt_ids
+        is_correct = True if gold == COEXIST else gold in confirmed_excerpts
+        decision["outcome"] = "decisive"
+        decision["correct"] = is_correct
+        decision["rationale"] = llm_rec.rationale
+        return decision
 
-        confirmed = [store.get(cid) for cid in resolution.confirmed_ids]
-        confirmed = [c for c in confirmed if c is not None]
-        confirmed_excerpts = {c.metadata.get("excerpt_id", "") for c in confirmed}
+    # --- CREDIBILITY: delegate to resolver ---
+    if name == "null":
+        decision["outcome"] = "contested"
+        decision["correct"] = False
+        decision["rationale"] = "null resolver: no resolution applied"
+        return decision
 
-        if confirmed_excerpts:
+    resolution = resolver.resolve(conflict)
+    apply_resolution(store, resolution)
+
+    confirmed = [store.get(cid) for cid in resolution.confirmed_ids]
+    confirmed = [c for c in confirmed if c is not None]
+    confirmed_excerpts = {c.metadata.get("excerpt_id", "") for c in confirmed}
+
+    if confirmed_excerpts:
+        is_correct = (
+            all_excerpt_ids.issubset(confirmed_excerpts)
+            if gold == COEXIST
+            else confirmed_excerpts == {gold}
+        )
+        decision["outcome"] = "decisive"
+        decision["correct"] = is_correct
+        decision["rationale"] = resolution.rationale
+    else:
+        is_correct = False
+        decision["outcome"] = "contested"
+        decision["correct"] = False
+        decision["rationale"] = resolution.rationale
+
+    # Update reliability memory if resolver supports it
+    if hasattr(resolver, "update_memory"):
+        resolver.update_memory(live_items, resolution, correct=bool(confirmed_excerpts) and is_correct)
+
+    return decision
+
+
+def _condition_result_from_decisions(name: str, decisions: list[dict]) -> ConditionResult:
+    """Reconstruct a full ``ConditionResult`` purely from its decision dicts.
+
+    Every summary counter (``total_conflicts``, ``decisive``, ``correct``, ...)
+    is derivable from ``decision["outcome"]``/``["correct"]``/["classification"]``,
+    so a condition's state - whether freshly computed or resumed from a
+    checkpoint - is fully described by its decisions list alone. This is what
+    makes merging checkpoint-resumed and freshly-scored decisions trivial: just
+    concatenate the dicts and rebuild the counters from them.
+    """
+    rec = ConditionResult(name=name)
+    for d in decisions:
+        rec.total_conflicts += 1
+        if d.get("classification") == "COORDINATION":
+            rec.coordination += 1
+        if d["outcome"] == "decisive":
             rec.decisive += 1
-            if gold == COEXIST:
-                is_correct = all_excerpt_ids.issubset(confirmed_excerpts)
-            else:
-                is_correct = confirmed_excerpts == {gold}
-            decision["correct"] = is_correct
-            decision["rationale"] = resolution.rationale
-            rec.decisions.append(decision)
-            if is_correct:
+            if d["correct"]:
                 rec.correct += 1
             else:
                 rec.incorrect += 1
         else:
             rec.contested += 1
-            decision["correct"] = False
-            decision["rationale"] = resolution.rationale
-            rec.decisions.append(decision)
-
-        # Update reliability memory if resolver supports it
-        if hasattr(resolver, "update_memory"):
-            resolver.update_memory(
-                live_items, resolution, correct=confirmed_excerpts and is_correct
-            )
-
+    rec.decisions = list(decisions)
     return rec
 
 
@@ -522,11 +495,25 @@ def run_comparison(
     embedder_obj=None,
     reconcile_llm=None,
     judge_llm=None,
+    resume: bool = True,
 ) -> dict:
-    """Full comparison pipeline. Returns results dict."""
+    """Full comparison pipeline. Returns results dict.
+
+    ``resume``: if a checkpoint from a matching prior run exists in
+    ``out_dir`` (see ``eval.checkpoint``), skip detection/resolution for the
+    documents and conditions it already completed and pick up from there.
+    Pass ``resume=False`` (the CLI's ``--fresh``) to ignore any existing
+    checkpoint and reprocess everything. The checkpoint is cleared once this
+    function returns successfully, so a later fresh run never mistakes it for
+    resumable state.
+    """
+    from eval import checkpoint as ckpt_mod
     from eval.fake_backend import FakeEmbedder, ScopedFakeLLM
 
     seeds = seeds or SEED_CONFLICTS
+    doc_ids = [s.doc_id for s in seeds]
+    seed_by_doc = {s.doc_id: s for s in seeds}
+    topic_by_doc = {s.doc_id: s.topic for s in seeds}
 
     # Build LLM / embedder for the specified backend
     if backend == "fake":
@@ -545,40 +532,93 @@ def run_comparison(
         judge_llm = judge_llm or make_judge_llm()
         reconcile_llm = reconcile_llm or judge_llm
 
-    # --- Phase A: run agents once, capture writes --------------------------
+    out_path = Path(out_dir)
+    out_path.mkdir(parents=True, exist_ok=True)
+
+    # --- checkpoint: load if resumable for this exact configuration --------
+    ckpt_file = ckpt_mod.checkpoint_path(out_path)
+    fingerprint = ckpt_mod.fingerprint(
+        backend=backend,
+        threshold=threshold,
+        agent_llm=_llm_label(llm_client, "agent_model"),
+        judge_llm=_llm_label(judge_llm, "judge_model"),
+        reconciler_llm=_llm_label(reconcile_llm, "judge_model"),
+        doc_ids=sorted(doc_ids),
+    )
+    ckpt = ckpt_mod.load_checkpoint(ckpt_file, fingerprint) if resume else None
+    if ckpt is None:
+        ckpt = ckpt_mod.Checkpoint(config_fingerprint=fingerprint)
+    elif ckpt.completed_docs:
+        print(f"[checkpoint] resuming: {len(ckpt.completed_docs)}/{len(doc_ids)} docs already detected")
+
+    # --- Phase A: run agents once, capture writes (cheap/cached even on resume) ---
     import tempfile as _tmp
     _a_dir = _tmp.mkdtemp(prefix="eval_agent_")
     store_a = SqliteMemoryStore(os.path.join(_a_dir, "agents.db"))
     writes = orch_run(store_a, seeds=seeds, llm=llm_client)
     print(f"[phase A] ran {len(writes)} agent writes over {len(seeds)} seeds")
 
-    # --- Phase B: detect contradictions once -------------------------------
     snapshot = _snapshot_writes(writes, seeds)
+    items_all = [MemoryItem.from_dict(d) for d in snapshot.item_dicts]
+    items_by_topic: dict[str, list[MemoryItem]] = defaultdict(list)
+    for it in items_all:
+        items_by_topic[it.topic].append(it)
+
+    # --- Phase B: detect contradictions, one document at a time -------------
     detector = ConflictDetector(llm=judge_llm, embedder=embedder_obj, similarity_threshold=threshold)
-    _detect_pairs(snapshot, detector)
-    det_metrics = _detection_metrics(snapshot)
+    pending_docs = [d for d in doc_ids if d not in ckpt.completed_docs]
+    for doc_id in pending_docs:
+        topic = topic_by_doc[doc_id]
+        specs, records = _detect_one_doc(seed_by_doc[doc_id], items_by_topic.get(topic, []), detector)
+        ckpt.completed_docs.add(doc_id)
+        ckpt.pair_specs_by_doc[doc_id] = specs
+        ckpt.pair_records_by_doc[doc_id] = records
+        ckpt_mod.save_checkpoint(ckpt, ckpt_file)
+
+    # Reassemble the full snapshot (checkpoint-resumed + freshly-detected), in seed order
+    snapshot.pair_specs = [s for d in doc_ids for s in ckpt.pair_specs_by_doc.get(d, [])]
+    snapshot.pair_records = [r for d in doc_ids for r in ckpt.pair_records_by_doc.get(d, [])]
+    det_metrics = _detection_metrics(snapshot.pair_records)
     n_flagged = len(snapshot.pair_specs)
     n_topics = len(set(ps["topic"] for ps in snapshot.pair_specs))
     print(f"[phase B] detected {n_flagged} contradiction pairs across {n_topics} topics")
     print(f"          P={det_metrics['precision']:.3f}  R={det_metrics['recall']:.3f}  F1={det_metrics['f1']:.3f}")
 
-    # --- Phase C: resolve under each condition -----------------------------
+    # A topic with zero detected CONTRADICTION pairs has nothing to resolve -
+    # Phase C must not manufacture a conflict for it (matches the pre-refactor
+    # behavior of only ever iterating topics present in the pair_specs grouping).
+    topics_with_conflicts = {ps["topic"] for ps in snapshot.pair_specs}
+
+    # --- Phase C: resolve under each condition, one document at a time -----
     all_resolvers = _build_resolvers()
     conditions = ["null", "last_write_wins", "majority_vote", "static_confidence"]
     # Auto-add reliability if available
     if "reliability_aware" in all_resolvers:
         conditions.append("reliability_aware")
 
-    import tempfile as _tmp
     tmp_root = _tmp.mkdtemp(prefix="eval_")
     results: dict[str, ConditionResult] = {}
     for cond in conditions:
         t0 = time.perf_counter()
-        if cond == "null":
-            cr = _score_condition("null", None, snapshot, reconciler_llm=reconcile_llm, tmp_dir=tmp_root)
-        else:
-            resolver = all_resolvers[cond]
-            cr = _score_condition(cond, resolver, snapshot, reconciler_llm=reconcile_llm, tmp_dir=tmp_root)
+        resolver = None if cond == "null" else all_resolvers[cond]
+
+        store = SqliteMemoryStore(os.path.join(tmp_root, f"cond_{cond}.db"))
+        for it in items_all:
+            store.add(it)
+
+        done_for_cond = ckpt.completed_conditions.setdefault(cond, set())
+        decisions_for_cond = ckpt.decisions_by_condition.setdefault(cond, {})
+        for doc_id in (d for d in doc_ids if d not in done_for_cond):
+            topic = topic_by_doc[doc_id]
+            if topic in topics_with_conflicts:
+                decision = _score_one_topic(cond, resolver, store, snapshot, topic, reconciler_llm=reconcile_llm)
+                if decision is not None:
+                    decisions_for_cond[doc_id] = decision
+            done_for_cond.add(doc_id)
+            ckpt_mod.save_checkpoint(ckpt, ckpt_file)
+
+        ordered_decisions = [decisions_for_cond[d] for d in doc_ids if d in decisions_for_cond]
+        cr = _condition_result_from_decisions(cond, ordered_decisions)
         elapsed = time.perf_counter() - t0
         results[cond] = cr
         print(
@@ -588,9 +628,6 @@ def run_comparison(
         )
 
     # --- Phase D: write results -------------------------------------------
-    out_path = Path(out_dir)
-    out_path.mkdir(parents=True, exist_ok=True)
-
     config = {
         "backend": backend,
         "n_docs": len(seeds),
@@ -611,6 +648,10 @@ def run_comparison(
     )
     summary = _write_summary(det_metrics, results, out_path, config, snapshot.pair_records)
     print(f"\n[phase D] results written to {out_path}/")
+
+    # Full success: clear the checkpoint so a later fresh run never mistakes
+    # this completed state for something to resume from.
+    ckpt_mod.clear_checkpoint(ckpt_file)
 
     return report
 
@@ -633,6 +674,19 @@ def main() -> int:
         "-1.0 sends every same-topic pair to the judge; 0.0 would silently drop "
         "negative-similarity pairs.",
     )
+    parser.add_argument(
+        "--resume",
+        dest="resume",
+        action="store_true",
+        help="Resume from an existing checkpoint in --out if present (default).",
+    )
+    parser.add_argument(
+        "--fresh",
+        dest="resume",
+        action="store_false",
+        help="Ignore any existing checkpoint in --out and reprocess everything.",
+    )
+    parser.set_defaults(resume=True)
     args = parser.parse_args()
 
     seeds = SEED_CONFLICTS
@@ -640,7 +694,9 @@ def main() -> int:
         seeds = seeds[: args.limit]
 
     print(f"== eval/run_comparison  backend={args.backend}  docs={len(seeds)} ==\n")
-    report = run_comparison(seeds, backend=args.backend, threshold=args.threshold, out_dir=args.out)
+    report = run_comparison(
+        seeds, backend=args.backend, threshold=args.threshold, out_dir=args.out, resume=args.resume
+    )
 
     # Print per-condition accuracy
     print("\n== accuracy summary ==")

@@ -226,3 +226,131 @@ class TestPerTypeAccuracy:
         expected = {t: sum(v) / len(v) for t, v in by_type.items()}
         for t, acc in expected.items():
             assert lww["per_type_accuracy"][t] == round(acc, 4)
+
+
+# --------------------------------------------------------------------------- #
+# Checkpoint/resume protocol (eval/checkpoint.py, wired into run_comparison())
+#
+# _make_seeds() gives 4 docs x 5 agents -> C(5,2)=10 pairs/doc, and both-orders
+# judging (memory.detector.classify_pair) doubles that to 20 detector judge
+# calls per doc, 80 for a full fresh run. These fake-backend judges use
+# cache=None (ScopedFakeLLM never touches the LLM cache), so every count below
+# is a real, uncached call - checkpoint savings, not cache savings.
+# --------------------------------------------------------------------------- #
+class _CountingDetectorJudge(ScopedFakeLLM):
+    """Counts detector (not reconciler) judge calls: identifies them by the
+    prompt text unique to memory.detector.classify_pair's prompt."""
+
+    def __init__(self):
+        super().__init__()
+        self.judge_calls = 0
+
+    def _raw_generate(self, prompt, *, system, temperature, model):
+        if "Classify the relationship" in prompt:
+            self.judge_calls += 1
+        return super()._raw_generate(prompt, system=system, temperature=temperature, model=model)
+
+
+class _CrashingDetectorJudge(_CountingDetectorJudge):
+    """Raises once its detector-call counter exceeds ``crash_after`` -
+    simulates a process crash partway through a run."""
+
+    def __init__(self, crash_after: int):
+        super().__init__()
+        self.crash_after = crash_after
+
+    def _raw_generate(self, prompt, *, system, temperature, model):
+        if "Classify the relationship" in prompt and self.judge_calls >= self.crash_after:
+            self.judge_calls += 1
+            raise RuntimeError("simulated crash")
+        return super()._raw_generate(prompt, system=system, temperature=temperature, model=model)
+
+
+class TestCheckpointResume:
+    def test_partial_checkpoint_is_detected_and_resumed(self, tmp_path):
+        seeds = _make_seeds()
+        out = tmp_path / "out"
+
+        # 1. Control: an uninterrupted run, to know the correct final numbers
+        #    and how many detector calls doing all 4 docs from scratch costs.
+        control_judge = _CountingDetectorJudge()
+        control = run_comparison(
+            seeds, backend="fake", out_dir=str(out / "control"),
+            judge_llm=control_judge, reconcile_llm=ScopedFakeLLM(),
+        )
+        assert control_judge.judge_calls == 4 * 10 * 2
+        assert not (out / "control" / "checkpoint.json").exists()
+
+        # 2. Crash partway through doc 3's detection - after exactly 2 whole
+        #    docs (2 * 10 pairs * 2 orders = 40 calls) have been checkpointed.
+        run_dir = out / "resumed"
+        crashing = _CrashingDetectorJudge(crash_after=40)
+        with pytest.raises(RuntimeError, match="simulated crash"):
+            run_comparison(
+                seeds, backend="fake", out_dir=str(run_dir),
+                judge_llm=crashing, reconcile_llm=ScopedFakeLLM(),
+            )
+        ckpt_file = run_dir / "checkpoint.json"
+        assert ckpt_file.exists()
+        saved = json.loads(ckpt_file.read_text(encoding="utf-8"))
+        assert len(saved["completed_docs"]) == 2
+
+        # 3. Resume with a fresh (non-crashing) judge: must complete and match
+        #    the control run's results exactly.
+        resumed_judge = _CountingDetectorJudge()
+        result = run_comparison(
+            seeds, backend="fake", out_dir=str(run_dir),
+            judge_llm=resumed_judge, reconcile_llm=ScopedFakeLLM(), resume=True,
+        )
+
+        assert result["detection"] == control["detection"]
+        for cond in result["conditions"]:
+            assert result["conditions"][cond]["accuracy"] == control["conditions"][cond]["accuracy"]
+            assert result["conditions"][cond]["correct"] == control["conditions"][cond]["correct"]
+            assert result["conditions"][cond]["decisive"] == control["conditions"][cond]["decisive"]
+
+        # genuinely skipped work: far fewer detector calls than a full run needs
+        assert resumed_judge.judge_calls < control_judge.judge_calls
+        assert resumed_judge.judge_calls == 2 * 10 * 2  # only docs 3 and 4 remained
+
+        # 4. Checkpoint cleared on successful completion.
+        assert not ckpt_file.exists()
+
+    def test_fresh_flag_reprocesses_a_completed_doc(self, tmp_path):
+        seeds = _make_seeds()
+        out = tmp_path / "out"
+
+        # Get a checkpoint with 1 genuinely completed doc (crash after doc 1).
+        crashing = _CrashingDetectorJudge(crash_after=20)
+        with pytest.raises(RuntimeError):
+            run_comparison(
+                seeds, backend="fake", out_dir=str(out),
+                judge_llm=crashing, reconcile_llm=ScopedFakeLLM(),
+            )
+        ckpt_file = out / "checkpoint.json"
+        assert len(json.loads(ckpt_file.read_text(encoding="utf-8"))["completed_docs"]) == 1
+
+        # --fresh (resume=False): must ignore that checkpoint and redo every doc.
+        fresh_judge = _CountingDetectorJudge()
+        run_comparison(
+            seeds, backend="fake", out_dir=str(out),
+            judge_llm=fresh_judge, reconcile_llm=ScopedFakeLLM(), resume=False,
+        )
+        assert fresh_judge.judge_calls == 4 * 10 * 2  # nothing skipped
+        assert not ckpt_file.exists()  # cleared on this run's successful completion
+
+    def test_checkpoint_cleared_on_successful_completion(self, tmp_path):
+        seeds = _make_seeds()
+        out = tmp_path / "out"
+        run_comparison(seeds, backend="fake", out_dir=str(out))
+        assert not (out / "checkpoint.json").exists()
+
+    def test_no_checkpoint_no_resume_flag_behaves_like_a_fresh_run(self, tmp_path):
+        """resume=True (the default) with nothing to resume from is just a normal run."""
+        seeds = _make_seeds()
+        out = tmp_path / "out"
+        judge = _CountingDetectorJudge()
+        run_comparison(
+            seeds, backend="fake", out_dir=str(out), judge_llm=judge, reconcile_llm=ScopedFakeLLM(), resume=True
+        )
+        assert judge.judge_calls == 4 * 10 * 2
