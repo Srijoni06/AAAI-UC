@@ -25,7 +25,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from baselines.base import Resolution
+from baselines.base import ItemOutcome, Outcome, Resolution
 from baselines.majority_vote import cluster_key
 from baselines.static_confidence import (
     CORROBORATION_BONUS,
@@ -104,23 +104,34 @@ class ReliabilityResolver:
             answer_totals[key] = total * discount
             answer_discounts[key] = discount
 
-        # -- Step 4: pick the best answer ----------------------------------- #
+        # -- Step 4: pick the best answer cluster, confirm the WHOLE cluster - #
+        # Every item that backs the winning answer is CONFIRMED, not just the
+        # single highest-scoring one - two agents who independently agree on
+        # the correct answer are both right, not "one winner, one loser".
+        # `winner_item` is kept only as a representative claim for display in
+        # the rationale; it does not decide confirmed vs. superseded.
         best_key = max(answer_totals, key=answer_totals.get)
-        winner_item = max(answer_groups[best_key], key=lambda it: scores[it.id])
-        losers = [it for it in items if it.id != winner_item.id]
+        winning_cluster = answer_groups[best_key]
+        winner_item = max(winning_cluster, key=lambda it: scores[it.id])
+        winning_ids = {it.id for it in winning_cluster}
+        losers = [it for it in items if it.id not in winning_ids]
 
         votes_per_answer = {k: len(v) for k, v in answer_groups.items()}
         discount_str = ", ".join(
             f"{k[:30]}×{d:.3f}" for k, d in answer_discounts.items()
         )
-        return Resolution.single_winner(
+        return Resolution(
             topic=conflict.topic,
             strategy=self.name,
-            winner_id=winner_item.id,
-            superseded_ids=[it.id for it in losers],
+            outcomes=(
+                [ItemOutcome(it.id, Outcome.CONFIRMED, "in winning answer cluster") for it in winning_cluster]
+                + [ItemOutcome(it.id, Outcome.SUPERSEDED, "lost to winning cluster") for it in losers]
+            ),
             rationale=(
                 f"reliability-aware: answer '{best_key}' scored "
                 f"{answer_totals[best_key]:.3f} "
+                f"(winning cluster: {[it.agent_id for it in winning_cluster]}, "
+                f"representative: {winner_item.agent_id}) "
                 f"(discounts: {discount_str}); "
                 f"votes: {votes_per_answer}; "
                 f"competence: "

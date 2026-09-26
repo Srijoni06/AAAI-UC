@@ -281,12 +281,14 @@ class TestReliabilityResolver:
             _item("b2", "B", source_id="d#e1"),
         ]
         res = rr.resolve(Conflict(topic="t", items=items))
-        # The discount should make the correlated group's total lower
-        # than what raw vote count would suggest
-        assert res.winner_id is not None
-        # With high discount, the 2 independent agents might win
-        winner = next(it for it in items if it.id == res.winner_id)
-        assert winner.agent_id in ("b1", "b2")
+        # The discount should make the correlated group's total lower than
+        # what raw vote count would suggest, so the 2 independent agents win -
+        # and BOTH of them get confirmed (clustered confirmation), not one
+        # arbitrarily picked winner with the other marked as a loser.
+        by_agent = {it.agent_id: it.id for it in items}
+        assert set(res.confirmed_ids) == {by_agent["b1"], by_agent["b2"]}
+        assert set(res.superseded_ids) == {by_agent["a1"], by_agent["a2"], by_agent["a3"]}
+        assert res.winner_id is None  # more than one confirmed -> no single winner_id
 
     def test_update_memory_updates_competence(self):
         """update_memory should change competence values."""
@@ -315,3 +317,32 @@ class TestReliabilityResolver:
         rr = ReliabilityResolver()
         res = rr.resolve(Conflict(topic="t", items=[]))
         assert not res.is_single_winner  # all_contested
+
+    # ----------------------------------------------------------------- #
+    # Regression: resolve() must CONFIRM the whole winning answer cluster,
+    # not pick one item out of it and supersede everyone else.
+    #
+    # The real bug: Step 4 grouped and scored claims by answer cluster
+    # (correctly), but then picked a single `winner_item` from the winning
+    # cluster and marked *everything else in the entire conflict* -
+    # including other members of that same winning cluster - as SUPERSEDED.
+    # Two agents who independently agreed on the correct answer would have
+    # one of them wrongly treated as a loser: via the (already-fixed)
+    # PeerMemory update, that agent's competence would be pushed toward 0
+    # as if they'd been wrong, even though they agreed with the winning,
+    # correct answer.
+    # ----------------------------------------------------------------- #
+    def test_resolve_confirms_entire_winning_cluster_not_one_item(self):
+        """2 agents agree on the correct answer, 1 disagrees (wrong): both
+        agreeing agents must be confirmed, only the dissenter superseded."""
+        rr = ReliabilityResolver()
+        correct_1 = _item("agent_A", "OntoNotes 5.0 is the benchmark.", source_id="doc#results")
+        correct_2 = _item("agent_B", "The benchmark used is OntoNotes 5.0.", source_id="doc#results")
+        wrong = _item("agent_C", "CoNLL-2003 is the benchmark.", source_id="doc#intro")
+
+        res = rr.resolve(Conflict(topic="t", items=[correct_1, correct_2, wrong]))
+
+        assert set(res.confirmed_ids) == {correct_1.id, correct_2.id}
+        assert set(res.superseded_ids) == {wrong.id}
+        assert not res.is_single_winner  # 2 confirmed, not 1 - this is the point
+        assert res.winner_id is None
