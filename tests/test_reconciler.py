@@ -11,6 +11,7 @@ from memory.reconciler import (
     LLMReconciler,
     Reconciliation,
     _parse_reconciler_response,
+    classify_conflict,
     pairwise_scopes_agree,
     resolve_conflict,
 )
@@ -118,6 +119,65 @@ class TestLLMReconcilerClassify:
         fake = FakeReconcilerLLM("this is not json at all")
         rec = LLMReconciler(llm=fake).classify(Conflict(topic="t", items=[a, b]))
         assert rec.classification is Classification.CREDIBILITY
+
+
+# --------------------------------------------------------------------------- #
+# classify_conflict: reason about the DETECTED pair(s), not items[0]/[1]
+# --------------------------------------------------------------------------- #
+class TestClassifyConflict:
+    def test_uses_detected_pair_not_earliest_writers(self):
+        """4-item topic: the two EARLIEST writers (p, q) agree on scope and
+        would trivially auto-classify COORDINATION under the old items[0]/[1]
+        default. The detector instead flagged a DIFFERENT pair (x, y) - two
+        later writers with genuinely different evidence - as the real
+        contradiction. classify_conflict must reason about (x, y), not (p, q).
+        """
+        p = _item("p", "P", source_id="doc#e0", evidence_span="X")
+        q = _item("q", "Q", source_id="doc#e0", evidence_span="X")  # same scope as p
+        x = _item("x", "X claim", source_id="doc#e1", evidence_span="Y")
+        y = _item("y", "Y claim", source_id="doc#e2", evidence_span="Z")
+        conflict = Conflict(topic="t", items=[p, q, x, y])  # p, q first == "earliest"
+
+        # Sanity check: the old default (no detected pair) really does fall
+        # into the deterministic same-scope shortcut here, i.e. this topic
+        # would have been silently misclassified before the fix.
+        old_default = LLMReconciler(llm=None).classify(conflict)
+        assert old_default.classification is Classification.COORDINATION
+
+        fake = FakeReconcilerLLM(json.dumps({"classification": "CREDIBILITY", "rationale": "x vs y conflict"}))
+        rec = classify_conflict(conflict, detected_pairs=[(x, y)], reconciler=LLMReconciler(llm=fake))
+        assert rec.classification is Classification.CREDIBILITY
+        assert len(fake.calls) == 1
+
+    def test_any_credibility_pair_escalates_whole_topic(self):
+        """Multiple detected pairs, one COORDINATION and one CREDIBILITY ->
+        the topic escalates to CREDIBILITY (the conservative combining rule)."""
+        p = _item("p", "P", source_id="doc#e0", evidence_span="X")
+        q = _item("q", "Q", source_id="doc#e0", evidence_span="X")  # agrees with p
+        r = _item("r", "R", source_id="doc#e1", evidence_span="Y")
+        conflict = Conflict(topic="t", items=[p, q, r])
+
+        fake = FakeReconcilerLLM(json.dumps({"classification": "CREDIBILITY", "rationale": "real conflict"}))
+        rec = classify_conflict(
+            conflict, detected_pairs=[(p, q), (p, r)], reconciler=LLMReconciler(llm=fake)
+        )
+        assert rec.classification is Classification.CREDIBILITY
+
+    def test_all_coordination_pairs_stay_coordination(self):
+        p = _item("p", "P", source_id="doc#e0", evidence_span="X")
+        q = _item("q", "Q", source_id="doc#e0", evidence_span="X")
+        conflict = Conflict(topic="t", items=[p, q])
+        rec = classify_conflict(conflict, detected_pairs=[(p, q)], reconciler=LLMReconciler(llm=None))
+        assert rec.classification is Classification.COORDINATION
+
+    def test_no_detected_pairs_falls_back_to_earliest_writers(self):
+        """Empty detected_pairs (e.g. the flagged pair was since superseded) ->
+        falls back to the old items[0]/[1] default rather than erroring."""
+        p = _item("p", "P", source_id="doc#e0", evidence_span="X")
+        q = _item("q", "Q", source_id="doc#e0", evidence_span="X")
+        conflict = Conflict(topic="t", items=[p, q])
+        rec = classify_conflict(conflict, detected_pairs=[], reconciler=LLMReconciler(llm=None))
+        assert rec.classification is Classification.COORDINATION
 
 
 # --------------------------------------------------------------------------- #

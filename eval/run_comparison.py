@@ -56,6 +56,7 @@ from memory.reconciler import (
     Classification,
     LLMReconciler,
     Reconciliation,
+    classify_conflict,
     resolve_conflict,
 )
 from memory.store import MemoryItem, SqliteMemoryStore, Status
@@ -141,6 +142,15 @@ def _detect_one_doc(
         {
             "item_a_id": p.item_a.id,
             "item_b_id": p.item_b.id,
+            # Agent ids, not just item ids: a checkpoint-resumed doc's specs
+            # were computed against a *different* run's items (fresh random
+            # ids each run - see _detection_metrics' own docstring), so
+            # looking a detected pair back up in the current store must key
+            # on something stable across runs. One item per agent per topic
+            # makes agent_id that stable key; item id is kept for callers
+            # that don't cross a checkpoint boundary.
+            "agent_a_id": p.item_a.agent_id,
+            "agent_b_id": p.item_b.agent_id,
             "topic": p.topic,
             "similarity": p.similarity,
             "rationale": p.rationale,
@@ -296,9 +306,22 @@ def _score_one_topic(
     gold = seed.gold_excerpt_id if seed else "?"
     all_excerpt_ids = {it.metadata.get("excerpt_id", "") for it in live_items}
 
-    # Classify: CREDIBILITY vs COORDINATION
+    # Classify: CREDIBILITY vs COORDINATION, from the pair(s) ConflictDetector
+    # actually flagged as CONTRADICTION for this topic - not an arbitrary pair
+    # (conflict.items[0]/[1] would be the two earliest *writers*, which have
+    # nothing to do with which claims actually conflict; see classify_conflict's
+    # docstring for the combining rule when a topic has multiple detected pairs).
+    by_agent = {it.agent_id: it for it in live_items}
+    detected_pairs = []
+    for ps in snapshot.pair_specs:
+        if ps["topic"] != topic:
+            continue
+        a, b = by_agent.get(ps.get("agent_a_id")), by_agent.get(ps.get("agent_b_id"))
+        if a is not None and b is not None:
+            detected_pairs.append((a, b))
+
     if reconciler_llm is not None:
-        llm_rec = LLMReconciler(reconciler_llm).classify(conflict)
+        llm_rec = classify_conflict(conflict, detected_pairs, LLMReconciler(reconciler_llm))
     else:
         llm_rec = Reconciliation(
             topic=topic,

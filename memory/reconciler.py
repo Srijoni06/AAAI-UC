@@ -160,8 +160,19 @@ class LLMReconciler:
             self._llm = make_llm()
         return self._llm
 
-    def classify(self, conflict: Conflict) -> Reconciliation:
-        item_a, item_b = conflict.items[0], conflict.items[1]
+    def classify(
+        self, conflict: Conflict, pair: tuple[MemoryItem, MemoryItem] | None = None
+    ) -> Reconciliation:
+        """Classify ``conflict``, reasoning about ``pair`` if given.
+
+        ``pair`` should be the two items ConflictDetector actually flagged as
+        CONTRADICTION - callers with more than 2 live items in a topic MUST
+        pass it explicitly (see :func:`classify_conflict`). Falling back to
+        ``conflict.items[0]``/``[1]`` (the two earliest-*written* items) only
+        makes sense when the conflict genuinely has exactly one pair, which is
+        also why every existing 2-item caller/test still works unchanged.
+        """
+        item_a, item_b = pair if pair is not None else (conflict.items[0], conflict.items[1])
 
         # Layer 1: deterministic scope check takes precedence.
         if pairwise_scopes_agree(item_a, item_b):
@@ -199,6 +210,41 @@ class LLMReconciler:
             rationale=rationale,
             items=list(conflict.items),
         )
+
+
+def classify_conflict(
+    conflict: Conflict,
+    detected_pairs: list[tuple[MemoryItem, MemoryItem]],
+    reconciler: LLMReconciler | None = None,
+) -> Reconciliation:
+    """Classify a topic from the pair(s) ConflictDetector actually flagged as
+    CONTRADICTION, instead of an arbitrary pair (e.g. the two earliest writers
+    by timestamp - see ``LLMReconciler.classify``'s old default behaviour,
+    which is still there for genuinely 2-item conflicts but is wrong once a
+    topic has 3+ live items and detection didn't happen to flag the earliest
+    two).
+
+    Combining rule when a topic has more than one detected pair (e.g. 3
+    same-side agents vs. 2 opposite-side agents produces 6 pairwise
+    combinations of the *same* underlying disagreement): a topic classifies
+    as COORDINATION only if EVERY detected pair independently classifies as
+    COORDINATION. If even one detected pair is a genuine CREDIBILITY dispute,
+    the whole topic escalates to CREDIBILITY - coexistence (confirming every
+    live claim) would be the wrong call for a topic that contains a real
+    conflict, even if some other pair in it happens to agree on scope. This
+    is deliberately the conservative direction: false COORDINATION silently
+    keeps a wrong claim alive, false CREDIBILITY only costs an extra resolver
+    call.
+
+    Falls back to ``reconciler.classify(conflict)`` (the old earliest-pair
+    default) when ``detected_pairs`` is empty - e.g. detection's flagged pair
+    was later superseded and no longer has two live items to reason about.
+    """
+    reconciler = reconciler or LLMReconciler()
+    if not detected_pairs:
+        return reconciler.classify(conflict)
+    results = [reconciler.classify(conflict, pair=pair) for pair in detected_pairs]
+    return next((r for r in results if r.is_credibility()), results[0])
 
 
 def resolve_conflict(
