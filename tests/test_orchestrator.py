@@ -18,6 +18,7 @@ from agents.orchestrator import (
     correlated_groups,
     independent_agents,
     rotated_anchor_index,
+    rotated_write_order,
     run,
 )
 from common.llm import LLMClient
@@ -149,6 +150,58 @@ def test_run_anchor_excerpt_index_override_still_pins_every_seed(store, llm):
         if w.agent_id != "agent_A":
             continue
         assert w.excerpt.excerpt_id == w.seed.excerpt_ids[0]
+
+
+# --------------------------------------------------------------------------- #
+# write-order rotation (run() defaults to per-seed rotation, not fixed A-E)
+# --------------------------------------------------------------------------- #
+class _StubAgent:
+    def __init__(self, agent_id):
+        self.agent_id = agent_id
+
+
+def test_rotated_write_order_is_deterministic_per_seed():
+    seed = get("doc-benchmark")
+    agents = [_StubAgent(a) for a in ("agent_A", "agent_B", "agent_C", "agent_D", "agent_E")]
+    order1 = [a.agent_id for a in rotated_write_order(seed, agents)]
+    order2 = [a.agent_id for a in rotated_write_order(seed, agents)]
+    assert order1 == order2
+
+
+def test_rotated_write_order_preserves_the_agent_set():
+    seed = get("doc-benchmark")
+    agents = [_StubAgent(a) for a in ("agent_A", "agent_B", "agent_C", "agent_D", "agent_E")]
+    shuffled = rotated_write_order(seed, agents)
+    assert {a.agent_id for a in shuffled} == {a.agent_id for a in agents}
+    assert len(shuffled) == len(agents)
+
+
+def test_rotated_write_order_varies_across_seeds():
+    agents = [_StubAgent(a) for a in ("agent_A", "agent_B", "agent_C", "agent_D", "agent_E")]
+    last_writers = {
+        seed.doc_id: rotated_write_order(seed, agents)[-1].agent_id for seed in SEED_CONFLICTS
+    }
+    # not every seed should end with the same agent writing last - that was the bug
+    assert len(set(last_writers.values())) > 1
+
+
+def test_run_default_rotates_write_order_instead_of_fixed_a_to_e(store, llm):
+    # across the full suite, whichever agent writes LAST for a seed (highest
+    # timestamp, so the one last_write_wins/static_confidence's recency
+    # tie-break favors) should not always be the same agent
+    writes = run(store, seeds=SEED_CONFLICTS, llm=llm)
+    last_writer_per_seed = {}
+    for w in writes:
+        last_writer_per_seed[w.seed.doc_id] = w.agent_id  # last write for this seed wins (overwritten in order)
+    assert len(set(last_writer_per_seed.values())) > 1
+
+
+def test_run_write_order_override_still_pins_every_seed(store, llm):
+    pinned = ["agent_E", "agent_D", "agent_C", "agent_B", "agent_A"]
+    writes = run(store, seeds=SEED_CONFLICTS, llm=llm, write_order=pinned)
+    for seed in SEED_CONFLICTS:
+        seed_writes = [w.agent_id for w in writes if w.seed.doc_id == seed.doc_id]
+        assert seed_writes == pinned
 
 
 def test_independents_spread_over_multiple_non_anchor_excerpts():

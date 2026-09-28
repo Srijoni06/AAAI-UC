@@ -28,6 +28,7 @@ evaluation code can compare "N independent agree" against "N correlated agree".
 from __future__ import annotations
 
 import hashlib
+import random
 from dataclasses import dataclass, field
 from typing import Iterable
 
@@ -204,6 +205,27 @@ def assign_excerpts(
     return out
 
 
+def rotated_write_order(seed: SeedConflict, agents: list["SummarizerAgent"]) -> list["SummarizerAgent"]:
+    """Deterministic per-seed permutation of write order (stable across runs).
+
+    Agents used to write in a fixed roster order (A, B, C, D, E) for every
+    seed, so whichever agent is last in the roster always got the latest
+    timestamp - confounding "wrote last" with "is agent_E specifically", and
+    (since agent_E is one of the two independent agents in the default
+    roster, and independents disproportionately land on the correct excerpt
+    by construction) with "is correct". That artificially favors any resolver
+    that leans on recency: last_write_wins outright, and static_confidence's
+    recency tie-break. Hashing the seed's own doc_id into a seeded shuffle of
+    the same agent list decorrelates who writes last from which agent/group
+    this is, without changing who is correlated/independent or which excerpt
+    anyone reads - only the write order (and therefore relative timestamps).
+    """
+    digest = hashlib.sha256((seed.doc_id + ":write_order").encode("utf-8")).digest()
+    shuffled = list(agents)
+    random.Random(digest).shuffle(shuffled)
+    return shuffled
+
+
 class SummarizerAgent:
     def __init__(self, spec: AgentSpec, llm: LLMClient):
         self.spec = spec
@@ -251,6 +273,7 @@ def run(
     *,
     roster: list[AgentSpec] | None = None,
     anchor_excerpt_index: int | None = None,
+    write_order: list[str] | None = None,
 ) -> list[AgentWrite]:
     """Run every agent over every seed and write their claims to ``store``.
 
@@ -260,14 +283,23 @@ def run(
     the same structural reason - on every seed. Pass an explicit int to pin
     every seed to that one index instead (e.g. for a reproducible ablation).
 
-    Returns one :class:`AgentWrite` per (seed, agent), in roster order within
-    each seed.
+    ``write_order``: ``None`` (the default) rotates which agent writes
+    first/last per seed via :func:`rotated_write_order`, so recency-based
+    resolvers can't piggyback on one agent always being the last writer. Pass
+    an explicit list of agent ids (e.g. ``["agent_A", "agent_B", ...]``) to
+    pin every seed to that exact write order instead (e.g. for a reproducible
+    ablation, or to reproduce the old fixed-roster-order behavior).
+
+    Returns one :class:`AgentWrite` per (seed, agent), in write order within
+    each seed (roster order only when ``write_order`` pins the roster's own
+    order, or before this rotation existed).
     """
     seeds = seeds if seeds is not None else SEED_CONFLICTS
     roster = roster if roster is not None else DEFAULT_ROSTER
     llm = llm or make_llm()
 
     agents = [SummarizerAgent(spec, llm) for spec in roster]
+    agents_by_id = {a.agent_id: a for a in agents}
 
     writes: list[AgentWrite] = []
     for seed in seeds:
@@ -277,7 +309,12 @@ def run(
             else rotated_anchor_index(seed)
         )
         excerpt_for = assign_excerpts(seed, roster, anchor_excerpt_index=anchor_idx)
-        for agent in agents:
+        ordered_agents = (
+            [agents_by_id[aid] for aid in write_order]
+            if write_order is not None
+            else rotated_write_order(seed, agents)
+        )
+        for agent in ordered_agents:
             excerpt = excerpt_for[agent.agent_id]
             claim = agent.summarize(excerpt.text, seed.question)
             item = store.add(
