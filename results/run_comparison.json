@@ -5,31 +5,31 @@
     "threshold": -1.0,
     "agent_llm": "local:llama3.1:8b",
     "judge_llm": "local:qwen2.5:14b",
-    "timestamp": "2026-09-26T20:24:21"
+    "timestamp": "2026-09-29T07:48:34"
   },
   "detection": {
-    "TP": 95,
-    "FP": 5,
-    "FN": 19,
-    "precision": 0.95,
-    "recall": 0.8333,
-    "f1": 0.8879
+    "TP": 94,
+    "FP": 2,
+    "FN": 20,
+    "precision": 0.9792,
+    "recall": 0.8246,
+    "f1": 0.8952
   },
   "conditions": {
     "null": {
       "name": "null",
-      "total_conflicts": 18,
-      "decisive": 2,
-      "correct": 2,
+      "total_conflicts": 16,
+      "decisive": 0,
+      "correct": 0,
       "incorrect": 0,
       "contested": 16,
-      "coordination": 2,
-      "accuracy": 1.0,
-      "escalation_rate": 0.8889,
+      "coordination": 0,
+      "accuracy": 0.0,
+      "escalation_rate": 1.0,
       "per_type_accuracy": {
-        "factual": 0.1667,
+        "factual": 0.0,
         "magnitude": 0.0,
-        "staleness": 0.2,
+        "staleness": 0.0,
         "provenance": 0.0
       },
       "decisions": [
@@ -40,6 +40,7 @@
           "difficulty": "subtle",
           "gold_excerpt": "results",
           "classification": "CREDIBILITY",
+          "outcome": "contested",
           "correct": false,
           "rationale": "null resolver: no resolution applied"
         },
@@ -50,6 +51,7 @@
           "difficulty": "moderate",
           "gold_excerpt": "discussion",
           "classification": "CREDIBILITY",
+          "outcome": "contested",
           "correct": false,
           "rationale": "null resolver: no resolution applied"
         },
@@ -60,6 +62,7 @@
           "difficulty": "moderate",
           "gold_excerpt": "erratum",
           "classification": "CREDIBILITY",
+          "outcome": "contested",
           "correct": false,
           "rationale": "null resolver: no resolution applied"
         },
@@ -70,6 +73,7 @@
           "difficulty": "obvious",
           "gold_excerpt": "method",
           "classification": "CREDIBILITY",
+          "outcome": "contested",
           "correct": false,
           "rationale": "null resolver: no resolution applied"
         },
@@ -80,6 +84,7 @@
           "difficulty": "subtle",
           "gold_excerpt": "table",
           "classification": "CREDIBILITY",
+          "outcome": "contested",
           "correct": false,
           "rationale": "null resolver: no resolution applied"
         },
@@ -90,6 +95,7 @@
           "difficulty": "moderate",
           "gold_excerpt": "repro",
           "classification": "CREDIBILITY",
+          "outcome": "contested",
           "correct": false,
           "rationale": "null resolver: no resolution applied"
         },
@@ -100,18 +106,9 @@
           "difficulty": "moderate",
           "gold_excerpt": "footnote",
           "classification": "CREDIBILITY",
+          "outcome": "contested",
           "correct": false,
           "rationale": "null resolver: no resolution applied"
-        },
-        {
-          "topic": "language_coverage_claims",
-          "doc_id": "doc-languages",
-          "conflict_type": "factual",
-          "difficulty": "subtle",
-          "gold_excerpt": "COEXIST",
-          "classification": "COORDINATION",
-          "correct": true,
-          "rationale": "Claim 1 specifies the number of languages the parser supports, while Claim 2 provides context about the training dataset size and does not contradict the support number. Both claims can be true in different contexts."
         },
         {
           "topic": "inference_speedup",
@@ -120,6 +117,7 @@
           "difficulty": "moderate",
           "gold_excerpt": "analysis",
           "classification": "CREDIBILITY",
+          "outcome": "contested",
           "correct": false,
           "rationale": "null resolver: no resolution applied"
         },
@@ -130,16 +128,7 @@
           "difficulty": "obvious",
           "gold_excerpt": "compute",
           "classification": "CREDIBILITY",
-          "correct": false,
-          "rationale": "null resolver: no resolution applied"
-        },
-        {
-          "topic": "training_set_size",
-          "doc_id": "doc-dataset-size",
-          "conflict_type": "magnitude",
-          "difficulty": "moderate",
-          "gold_excerpt": "data",
-          "classification": "CREDIBILITY",
+          "outcome": "contested",
           "correct": false,
           "rationale": "null resolver: no resolution applied"
         },
@@ -150,6 +139,7 @@
           "difficulty": "moderate",
           "gold_excerpt": "study",
           "classification": "CREDIBILITY",
+          "outcome": "contested",
           "correct": false,
           "rationale": "null resolver: no resolution applied"
         },
@@ -160,6 +150,7 @@
           "difficulty": "obvious",
           "gold_excerpt": "cr_note",
           "classification": "CREDIBILITY",
+          "outcome": "contested",
           "correct": false,
           "rationale": "null resolver: no resolution applied"
         },
@@ -170,6 +161,7 @@
           "difficulty": "moderate",
           "gold_excerpt": "changelog",
           "classification": "CREDIBILITY",
+          "outcome": "contested",
           "correct": false,
           "rationale": "null resolver: no resolution applied"
         },
@@ -179,9 +171,10 @@
           "conflict_type": "staleness",
           "difficulty": "moderate",
           "gold_excerpt": "revision",
-          "classification": "COORDINATION",
-          "correct": true,
-          "rationale": "Both claims can be true in different contexts. Claim 1 specifies the model version used for producing numbers in the paper, while Claim 2 notes that a different model version is used for automatic judgements. These refer to different aspects of the model's usage."
+          "classification": "CREDIBILITY",
+          "outcome": "contested",
+          "correct": false,
+          "rationale": "null resolver: no resolution applied"
         },
         {
           "topic": "evaluation_dataset_version",
@@ -190,6 +183,7 @@
           "difficulty": "moderate",
           "gold_excerpt": "arxiv_v2",
           "classification": "CREDIBILITY",
+          "outcome": "contested",
           "correct": false,
           "rationale": "null resolver: no resolution applied"
         },
@@ -200,6 +194,7 @@
           "difficulty": "subtle",
           "gold_excerpt": "tablenote",
           "classification": "CREDIBILITY",
+          "outcome": "contested",
           "correct": false,
           "rationale": "null resolver: no resolution applied"
         },
@@ -210,6 +205,7 @@
           "difficulty": "moderate",
           "gold_excerpt": "method",
           "classification": "CREDIBILITY",
+          "outcome": "contested",
           "correct": false,
           "rationale": "null resolver: no resolution applied"
         }
@@ -217,18 +213,18 @@
     },
     "last_write_wins": {
       "name": "last_write_wins",
-      "total_conflicts": 18,
-      "decisive": 18,
-      "correct": 13,
+      "total_conflicts": 16,
+      "decisive": 16,
+      "correct": 11,
       "incorrect": 5,
       "contested": 0,
-      "coordination": 2,
-      "accuracy": 0.7222,
+      "coordination": 0,
+      "accuracy": 0.6875,
       "escalation_rate": 0.0,
       "per_type_accuracy": {
-        "factual": 0.5,
-        "magnitude": 1.0,
-        "staleness": 0.8,
+        "factual": 1.0,
+        "magnitude": 0.5,
+        "staleness": 0.6,
         "provenance": 0.5
       },
       "decisions": [
@@ -239,8 +235,9 @@
           "difficulty": "subtle",
           "gold_excerpt": "results",
           "classification": "CREDIBILITY",
-          "correct": false,
-          "rationale": "most recent write (agent_E @ 1790426578.221) supersedes 4 earlier claim(s)"
+          "outcome": "decisive",
+          "correct": true,
+          "rationale": "most recent write (agent_A @ 1790638927.836) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "improvement_over_baseline",
@@ -249,8 +246,9 @@
           "difficulty": "moderate",
           "gold_excerpt": "discussion",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": true,
-          "rationale": "most recent write (agent_E @ 1790426578.259) supersedes 4 earlier claim(s)"
+          "rationale": "most recent write (agent_B @ 1790638927.889) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "beats_prior_sota",
@@ -259,8 +257,9 @@
           "difficulty": "moderate",
           "gold_excerpt": "erratum",
           "classification": "CREDIBILITY",
-          "correct": true,
-          "rationale": "most recent write (agent_E @ 1790426578.300) supersedes 4 earlier claim(s)"
+          "outcome": "decisive",
+          "correct": false,
+          "rationale": "most recent write (agent_A @ 1790638927.943) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "training_supervision",
@@ -269,8 +268,9 @@
           "difficulty": "obvious",
           "gold_excerpt": "method",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": true,
-          "rationale": "most recent write (agent_E @ 1790426578.347) supersedes 4 earlier claim(s)"
+          "rationale": "most recent write (agent_B @ 1790638927.989) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "humaneval_pass_at_1",
@@ -279,8 +279,9 @@
           "difficulty": "subtle",
           "gold_excerpt": "table",
           "classification": "CREDIBILITY",
-          "correct": false,
-          "rationale": "most recent write (agent_E @ 1790426737.196) supersedes 4 earlier claim(s)"
+          "outcome": "decisive",
+          "correct": true,
+          "rationale": "most recent write (agent_D @ 1790638928.082) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "base_model_init",
@@ -289,8 +290,9 @@
           "difficulty": "moderate",
           "gold_excerpt": "repro",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": true,
-          "rationale": "most recent write (agent_E @ 1790426793.903) supersedes 4 earlier claim(s)"
+          "rationale": "most recent write (agent_B @ 1790638928.123) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "reported_eval_split",
@@ -299,18 +301,9 @@
           "difficulty": "moderate",
           "gold_excerpt": "footnote",
           "classification": "CREDIBILITY",
-          "correct": false,
-          "rationale": "most recent write (agent_E @ 1790426845.400) supersedes 4 earlier claim(s)"
-        },
-        {
-          "topic": "language_coverage_claims",
-          "doc_id": "doc-languages",
-          "conflict_type": "factual",
-          "difficulty": "subtle",
-          "gold_excerpt": "COEXIST",
-          "classification": "COORDINATION",
+          "outcome": "decisive",
           "correct": true,
-          "rationale": "Claim 1 specifies the number of languages the parser supports, while Claim 2 provides context about the training dataset size and does not contradict the support number. Both claims can be true in different contexts."
+          "rationale": "most recent write (agent_A @ 1790638928.183) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "inference_speedup",
@@ -319,8 +312,9 @@
           "difficulty": "moderate",
           "gold_excerpt": "analysis",
           "classification": "CREDIBILITY",
-          "correct": true,
-          "rationale": "most recent write (agent_E @ 1790426945.740) supersedes 4 earlier claim(s)"
+          "outcome": "decisive",
+          "correct": false,
+          "rationale": "most recent write (agent_D @ 1790638928.289) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "pretraining_compute_cost",
@@ -329,18 +323,9 @@
           "difficulty": "obvious",
           "gold_excerpt": "compute",
           "classification": "CREDIBILITY",
-          "correct": true,
-          "rationale": "most recent write (agent_E @ 1790426945.848) supersedes 4 earlier claim(s)"
-        },
-        {
-          "topic": "training_set_size",
-          "doc_id": "doc-dataset-size",
-          "conflict_type": "magnitude",
-          "difficulty": "moderate",
-          "gold_excerpt": "data",
-          "classification": "CREDIBILITY",
-          "correct": true,
-          "rationale": "most recent write (agent_E @ 1790426993.558) supersedes 4 earlier claim(s)"
+          "outcome": "decisive",
+          "correct": false,
+          "rationale": "most recent write (agent_A @ 1790638928.337) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "human_preference_win_rate",
@@ -349,8 +334,9 @@
           "difficulty": "moderate",
           "gold_excerpt": "study",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": true,
-          "rationale": "most recent write (agent_E @ 1790427057.450) supersedes 4 earlier claim(s)"
+          "rationale": "most recent write (agent_B @ 1790638928.450) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "leaderboard_rank",
@@ -359,8 +345,9 @@
           "difficulty": "obvious",
           "gold_excerpt": "cr_note",
           "classification": "CREDIBILITY",
-          "correct": true,
-          "rationale": "most recent write (agent_E @ 1790427105.281) supersedes 4 earlier claim(s)"
+          "outcome": "decisive",
+          "correct": false,
+          "rationale": "most recent write (agent_D @ 1790638928.495) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "reported_f1",
@@ -369,8 +356,9 @@
           "difficulty": "moderate",
           "gold_excerpt": "changelog",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": true,
-          "rationale": "most recent write (agent_E @ 1790427157.325) supersedes 4 earlier claim(s)"
+          "rationale": "most recent write (agent_E @ 1790638928.545) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "judge_model_version",
@@ -378,9 +366,10 @@
           "conflict_type": "staleness",
           "difficulty": "moderate",
           "gold_excerpt": "revision",
-          "classification": "COORDINATION",
+          "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": true,
-          "rationale": "Both claims can be true in different contexts. Claim 1 specifies the model version used for producing numbers in the paper, while Claim 2 notes that a different model version is used for automatic judgements. These refer to different aspects of the model's usage."
+          "rationale": "most recent write (agent_D @ 1790638928.591) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "evaluation_dataset_version",
@@ -389,8 +378,9 @@
           "difficulty": "moderate",
           "gold_excerpt": "arxiv_v2",
           "classification": "CREDIBILITY",
-          "correct": false,
-          "rationale": "most recent write (agent_E @ 1790427266.284) supersedes 4 earlier claim(s)"
+          "outcome": "decisive",
+          "correct": true,
+          "rationale": "most recent write (agent_A @ 1790638928.644) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "who_scored_88_5_em",
@@ -399,8 +389,9 @@
           "difficulty": "subtle",
           "gold_excerpt": "tablenote",
           "classification": "CREDIBILITY",
-          "correct": true,
-          "rationale": "most recent write (agent_E @ 1790427266.369) supersedes 4 earlier claim(s)"
+          "outcome": "decisive",
+          "correct": false,
+          "rationale": "most recent write (agent_A @ 1790638928.687) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "rope_contribution",
@@ -409,23 +400,24 @@
           "difficulty": "moderate",
           "gold_excerpt": "method",
           "classification": "CREDIBILITY",
-          "correct": false,
-          "rationale": "most recent write (agent_E @ 1790427325.987) supersedes 4 earlier claim(s)"
+          "outcome": "decisive",
+          "correct": true,
+          "rationale": "most recent write (agent_C @ 1790638928.731) supersedes 4 earlier claim(s)"
         }
       ]
     },
     "majority_vote": {
       "name": "majority_vote",
-      "total_conflicts": 18,
-      "decisive": 18,
-      "correct": 7,
-      "incorrect": 11,
+      "total_conflicts": 16,
+      "decisive": 16,
+      "correct": 6,
+      "incorrect": 10,
       "contested": 0,
-      "coordination": 2,
-      "accuracy": 0.3889,
+      "coordination": 0,
+      "accuracy": 0.375,
       "escalation_rate": 0.0,
       "per_type_accuracy": {
-        "factual": 0.6667,
+        "factual": 0.6,
         "magnitude": 0.0,
         "staleness": 0.4,
         "provenance": 0.5
@@ -438,6 +430,7 @@
           "difficulty": "subtle",
           "gold_excerpt": "results",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": true,
           "rationale": "largest meaning cluster (3/5 votes) wins; votes per answer: {'doc-benchmark#results': 3, 'doc-benchmark#intro': 2}"
         },
@@ -448,6 +441,7 @@
           "difficulty": "moderate",
           "gold_excerpt": "discussion",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": false,
           "rationale": "largest meaning cluster (3/5 votes) wins; votes per answer: {'doc-gain#abstract': 3, 'doc-gain#discussion': 2}"
         },
@@ -458,6 +452,7 @@
           "difficulty": "moderate",
           "gold_excerpt": "erratum",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": false,
           "rationale": "largest meaning cluster (3/5 votes) wins; votes per answer: {'doc-sota#body': 3, 'doc-sota#erratum': 2}"
         },
@@ -468,6 +463,7 @@
           "difficulty": "obvious",
           "gold_excerpt": "method",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": false,
           "rationale": "largest meaning cluster (3/5 votes) wins; votes per answer: {'doc-supervision#abstract': 3, 'doc-supervision#method': 2}"
         },
@@ -478,8 +474,9 @@
           "difficulty": "subtle",
           "gold_excerpt": "table",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": true,
-          "rationale": "largest meaning cluster (3/5 votes) wins; votes per answer: {'doc-humaneval#table': 3, 'doc-humaneval#abstract': 2}"
+          "rationale": "largest meaning cluster (3/5 votes) wins; votes per answer: {'doc-humaneval#abstract': 2, 'doc-humaneval#table': 3}"
         },
         {
           "topic": "base_model_init",
@@ -488,6 +485,7 @@
           "difficulty": "moderate",
           "gold_excerpt": "repro",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": false,
           "rationale": "largest meaning cluster (3/5 votes) wins; votes per answer: {'doc-init#related': 3, 'doc-init#repro': 2}"
         },
@@ -498,18 +496,9 @@
           "difficulty": "moderate",
           "gold_excerpt": "footnote",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": true,
           "rationale": "largest meaning cluster (3/5 votes) wins; votes per answer: {'doc-split#footnote': 3, 'doc-split#setup': 2}"
-        },
-        {
-          "topic": "language_coverage_claims",
-          "doc_id": "doc-languages",
-          "conflict_type": "factual",
-          "difficulty": "subtle",
-          "gold_excerpt": "COEXIST",
-          "classification": "COORDINATION",
-          "correct": true,
-          "rationale": "Claim 1 specifies the number of languages the parser supports, while Claim 2 provides context about the training dataset size and does not contradict the support number. Both claims can be true in different contexts."
         },
         {
           "topic": "inference_speedup",
@@ -518,8 +507,9 @@
           "difficulty": "moderate",
           "gold_excerpt": "analysis",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": false,
-          "rationale": "largest meaning cluster (3/5 votes) wins; votes per answer: {'doc-speedup#abstract': 3, 'doc-speedup#analysis': 2}"
+          "rationale": "largest meaning cluster (3/5 votes) wins; votes per answer: {'doc-speedup#analysis': 2, 'doc-speedup#abstract': 3}"
         },
         {
           "topic": "pretraining_compute_cost",
@@ -528,18 +518,9 @@
           "difficulty": "obvious",
           "gold_excerpt": "compute",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": false,
           "rationale": "largest meaning cluster (3/5 votes) wins; votes per answer: {'doc-cost#intro': 3, 'doc-cost#compute': 2}"
-        },
-        {
-          "topic": "training_set_size",
-          "doc_id": "doc-dataset-size",
-          "conflict_type": "magnitude",
-          "difficulty": "moderate",
-          "gold_excerpt": "data",
-          "classification": "CREDIBILITY",
-          "correct": false,
-          "rationale": "largest meaning cluster (3/5 votes) wins; votes per answer: {'doc-dataset-size#intro': 3, 'doc-dataset-size#data': 2}"
         },
         {
           "topic": "human_preference_win_rate",
@@ -548,6 +529,7 @@
           "difficulty": "moderate",
           "gold_excerpt": "study",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": false,
           "rationale": "largest meaning cluster (3/5 votes) wins; votes per answer: {'doc-winrate#abstract': 3, 'doc-winrate#study': 2}"
         },
@@ -558,8 +540,9 @@
           "difficulty": "obvious",
           "gold_excerpt": "cr_note",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": false,
-          "rationale": "largest meaning cluster (3/5 votes) wins; votes per answer: {'doc-leaderboard#body': 3, 'doc-leaderboard#cr_note': 2}"
+          "rationale": "largest meaning cluster (3/5 votes) wins; votes per answer: {'doc-leaderboard#cr_note': 2, 'doc-leaderboard#body': 3}"
         },
         {
           "topic": "reported_f1",
@@ -568,6 +551,7 @@
           "difficulty": "moderate",
           "gold_excerpt": "changelog",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": false,
           "rationale": "largest meaning cluster (3/5 votes) wins; votes per answer: {'doc-scoring-bug#table': 3, 'doc-scoring-bug#changelog': 2}"
         },
@@ -577,9 +561,10 @@
           "conflict_type": "staleness",
           "difficulty": "moderate",
           "gold_excerpt": "revision",
-          "classification": "COORDINATION",
+          "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": true,
-          "rationale": "Both claims can be true in different contexts. Claim 1 specifies the model version used for producing numbers in the paper, while Claim 2 notes that a different model version is used for automatic judgements. These refer to different aspects of the model's usage."
+          "rationale": "largest meaning cluster (3/5 votes) wins; votes per answer: {'doc-api-version#setup': 2, 'doc-api-version#revision': 3}"
         },
         {
           "topic": "evaluation_dataset_version",
@@ -588,6 +573,7 @@
           "difficulty": "moderate",
           "gold_excerpt": "arxiv_v2",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": true,
           "rationale": "largest meaning cluster (3/5 votes) wins; votes per answer: {'doc-dataset-version#arxiv_v2': 3, 'doc-dataset-version#arxiv_v1': 2}"
         },
@@ -598,8 +584,9 @@
           "difficulty": "subtle",
           "gold_excerpt": "tablenote",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": false,
-          "rationale": "largest meaning cluster (3/5 votes) wins; votes per answer: {'doc-attribution#claim': 3, 'doc-attribution#tablenote': 2}"
+          "rationale": "largest meaning cluster (3/5 votes) wins; votes per answer: {'doc-attribution#tablenote': 2, 'doc-attribution#claim': 3}"
         },
         {
           "topic": "rope_contribution",
@@ -608,223 +595,25 @@
           "difficulty": "moderate",
           "gold_excerpt": "method",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": true,
-          "rationale": "largest meaning cluster (3/5 votes) wins; votes per answer: {'doc-rope#method': 3, 'doc-rope#contrib': 2}"
+          "rationale": "largest meaning cluster (3/5 votes) wins; votes per answer: {'doc-rope#contrib': 2, 'doc-rope#method': 3}"
         }
       ]
     },
     "static_confidence": {
       "name": "static_confidence",
-      "total_conflicts": 18,
-      "decisive": 18,
-      "correct": 13,
-      "incorrect": 5,
-      "contested": 0,
-      "coordination": 2,
-      "accuracy": 0.7222,
-      "escalation_rate": 0.0,
-      "per_type_accuracy": {
-        "factual": 0.5,
-        "magnitude": 1.0,
-        "staleness": 0.8,
-        "provenance": 0.5
-      },
-      "decisions": [
-        {
-          "topic": "primary_benchmark",
-          "doc_id": "doc-benchmark",
-          "conflict_type": "factual",
-          "difficulty": "subtle",
-          "gold_excerpt": "results",
-          "classification": "CREDIBILITY",
-          "correct": false,
-          "rationale": "fixed weight table: top score 3.70 (agent_E); corroboration groups per answer: {'doc-benchmark#results': 1, 'doc-benchmark#intro': 1}"
-        },
-        {
-          "topic": "improvement_over_baseline",
-          "doc_id": "doc-gain",
-          "conflict_type": "magnitude",
-          "difficulty": "moderate",
-          "gold_excerpt": "discussion",
-          "classification": "CREDIBILITY",
-          "correct": true,
-          "rationale": "fixed weight table: top score 3.70 (agent_E); corroboration groups per answer: {'doc-gain#abstract': 1, 'doc-gain#discussion': 1}"
-        },
-        {
-          "topic": "beats_prior_sota",
-          "doc_id": "doc-sota",
-          "conflict_type": "staleness",
-          "difficulty": "moderate",
-          "gold_excerpt": "erratum",
-          "classification": "CREDIBILITY",
-          "correct": true,
-          "rationale": "fixed weight table: top score 3.70 (agent_E); corroboration groups per answer: {'doc-sota#body': 1, 'doc-sota#erratum': 1}"
-        },
-        {
-          "topic": "training_supervision",
-          "doc_id": "doc-supervision",
-          "conflict_type": "factual",
-          "difficulty": "obvious",
-          "gold_excerpt": "method",
-          "classification": "CREDIBILITY",
-          "correct": true,
-          "rationale": "fixed weight table: top score 3.70 (agent_E); corroboration groups per answer: {'doc-supervision#abstract': 1, 'doc-supervision#method': 1}"
-        },
-        {
-          "topic": "humaneval_pass_at_1",
-          "doc_id": "doc-humaneval",
-          "conflict_type": "factual",
-          "difficulty": "subtle",
-          "gold_excerpt": "table",
-          "classification": "CREDIBILITY",
-          "correct": false,
-          "rationale": "fixed weight table: top score 3.70 (agent_E); corroboration groups per answer: {'doc-humaneval#table': 1, 'doc-humaneval#abstract': 1}"
-        },
-        {
-          "topic": "base_model_init",
-          "doc_id": "doc-init",
-          "conflict_type": "factual",
-          "difficulty": "moderate",
-          "gold_excerpt": "repro",
-          "classification": "CREDIBILITY",
-          "correct": true,
-          "rationale": "fixed weight table: top score 3.70 (agent_E); corroboration groups per answer: {'doc-init#related': 1, 'doc-init#repro': 1}"
-        },
-        {
-          "topic": "reported_eval_split",
-          "doc_id": "doc-split",
-          "conflict_type": "factual",
-          "difficulty": "moderate",
-          "gold_excerpt": "footnote",
-          "classification": "CREDIBILITY",
-          "correct": false,
-          "rationale": "fixed weight table: top score 3.70 (agent_E); corroboration groups per answer: {'doc-split#footnote': 1, 'doc-split#setup': 1}"
-        },
-        {
-          "topic": "language_coverage_claims",
-          "doc_id": "doc-languages",
-          "conflict_type": "factual",
-          "difficulty": "subtle",
-          "gold_excerpt": "COEXIST",
-          "classification": "COORDINATION",
-          "correct": true,
-          "rationale": "Claim 1 specifies the number of languages the parser supports, while Claim 2 provides context about the training dataset size and does not contradict the support number. Both claims can be true in different contexts."
-        },
-        {
-          "topic": "inference_speedup",
-          "doc_id": "doc-speedup",
-          "conflict_type": "magnitude",
-          "difficulty": "moderate",
-          "gold_excerpt": "analysis",
-          "classification": "CREDIBILITY",
-          "correct": true,
-          "rationale": "fixed weight table: top score 3.70 (agent_E); corroboration groups per answer: {'doc-speedup#abstract': 1, 'doc-speedup#analysis': 1}"
-        },
-        {
-          "topic": "pretraining_compute_cost",
-          "doc_id": "doc-cost",
-          "conflict_type": "magnitude",
-          "difficulty": "obvious",
-          "gold_excerpt": "compute",
-          "classification": "CREDIBILITY",
-          "correct": true,
-          "rationale": "fixed weight table: top score 3.70 (agent_E); corroboration groups per answer: {'doc-cost#intro': 1, 'doc-cost#compute': 1}"
-        },
-        {
-          "topic": "training_set_size",
-          "doc_id": "doc-dataset-size",
-          "conflict_type": "magnitude",
-          "difficulty": "moderate",
-          "gold_excerpt": "data",
-          "classification": "CREDIBILITY",
-          "correct": true,
-          "rationale": "fixed weight table: top score 3.70 (agent_E); corroboration groups per answer: {'doc-dataset-size#intro': 1, 'doc-dataset-size#data': 1}"
-        },
-        {
-          "topic": "human_preference_win_rate",
-          "doc_id": "doc-winrate",
-          "conflict_type": "magnitude",
-          "difficulty": "moderate",
-          "gold_excerpt": "study",
-          "classification": "CREDIBILITY",
-          "correct": true,
-          "rationale": "fixed weight table: top score 3.70 (agent_E); corroboration groups per answer: {'doc-winrate#abstract': 1, 'doc-winrate#study': 1}"
-        },
-        {
-          "topic": "leaderboard_rank",
-          "doc_id": "doc-leaderboard",
-          "conflict_type": "staleness",
-          "difficulty": "obvious",
-          "gold_excerpt": "cr_note",
-          "classification": "CREDIBILITY",
-          "correct": true,
-          "rationale": "fixed weight table: top score 3.70 (agent_E); corroboration groups per answer: {'doc-leaderboard#body': 1, 'doc-leaderboard#cr_note': 1}"
-        },
-        {
-          "topic": "reported_f1",
-          "doc_id": "doc-scoring-bug",
-          "conflict_type": "staleness",
-          "difficulty": "moderate",
-          "gold_excerpt": "changelog",
-          "classification": "CREDIBILITY",
-          "correct": true,
-          "rationale": "fixed weight table: top score 3.70 (agent_E); corroboration groups per answer: {'doc-scoring-bug#table': 1, 'doc-scoring-bug#changelog': 1}"
-        },
-        {
-          "topic": "judge_model_version",
-          "doc_id": "doc-api-version",
-          "conflict_type": "staleness",
-          "difficulty": "moderate",
-          "gold_excerpt": "revision",
-          "classification": "COORDINATION",
-          "correct": true,
-          "rationale": "Both claims can be true in different contexts. Claim 1 specifies the model version used for producing numbers in the paper, while Claim 2 notes that a different model version is used for automatic judgements. These refer to different aspects of the model's usage."
-        },
-        {
-          "topic": "evaluation_dataset_version",
-          "doc_id": "doc-dataset-version",
-          "conflict_type": "staleness",
-          "difficulty": "moderate",
-          "gold_excerpt": "arxiv_v2",
-          "classification": "CREDIBILITY",
-          "correct": false,
-          "rationale": "fixed weight table: top score 3.70 (agent_E); corroboration groups per answer: {'doc-dataset-version#arxiv_v2': 1, 'doc-dataset-version#arxiv_v1': 1}"
-        },
-        {
-          "topic": "who_scored_88_5_em",
-          "doc_id": "doc-attribution",
-          "conflict_type": "provenance",
-          "difficulty": "subtle",
-          "gold_excerpt": "tablenote",
-          "classification": "CREDIBILITY",
-          "correct": true,
-          "rationale": "fixed weight table: top score 3.70 (agent_E); corroboration groups per answer: {'doc-attribution#claim': 1, 'doc-attribution#tablenote': 1}"
-        },
-        {
-          "topic": "rope_contribution",
-          "doc_id": "doc-rope",
-          "conflict_type": "provenance",
-          "difficulty": "moderate",
-          "gold_excerpt": "method",
-          "classification": "CREDIBILITY",
-          "correct": false,
-          "rationale": "fixed weight table: top score 3.70 (agent_E); corroboration groups per answer: {'doc-rope#method': 1, 'doc-rope#contrib': 1}"
-        }
-      ]
-    },
-    "reliability_aware": {
-      "name": "reliability_aware",
-      "total_conflicts": 18,
-      "decisive": 18,
-      "correct": 12,
+      "total_conflicts": 16,
+      "decisive": 16,
+      "correct": 10,
       "incorrect": 6,
       "contested": 0,
-      "coordination": 2,
-      "accuracy": 0.6667,
+      "coordination": 0,
+      "accuracy": 0.625,
       "escalation_rate": 0.0,
       "per_type_accuracy": {
-        "factual": 0.6667,
-        "magnitude": 0.8,
+        "factual": 0.4,
+        "magnitude": 1.0,
         "staleness": 0.6,
         "provenance": 0.5
       },
@@ -836,8 +625,9 @@
           "difficulty": "subtle",
           "gold_excerpt": "results",
           "classification": "CREDIBILITY",
-          "correct": true,
-          "rationale": "reliability-aware: answer 'doc-benchmark#results' scored 13.500 (discounts: doc-benchmark#results\u00d71.000, doc-benchmark#intro\u00d71.000); votes: {'doc-benchmark#results': 3, 'doc-benchmark#intro': 2}; competence: {'agent_A': '0.50', 'agent_B': '0.50', 'agent_C': '0.50', 'agent_D': '0.50', 'agent_E': '0.50'}"
+          "outcome": "decisive",
+          "correct": false,
+          "rationale": "fixed weight table: top score 4.40 (agent_E); corroboration groups per answer: {'doc-benchmark#results': 1, 'doc-benchmark#intro': 2}"
         },
         {
           "topic": "improvement_over_baseline",
@@ -846,8 +636,9 @@
           "difficulty": "moderate",
           "gold_excerpt": "discussion",
           "classification": "CREDIBILITY",
-          "correct": false,
-          "rationale": "reliability-aware: answer 'doc-gain#abstract' scored 11.149 (discounts: doc-gain#abstract\u00d70.799, doc-gain#discussion\u00d70.928); votes: {'doc-gain#abstract': 3, 'doc-gain#discussion': 2}; competence: {'agent_A': '0.57', 'agent_B': '0.57', 'agent_C': '0.57', 'agent_D': '0.57', 'agent_E': '0.57'}"
+          "outcome": "decisive",
+          "correct": true,
+          "rationale": "fixed weight table: top score 4.45 (agent_B); corroboration groups per answer: {'doc-gain#abstract': 1, 'doc-gain#discussion': 2}"
         },
         {
           "topic": "beats_prior_sota",
@@ -856,8 +647,9 @@
           "difficulty": "moderate",
           "gold_excerpt": "erratum",
           "classification": "CREDIBILITY",
-          "correct": false,
-          "rationale": "reliability-aware: answer 'doc-sota#body' scored 8.683 (discounts: doc-sota#body\u00d70.646, doc-sota#erratum\u00d70.865); votes: {'doc-sota#body': 3, 'doc-sota#erratum': 2}; competence: {'agent_A': '0.49', 'agent_B': '0.49', 'agent_C': '0.49', 'agent_D': '0.49', 'agent_E': '0.49'}"
+          "outcome": "decisive",
+          "correct": true,
+          "rationale": "fixed weight table: top score 4.35 (agent_B); corroboration groups per answer: {'doc-sota#body': 1, 'doc-sota#erratum': 2}"
         },
         {
           "topic": "training_supervision",
@@ -866,8 +658,9 @@
           "difficulty": "obvious",
           "gold_excerpt": "method",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": true,
-          "rationale": "reliability-aware: answer 'doc-supervision#method' scored 7.006 (discounts: doc-supervision#abstract\u00d70.529, doc-supervision#method\u00d70.809); votes: {'doc-supervision#abstract': 3, 'doc-supervision#method': 2}; competence: {'agent_A': '0.42', 'agent_B': '0.42', 'agent_C': '0.42', 'agent_D': '0.42', 'agent_E': '0.42'}"
+          "rationale": "fixed weight table: top score 4.45 (agent_B); corroboration groups per answer: {'doc-supervision#abstract': 1, 'doc-supervision#method': 2}"
         },
         {
           "topic": "humaneval_pass_at_1",
@@ -876,8 +669,9 @@
           "difficulty": "subtle",
           "gold_excerpt": "table",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": false,
-          "rationale": "reliability-aware: answer 'doc-humaneval#abstract' scored 6.848 (discounts: doc-humaneval#table\u00d70.439, doc-humaneval#abstract\u00d70.760); votes: {'doc-humaneval#table': 3, 'doc-humaneval#abstract': 2}; competence: {'agent_A': '0.50', 'agent_B': '0.50', 'agent_C': '0.50', 'agent_D': '0.50', 'agent_E': '0.50'}"
+          "rationale": "fixed weight table: top score 4.30 (agent_B); corroboration groups per answer: {'doc-humaneval#abstract': 2, 'doc-humaneval#table': 1}"
         },
         {
           "topic": "base_model_init",
@@ -886,8 +680,9 @@
           "difficulty": "moderate",
           "gold_excerpt": "repro",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": true,
-          "rationale": "reliability-aware: answer 'doc-init#repro' scored 6.242 (discounts: doc-init#related\u00d70.368, doc-init#repro\u00d70.717); votes: {'doc-init#related': 3, 'doc-init#repro': 2}; competence: {'agent_A': '0.43', 'agent_B': '0.43', 'agent_C': '0.43', 'agent_D': '0.43', 'agent_E': '0.43'}"
+          "rationale": "fixed weight table: top score 4.45 (agent_B); corroboration groups per answer: {'doc-init#related': 1, 'doc-init#repro': 2}"
         },
         {
           "topic": "reported_eval_split",
@@ -896,18 +691,9 @@
           "difficulty": "moderate",
           "gold_excerpt": "footnote",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": false,
-          "rationale": "reliability-aware: answer 'doc-split#setup' scored 6.144 (discounts: doc-split#footnote\u00d70.313, doc-split#setup\u00d70.679); votes: {'doc-split#footnote': 3, 'doc-split#setup': 2}; competence: {'agent_A': '0.51', 'agent_B': '0.51', 'agent_C': '0.51', 'agent_D': '0.51', 'agent_E': '0.51'}"
-        },
-        {
-          "topic": "language_coverage_claims",
-          "doc_id": "doc-languages",
-          "conflict_type": "factual",
-          "difficulty": "subtle",
-          "gold_excerpt": "COEXIST",
-          "classification": "COORDINATION",
-          "correct": true,
-          "rationale": "Claim 1 specifies the number of languages the parser supports, while Claim 2 provides context about the training dataset size and does not contradict the support number. Both claims can be true in different contexts."
+          "rationale": "fixed weight table: top score 4.40 (agent_E); corroboration groups per answer: {'doc-split#footnote': 1, 'doc-split#setup': 2}"
         },
         {
           "topic": "inference_speedup",
@@ -916,8 +702,9 @@
           "difficulty": "moderate",
           "gold_excerpt": "analysis",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": true,
-          "rationale": "reliability-aware: answer 'doc-speedup#analysis' scored 5.643 (discounts: doc-speedup#abstract\u00d70.269, doc-speedup#analysis\u00d70.645); votes: {'doc-speedup#abstract': 3, 'doc-speedup#analysis': 2}; competence: {'agent_A': '0.44', 'agent_B': '0.44', 'agent_C': '0.44', 'agent_D': '0.44', 'agent_E': '0.44'}"
+          "rationale": "fixed weight table: top score 4.35 (agent_B); corroboration groups per answer: {'doc-speedup#analysis': 2, 'doc-speedup#abstract': 1}"
         },
         {
           "topic": "pretraining_compute_cost",
@@ -926,18 +713,9 @@
           "difficulty": "obvious",
           "gold_excerpt": "compute",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": true,
-          "rationale": "reliability-aware: answer 'doc-cost#compute' scored 5.594 (discounts: doc-cost#intro\u00d70.233, doc-cost#compute\u00d70.616); votes: {'doc-cost#intro': 3, 'doc-cost#compute': 2}; competence: {'agent_A': '0.52', 'agent_B': '0.52', 'agent_C': '0.52', 'agent_D': '0.52', 'agent_E': '0.52'}"
-        },
-        {
-          "topic": "training_set_size",
-          "doc_id": "doc-dataset-size",
-          "conflict_type": "magnitude",
-          "difficulty": "moderate",
-          "gold_excerpt": "data",
-          "classification": "CREDIBILITY",
-          "correct": true,
-          "rationale": "reliability-aware: answer 'doc-dataset-size#data' scored 5.528 (discounts: doc-dataset-size#intro\u00d70.205, doc-dataset-size#data\u00d70.590); votes: {'doc-dataset-size#intro': 3, 'doc-dataset-size#data': 2}; competence: {'agent_A': '0.59', 'agent_B': '0.59', 'agent_C': '0.59', 'agent_D': '0.59', 'agent_E': '0.59'}"
+          "rationale": "fixed weight table: top score 4.40 (agent_E); corroboration groups per answer: {'doc-cost#intro': 1, 'doc-cost#compute': 2}"
         },
         {
           "topic": "human_preference_win_rate",
@@ -946,8 +724,9 @@
           "difficulty": "moderate",
           "gold_excerpt": "study",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": true,
-          "rationale": "reliability-aware: answer 'doc-winrate#study' scored 5.453 (discounts: doc-winrate#abstract\u00d70.182, doc-winrate#study\u00d70.567); votes: {'doc-winrate#abstract': 3, 'doc-winrate#study': 2}; competence: {'agent_A': '0.65', 'agent_B': '0.65', 'agent_C': '0.65', 'agent_D': '0.65', 'agent_E': '0.65'}"
+          "rationale": "fixed weight table: top score 4.45 (agent_B); corroboration groups per answer: {'doc-winrate#abstract': 1, 'doc-winrate#study': 2}"
         },
         {
           "topic": "leaderboard_rank",
@@ -956,8 +735,9 @@
           "difficulty": "obvious",
           "gold_excerpt": "cr_note",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": true,
-          "rationale": "reliability-aware: answer 'doc-leaderboard#cr_note' scored 5.374 (discounts: doc-leaderboard#body\u00d70.164, doc-leaderboard#cr_note\u00d70.547); votes: {'doc-leaderboard#body': 3, 'doc-leaderboard#cr_note': 2}; competence: {'agent_A': '0.71', 'agent_B': '0.71', 'agent_C': '0.71', 'agent_D': '0.71', 'agent_E': '0.71'}"
+          "rationale": "fixed weight table: top score 4.40 (agent_B); corroboration groups per answer: {'doc-leaderboard#cr_note': 2, 'doc-leaderboard#body': 1}"
         },
         {
           "topic": "reported_f1",
@@ -966,8 +746,9 @@
           "difficulty": "moderate",
           "gold_excerpt": "changelog",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": true,
-          "rationale": "reliability-aware: answer 'doc-scoring-bug#changelog' scored 5.294 (discounts: doc-scoring-bug#table\u00d70.148, doc-scoring-bug#changelog\u00d70.529); votes: {'doc-scoring-bug#table': 3, 'doc-scoring-bug#changelog': 2}; competence: {'agent_A': '0.75', 'agent_B': '0.75', 'agent_C': '0.75', 'agent_D': '0.75', 'agent_E': '0.75'}"
+          "rationale": "fixed weight table: top score 4.45 (agent_E); corroboration groups per answer: {'doc-scoring-bug#table': 1, 'doc-scoring-bug#changelog': 2}"
         },
         {
           "topic": "judge_model_version",
@@ -975,9 +756,10 @@
           "conflict_type": "staleness",
           "difficulty": "moderate",
           "gold_excerpt": "revision",
-          "classification": "COORDINATION",
-          "correct": true,
-          "rationale": "Both claims can be true in different contexts. Claim 1 specifies the model version used for producing numbers in the paper, while Claim 2 notes that a different model version is used for automatic judgements. These refer to different aspects of the model's usage."
+          "classification": "CREDIBILITY",
+          "outcome": "decisive",
+          "correct": false,
+          "rationale": "fixed weight table: top score 4.40 (agent_E); corroboration groups per answer: {'doc-api-version#setup': 2, 'doc-api-version#revision': 1}"
         },
         {
           "topic": "evaluation_dataset_version",
@@ -986,8 +768,9 @@
           "difficulty": "moderate",
           "gold_excerpt": "arxiv_v2",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": false,
-          "rationale": "reliability-aware: answer 'doc-dataset-version#arxiv_v1' scored 5.216 (discounts: doc-dataset-version#arxiv_v2\u00d70.136, doc-dataset-version#arxiv_v1\u00d70.514); votes: {'doc-dataset-version#arxiv_v2': 3, 'doc-dataset-version#arxiv_v1': 2}; competence: {'agent_A': '0.79', 'agent_B': '0.79', 'agent_C': '0.79', 'agent_D': '0.79', 'agent_E': '0.79'}"
+          "rationale": "fixed weight table: top score 4.40 (agent_E); corroboration groups per answer: {'doc-dataset-version#arxiv_v2': 1, 'doc-dataset-version#arxiv_v1': 2}"
         },
         {
           "topic": "who_scored_88_5_em",
@@ -996,8 +779,9 @@
           "difficulty": "subtle",
           "gold_excerpt": "tablenote",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": true,
-          "rationale": "reliability-aware: answer 'doc-attribution#tablenote' scored 4.841 (discounts: doc-attribution#claim\u00d70.125, doc-attribution#tablenote\u00d70.500); votes: {'doc-attribution#claim': 3, 'doc-attribution#tablenote': 2}; competence: {'agent_A': '0.67', 'agent_B': '0.67', 'agent_C': '0.67', 'agent_D': '0.67', 'agent_E': '0.67'}"
+          "rationale": "fixed weight table: top score 4.40 (agent_B); corroboration groups per answer: {'doc-attribution#tablenote': 2, 'doc-attribution#claim': 1}"
         },
         {
           "topic": "rope_contribution",
@@ -1006,8 +790,204 @@
           "difficulty": "moderate",
           "gold_excerpt": "method",
           "classification": "CREDIBILITY",
+          "outcome": "decisive",
           "correct": false,
-          "rationale": "reliability-aware: answer 'doc-rope#contrib' scored 4.821 (discounts: doc-rope#method\u00d70.116, doc-rope#contrib\u00d70.488); votes: {'doc-rope#method': 3, 'doc-rope#contrib': 2}; competence: {'agent_A': '0.72', 'agent_B': '0.72', 'agent_C': '0.72', 'agent_D': '0.72', 'agent_E': '0.72'}"
+          "rationale": "fixed weight table: top score 4.40 (agent_B); corroboration groups per answer: {'doc-rope#contrib': 2, 'doc-rope#method': 1}"
+        }
+      ]
+    },
+    "reliability_aware": {
+      "name": "reliability_aware",
+      "total_conflicts": 16,
+      "decisive": 16,
+      "correct": 8,
+      "incorrect": 8,
+      "contested": 0,
+      "coordination": 0,
+      "accuracy": 0.5,
+      "escalation_rate": 0.0,
+      "per_type_accuracy": {
+        "factual": 0.4,
+        "magnitude": 0.75,
+        "staleness": 0.4,
+        "provenance": 0.5
+      },
+      "decisions": [
+        {
+          "topic": "primary_benchmark",
+          "doc_id": "doc-benchmark",
+          "conflict_type": "factual",
+          "difficulty": "subtle",
+          "gold_excerpt": "results",
+          "classification": "CREDIBILITY",
+          "outcome": "decisive",
+          "correct": true,
+          "rationale": "reliability-aware: answer 'doc-benchmark#results' scored 13.500 (winning cluster: ['agent_D', 'agent_C', 'agent_A'], representative: agent_D) (discounts: doc-benchmark#results\u00d71.000, doc-benchmark#intro\u00d71.000); votes: {'doc-benchmark#results': 3, 'doc-benchmark#intro': 2}; competence: {'agent_D': '0.50', 'agent_C': '0.50', 'agent_B': '0.50', 'agent_E': '0.50', 'agent_A': '0.50'}"
+        },
+        {
+          "topic": "improvement_over_baseline",
+          "doc_id": "doc-gain",
+          "conflict_type": "magnitude",
+          "difficulty": "moderate",
+          "gold_excerpt": "discussion",
+          "classification": "CREDIBILITY",
+          "outcome": "decisive",
+          "correct": false,
+          "rationale": "reliability-aware: answer 'doc-gain#abstract' scored 13.950 (winning cluster: ['agent_D', 'agent_C', 'agent_A'], representative: agent_D) (discounts: doc-gain#abstract\u00d71.000, doc-gain#discussion\u00d71.000); votes: {'doc-gain#abstract': 3, 'doc-gain#discussion': 2}; competence: {'agent_D': '0.57', 'agent_E': '0.42', 'agent_C': '0.57', 'agent_A': '0.57', 'agent_B': '0.42'}"
+        },
+        {
+          "topic": "beats_prior_sota",
+          "doc_id": "doc-sota",
+          "conflict_type": "staleness",
+          "difficulty": "moderate",
+          "gold_excerpt": "erratum",
+          "classification": "CREDIBILITY",
+          "outcome": "decisive",
+          "correct": false,
+          "rationale": "reliability-aware: answer 'doc-sota#body' scored 10.735 (winning cluster: ['agent_C', 'agent_D', 'agent_A'], representative: agent_C) (discounts: doc-sota#body\u00d70.799, doc-sota#erratum\u00d70.928); votes: {'doc-sota#body': 3, 'doc-sota#erratum': 2}; competence: {'agent_C': '0.49', 'agent_E': '0.51', 'agent_B': '0.51', 'agent_D': '0.49', 'agent_A': '0.49'}"
+        },
+        {
+          "topic": "training_supervision",
+          "doc_id": "doc-supervision",
+          "conflict_type": "factual",
+          "difficulty": "obvious",
+          "gold_excerpt": "method",
+          "classification": "CREDIBILITY",
+          "outcome": "decisive",
+          "correct": false,
+          "rationale": "reliability-aware: answer 'doc-supervision#abstract' scored 8.399 (winning cluster: ['agent_D', 'agent_C', 'agent_A'], representative: agent_D) (discounts: doc-supervision#abstract\u00d70.646, doc-supervision#method\u00d70.865); votes: {'doc-supervision#abstract': 3, 'doc-supervision#method': 2}; competence: {'agent_D': '0.42', 'agent_E': '0.58', 'agent_C': '0.42', 'agent_A': '0.42', 'agent_B': '0.58'}"
+        },
+        {
+          "topic": "humaneval_pass_at_1",
+          "doc_id": "doc-humaneval",
+          "conflict_type": "factual",
+          "difficulty": "subtle",
+          "gold_excerpt": "table",
+          "classification": "CREDIBILITY",
+          "outcome": "decisive",
+          "correct": false,
+          "rationale": "reliability-aware: answer 'doc-humaneval#abstract' scored 7.755 (winning cluster: ['agent_E', 'agent_B'], representative: agent_E) (discounts: doc-humaneval#abstract\u00d70.809, doc-humaneval#table\u00d70.529); votes: {'doc-humaneval#abstract': 2, 'doc-humaneval#table': 3}; competence: {'agent_E': '0.65', 'agent_B': '0.65', 'agent_A': '0.35', 'agent_C': '0.35', 'agent_D': '0.35'}"
+        },
+        {
+          "topic": "base_model_init",
+          "doc_id": "doc-init",
+          "conflict_type": "factual",
+          "difficulty": "moderate",
+          "gold_excerpt": "repro",
+          "classification": "CREDIBILITY",
+          "outcome": "decisive",
+          "correct": true,
+          "rationale": "reliability-aware: answer 'doc-init#repro' scored 6.990 (winning cluster: ['agent_E', 'agent_B'], representative: agent_E) (discounts: doc-init#related\u00d70.439, doc-init#repro\u00d70.760); votes: {'doc-init#related': 3, 'doc-init#repro': 2}; competence: {'agent_D': '0.45', 'agent_A': '0.45', 'agent_E': '0.55', 'agent_C': '0.45', 'agent_B': '0.55'}"
+        },
+        {
+          "topic": "reported_eval_split",
+          "doc_id": "doc-split",
+          "conflict_type": "factual",
+          "difficulty": "moderate",
+          "gold_excerpt": "footnote",
+          "classification": "CREDIBILITY",
+          "outcome": "decisive",
+          "correct": false,
+          "rationale": "reliability-aware: answer 'doc-split#setup' scored 7.195 (winning cluster: ['agent_B', 'agent_E'], representative: agent_B) (discounts: doc-split#footnote\u00d70.439, doc-split#setup\u00d70.760); votes: {'doc-split#footnote': 3, 'doc-split#setup': 2}; competence: {'agent_C': '0.38', 'agent_D': '0.38', 'agent_B': '0.62', 'agent_E': '0.62', 'agent_A': '0.38'}"
+        },
+        {
+          "topic": "inference_speedup",
+          "doc_id": "doc-speedup",
+          "conflict_type": "magnitude",
+          "difficulty": "moderate",
+          "gold_excerpt": "analysis",
+          "classification": "CREDIBILITY",
+          "outcome": "decisive",
+          "correct": true,
+          "rationale": "reliability-aware: answer 'doc-speedup#analysis' scored 6.521 (winning cluster: ['agent_E', 'agent_B'], representative: agent_E) (discounts: doc-speedup#analysis\u00d70.717, doc-speedup#abstract\u00d70.368); votes: {'doc-speedup#analysis': 2, 'doc-speedup#abstract': 3}; competence: {'agent_E': '0.52', 'agent_A': '0.48', 'agent_B': '0.52', 'agent_C': '0.48', 'agent_D': '0.48'}"
+        },
+        {
+          "topic": "pretraining_compute_cost",
+          "doc_id": "doc-cost",
+          "conflict_type": "magnitude",
+          "difficulty": "obvious",
+          "gold_excerpt": "compute",
+          "classification": "CREDIBILITY",
+          "outcome": "decisive",
+          "correct": true,
+          "rationale": "reliability-aware: answer 'doc-cost#compute' scored 6.725 (winning cluster: ['agent_B', 'agent_E'], representative: agent_B) (discounts: doc-cost#intro\u00d70.368, doc-cost#compute\u00d70.717); votes: {'doc-cost#intro': 3, 'doc-cost#compute': 2}; competence: {'agent_D': '0.40', 'agent_C': '0.40', 'agent_B': '0.60', 'agent_E': '0.60', 'agent_A': '0.40'}"
+        },
+        {
+          "topic": "human_preference_win_rate",
+          "doc_id": "doc-winrate",
+          "conflict_type": "magnitude",
+          "difficulty": "moderate",
+          "gold_excerpt": "study",
+          "classification": "CREDIBILITY",
+          "outcome": "decisive",
+          "correct": true,
+          "rationale": "reliability-aware: answer 'doc-winrate#study' scored 6.899 (winning cluster: ['agent_E', 'agent_B'], representative: agent_E) (discounts: doc-winrate#abstract\u00d70.368, doc-winrate#study\u00d70.717); votes: {'doc-winrate#abstract': 3, 'doc-winrate#study': 2}; competence: {'agent_A': '0.34', 'agent_C': '0.34', 'agent_D': '0.34', 'agent_E': '0.66', 'agent_B': '0.66'}"
+        },
+        {
+          "topic": "leaderboard_rank",
+          "doc_id": "doc-leaderboard",
+          "conflict_type": "staleness",
+          "difficulty": "obvious",
+          "gold_excerpt": "cr_note",
+          "classification": "CREDIBILITY",
+          "outcome": "decisive",
+          "correct": true,
+          "rationale": "reliability-aware: answer 'doc-leaderboard#cr_note' scored 7.046 (winning cluster: ['agent_E', 'agent_B'], representative: agent_E) (discounts: doc-leaderboard#cr_note\u00d70.717, doc-leaderboard#body\u00d70.368); votes: {'doc-leaderboard#cr_note': 2, 'doc-leaderboard#body': 3}; competence: {'agent_E': '0.71', 'agent_C': '0.29', 'agent_A': '0.29', 'agent_B': '0.71', 'agent_D': '0.29'}"
+        },
+        {
+          "topic": "reported_f1",
+          "doc_id": "doc-scoring-bug",
+          "conflict_type": "staleness",
+          "difficulty": "moderate",
+          "gold_excerpt": "changelog",
+          "classification": "CREDIBILITY",
+          "outcome": "decisive",
+          "correct": true,
+          "rationale": "reliability-aware: answer 'doc-scoring-bug#changelog' scored 7.172 (winning cluster: ['agent_B', 'agent_E'], representative: agent_B) (discounts: doc-scoring-bug#table\u00d70.368, doc-scoring-bug#changelog\u00d70.717); votes: {'doc-scoring-bug#table': 3, 'doc-scoring-bug#changelog': 2}; competence: {'agent_A': '0.25', 'agent_D': '0.25', 'agent_C': '0.25', 'agent_B': '0.75', 'agent_E': '0.75'}"
+        },
+        {
+          "topic": "judge_model_version",
+          "doc_id": "doc-api-version",
+          "conflict_type": "staleness",
+          "difficulty": "moderate",
+          "gold_excerpt": "revision",
+          "classification": "CREDIBILITY",
+          "outcome": "decisive",
+          "correct": false,
+          "rationale": "reliability-aware: answer 'doc-api-version#setup' scored 7.279 (winning cluster: ['agent_B', 'agent_E'], representative: agent_B) (discounts: doc-api-version#setup\u00d70.717, doc-api-version#revision\u00d70.368); votes: {'doc-api-version#setup': 2, 'doc-api-version#revision': 3}; competence: {'agent_B': '0.79', 'agent_C': '0.21', 'agent_A': '0.21', 'agent_E': '0.79', 'agent_D': '0.21'}"
+        },
+        {
+          "topic": "evaluation_dataset_version",
+          "doc_id": "doc-dataset-version",
+          "conflict_type": "staleness",
+          "difficulty": "moderate",
+          "gold_excerpt": "arxiv_v2",
+          "classification": "CREDIBILITY",
+          "outcome": "decisive",
+          "correct": false,
+          "rationale": "reliability-aware: answer 'doc-dataset-version#arxiv_v1' scored 6.571 (winning cluster: ['agent_B', 'agent_E'], representative: agent_B) (discounts: doc-dataset-version#arxiv_v2\u00d70.313, doc-dataset-version#arxiv_v1\u00d70.679); votes: {'doc-dataset-version#arxiv_v2': 3, 'doc-dataset-version#arxiv_v1': 2}; competence: {'agent_D': '0.33', 'agent_B': '0.67', 'agent_C': '0.33', 'agent_E': '0.67', 'agent_A': '0.33'}"
+        },
+        {
+          "topic": "who_scored_88_5_em",
+          "doc_id": "doc-attribution",
+          "conflict_type": "provenance",
+          "difficulty": "subtle",
+          "gold_excerpt": "tablenote",
+          "classification": "CREDIBILITY",
+          "outcome": "decisive",
+          "correct": true,
+          "rationale": "reliability-aware: answer 'doc-attribution#tablenote' scored 5.988 (winning cluster: ['agent_E', 'agent_B'], representative: agent_E) (discounts: doc-attribution#tablenote\u00d70.645, doc-attribution#claim\u00d70.269); votes: {'doc-attribution#tablenote': 2, 'doc-attribution#claim': 3}; competence: {'agent_E': '0.57', 'agent_C': '0.43', 'agent_D': '0.43', 'agent_B': '0.57', 'agent_A': '0.43'}"
+        },
+        {
+          "topic": "rope_contribution",
+          "doc_id": "doc-rope",
+          "conflict_type": "provenance",
+          "difficulty": "moderate",
+          "gold_excerpt": "method",
+          "classification": "CREDIBILITY",
+          "outcome": "decisive",
+          "correct": false,
+          "rationale": "reliability-aware: answer 'doc-rope#contrib' scored 6.154 (winning cluster: ['agent_E', 'agent_B'], representative: agent_E) (discounts: doc-rope#contrib\u00d70.645, doc-rope#method\u00d70.269); votes: {'doc-rope#contrib': 2, 'doc-rope#method': 3}; competence: {'agent_E': '0.63', 'agent_D': '0.37', 'agent_A': '0.37', 'agent_B': '0.63', 'agent_C': '0.37'}"
         }
       ]
     }
