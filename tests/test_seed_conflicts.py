@@ -91,6 +91,47 @@ def test_at_least_one_coexist_seed():
     assert any(s.gold_excerpt_id == COEXIST for s in SEED_CONFLICTS)
 
 
+def test_pair_coexists_symmetric_and_scoped_to_its_own_pair():
+    seed = SeedConflict(
+        doc_id="doc-x",
+        title="t",
+        topic="t",
+        question="q?",
+        excerpts=(Excerpt("e0", "s0", "a"), Excerpt("e1", "s1", "b"), Excerpt("e2", "s2", "c")),
+        gold_excerpt_id="e2",
+        gold_answer="c",
+        conflict_type=ConflictType.FACTUAL,
+        difficulty=Difficulty.MODERATE,
+        coexist_pairs=frozenset({frozenset({"e0", "e1"})}),
+    )
+    assert seed.pair_coexists("e0", "e1") is True
+    assert seed.pair_coexists("e1", "e0") is True  # order-independent
+    assert seed.pair_coexists("e0", "e2") is False
+    assert seed.pair_coexists("e1", "e2") is False
+
+
+def test_two_seeds_have_precision_scope_coexist_pairs():
+    """doc-optimizer/doc-dataset-size: source excerpts AND agent claims both
+    preserve the coarser-vs-precise distinction, so the gold label reflects
+    that via coexist_pairs."""
+    for doc_id in ("doc-optimizer", "doc-dataset-size"):
+        seed = SEEDS_BY_ID[doc_id]
+        assert len(seed.coexist_pairs) == 1, doc_id
+        assert seed.gold_excerpt_id != COEXIST, doc_id  # still a single precise answer, not seed-wide coexist
+
+
+def test_three_metric_collapse_seeds_are_not_coexist():
+    """doc-humaneval/doc-speedup/doc-winrate have the same coarser-vs-precise
+    *source* structure as doc-optimizer/doc-dataset-size, but their agent
+    claims currently collapse it into directly competing numbers - see each
+    seed's inline comment. Deliberately NOT marked coexist_pairs, so
+    detection keeps scoring them as genuine contradictions, matching what
+    agents actually claim today rather than the source excerpts alone."""
+    for doc_id in ("doc-humaneval", "doc-speedup", "doc-winrate"):
+        seed = SEEDS_BY_ID[doc_id]
+        assert len(seed.coexist_pairs) == 0, doc_id
+
+
 def test_original_milestone1_seeds_retained():
     for doc_id, gold in [
         ("doc-benchmark", "results"),

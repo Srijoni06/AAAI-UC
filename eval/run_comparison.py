@@ -159,13 +159,20 @@ def _detect_one_doc(
         if p.relationship == Relationship.CONTRADICTION
     ]
 
-    coexist = seed.gold_excerpt_id == COEXIST
     records: list[dict] = []
     for i in range(len(doc_items)):
         for j in range(i + 1, len(doc_items)):
             a, b = order_pair(doc_items[i], doc_items[j])  # same order the judge saw
             cross = a.metadata.get("excerpt_id") != b.metadata.get("excerpt_id")
-            gold_positive = cross and not coexist
+            # A pair coexists (not a real contradiction) either because this
+            # specific excerpt pair is a documented exception (coarser vs.
+            # more precise description of the same fact - see coexist_pairs)
+            # or because the whole seed is COEXIST (doc-languages), which is
+            # now just the special case of every pair coexisting.
+            pair_coexists = seed.pair_coexists(
+                a.metadata.get("excerpt_id", ""), b.metadata.get("excerpt_id", "")
+            )
+            gold_positive = cross and not pair_coexists
             judged_pair = verdicts.get(frozenset([a.id, b.id]))
             verdict = judged_pair.relationship.value if judged_pair else None
             sim = (

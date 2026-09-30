@@ -31,6 +31,11 @@ from enum import Enum
 COEXIST = "COEXIST"  # gold_excerpt_id sentinel: both claims are validly true
 
 
+def _coexist(*excerpt_id_pairs: tuple[str, str]) -> frozenset[frozenset[str]]:
+    """Build a SeedConflict.coexist_pairs value from (excerpt_id, excerpt_id) tuples."""
+    return frozenset(frozenset(pair) for pair in excerpt_id_pairs)
+
+
 class ConflictType(str, Enum):
     FACTUAL = "factual"        # a discrete fact two excerpts state differently
     MAGNITUDE = "magnitude"    # same quantity, materially different size
@@ -66,6 +71,17 @@ class SeedConflict:
     conflict_type: ConflictType
     difficulty: Difficulty
     notes: str = ""  # why the gold label is what it is
+    # Per-pair exception to "cross-excerpt = should be a detected contradiction":
+    # excerpt-id pairs that are compatible even though they're different
+    # excerpts - e.g. a coarser vs. more precise description of the same fact
+    # ("Adam-style optimizer" vs. "AdamW"), or a raw vs. filtered count. This
+    # is independent of gold_excerpt_id/gold_answer, which still name the more
+    # precise answer for resolver-accuracy scoring - coexist_pairs only says
+    # "don't count this pair as a missed contradiction at detection time." A
+    # single seed can mix genuinely contradictory pairs and compatible ones;
+    # doc_id-wide COEXIST (gold_excerpt_id=COEXIST) is the special case where
+    # every pair coexists.
+    coexist_pairs: frozenset[frozenset[str]] = frozenset()
 
     def excerpt(self, excerpt_id: str) -> Excerpt:
         for ex in self.excerpts:
@@ -76,6 +92,11 @@ class SeedConflict:
     @property
     def excerpt_ids(self) -> list[str]:
         return [ex.excerpt_id for ex in self.excerpts]
+
+    def pair_coexists(self, excerpt_id_a: str, excerpt_id_b: str) -> bool:
+        """Whether this specific pair of excerpts is a compatible pair (not a
+        genuine contradiction) for detection-recall purposes."""
+        return frozenset({excerpt_id_a, excerpt_id_b}) in self.coexist_pairs
 
 
 # --------------------------------------------------------------------------- #
@@ -235,6 +256,7 @@ SEED_CONFLICTS: list[SeedConflict] = [
             "The intro rounds 'AdamW' to 'Adam-style'; the training-details "
             "appendix is precise and scoped to the released checkpoints."
         ),
+        coexist_pairs=_coexist(("intro", "appendix")),  # "Adam-style" is true of AdamW, not contradicted by it
     ),
     # -- 6. factual: which metric is the headline number ---------------- #
     SeedConflict(
@@ -265,6 +287,15 @@ SEED_CONFLICTS: list[SeedConflict] = [
             "The abstract's bare '67%' is pass@10; the question asks for pass@1, "
             "which the table gives as 41.2."
         ),
+        # NOT marked coexist_pairs, unlike doc-optimizer/doc-dataset-size: the
+        # source excerpts have the same coarser-vs-precise structure (pass@10
+        # and pass@1 are both true, different metrics), but agent claims for
+        # this seed currently collapse that distinction into two directly
+        # competing numbers for "the" pass@1 score (e.g. "pass@1 is 67%" vs.
+        # "pass@1 is 41.2") rather than preserving which metric each is. Gold-
+        # labeled as a genuine contradiction to match what agents actually
+        # claim today, not the source structure. Known agent-prompt
+        # limitation - future work, not fixed here.
     ),
     # -- 7. factual: base model it was initialized from ---------------- #
     SeedConflict(
@@ -355,6 +386,11 @@ SEED_CONFLICTS: list[SeedConflict] = [
             "both true and describe different stages. A good resolver keeps "
             "both, scoped."
         ),
+        # gold_excerpt_id=COEXIST already marks every pair in this 2-excerpt
+        # seed as compatible; spelling it out here too keeps detection's
+        # gold_positive computation on the single coexist_pairs mechanism
+        # instead of needing a separate seed-level check.
+        coexist_pairs=_coexist(("abstract", "eval")),
     ),
     # -- 10. magnitude: inference speedup ---------------------------- #
     SeedConflict(
@@ -381,6 +417,12 @@ SEED_CONFLICTS: list[SeedConflict] = [
         conflict_type=ConflictType.MAGNITUDE,
         difficulty=Difficulty.MODERATE,
         notes="'Up to 3x' is a best-case token-level figure; 1.4x is the honest wall-clock number.",
+        # NOT marked coexist_pairs (see doc-humaneval's note above for why):
+        # source excerpts are coarser-vs-precise (token-level vs. wall-clock
+        # speedup, both true), but agent claims currently state competing
+        # numbers for "the" speedup rather than preserving which metric each
+        # is. Gold-labeled as a genuine contradiction to match actual claim
+        # content. Known agent-prompt limitation - future work.
     ),
     # -- 11. magnitude: training cost, large gap (obvious) ---------- #
     SeedConflict(
@@ -434,6 +476,7 @@ SEED_CONFLICTS: list[SeedConflict] = [
         conflict_type=ConflictType.MAGNITUDE,
         difficulty=Difficulty.MODERATE,
         notes="The 1M is raw crawl; the experiments run on the 312k filtered set.",
+        coexist_pairs=_coexist(("intro", "data")),  # raw crawl size and filtered training-set size are both true
     ),
     # -- 13. magnitude: human preference win rate ---------------- #
     SeedConflict(
@@ -461,6 +504,13 @@ SEED_CONFLICTS: list[SeedConflict] = [
         conflict_type=ConflictType.MAGNITUDE,
         difficulty=Difficulty.MODERATE,
         notes="The abstract quotes an acceptability rate as if it were the win rate.",
+        # NOT marked coexist_pairs (see doc-humaneval's note above for why):
+        # source excerpts are coarser-vs-precise (acceptability rate vs.
+        # head-to-head win rate, both true), but agent claims currently state
+        # competing numbers for "the" preference rate rather than preserving
+        # which metric each is. Gold-labeled as a genuine contradiction to
+        # match actual claim content. Known agent-prompt limitation - future
+        # work.
     ),
     # -- 14. staleness: leaderboard rank moved (obvious) -------- #
     SeedConflict(

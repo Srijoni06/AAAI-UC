@@ -11,9 +11,11 @@ from pathlib import Path
 
 import pytest
 
-from domain.seed_conflicts import COEXIST, SEED_CONFLICTS, SEEDS_BY_ID
-from eval.fake_backend import FakeEmbedder, ScopedFakeLLM
-from eval.run_comparison import run_comparison
+from domain.seed_conflicts import COEXIST, SEED_CONFLICTS, SEEDS_BY_ID, ConflictType, Difficulty, Excerpt, SeedConflict
+from eval.fake_backend import FakeEmbedder, RuleJudgeLLM, ScopedFakeLLM
+from eval.run_comparison import _detect_one_doc, run_comparison
+from memory.detector import ConflictDetector
+from memory.store import MemoryItem
 
 
 # --------------------------------------------------------------------------- #
@@ -119,6 +121,73 @@ class TestRunComparison:
         for cond in ["null", "last_write_wins", "majority_vote", "static_confidence"]:
             assert r1["conditions"][cond]["accuracy"] == r2["conditions"][cond]["accuracy"]
             assert r1["conditions"][cond]["correct"] == r2["conditions"][cond]["correct"]
+
+
+# --------------------------------------------------------------------------- #
+# gold_positive: per-pair coexist_pairs, not just the seed-level COEXIST flag
+# --------------------------------------------------------------------------- #
+class TestGoldPositiveCoexistPairs:
+    def _item(self, agent_id: str, excerpt_id: str, content: str) -> MemoryItem:
+        return MemoryItem(
+            agent_id=agent_id,
+            topic="t",
+            content=content,
+            metadata={"excerpt_id": excerpt_id, "question": "q?"},
+        )
+
+    def _records_by_pair(self, records: list[dict]) -> dict[frozenset, dict]:
+        return {
+            frozenset([r["claim_1"]["excerpt_id"], r["claim_2"]["excerpt_id"]]): r
+            for r in records
+        }
+
+    def test_coexist_pair_excluded_others_still_gold_positive(self):
+        """3 excerpts, one coexist_pairs exception between e0/e1 only: that
+        pair must NOT be gold_positive, but e0/e2 and e1/e2 (genuinely
+        cross-excerpt, no exception) must still be gold_positive."""
+        seed = SeedConflict(
+            doc_id="doc-synthetic",
+            title="t",
+            topic="t",
+            question="q?",
+            excerpts=(
+                Excerpt("e0", "s0", "text zero"),
+                Excerpt("e1", "s1", "text one"),
+                Excerpt("e2", "s2", "text two"),
+            ),
+            gold_excerpt_id="e2",
+            gold_answer="two",
+            conflict_type=ConflictType.FACTUAL,
+            difficulty=Difficulty.MODERATE,
+            coexist_pairs=frozenset({frozenset({"e0", "e1"})}),
+        )
+        items = [
+            self._item("agent_A", "e0", "Claim A"),
+            self._item("agent_B", "e1", "Claim B"),
+            self._item("agent_C", "e2", "Claim C"),
+        ]
+        detector = ConflictDetector(llm=RuleJudgeLLM(), embedder=FakeEmbedder(), similarity_threshold=-1.0)
+        _specs, records = _detect_one_doc(seed, items, detector)
+
+        by_pair = self._records_by_pair(records)
+        assert by_pair[frozenset({"e0", "e1"})]["gold_positive"] is False
+        assert by_pair[frozenset({"e0", "e2"})]["gold_positive"] is True
+        assert by_pair[frozenset({"e1", "e2"})]["gold_positive"] is True
+
+    def test_doc_languages_all_pairs_still_coexist(self):
+        """doc-languages' seed-level COEXIST behaviour (every pair coexists)
+        keeps working now that it's expressed via coexist_pairs."""
+        seed = SEEDS_BY_ID["doc-languages"]
+        assert seed.gold_excerpt_id == COEXIST  # unchanged
+        items = [
+            self._item("agent_A", "abstract", "Claim about 90 languages"),
+            self._item("agent_B", "eval", "Claim about 46 languages"),
+        ]
+        detector = ConflictDetector(llm=RuleJudgeLLM(), embedder=FakeEmbedder(), similarity_threshold=-1.0)
+        _specs, records = _detect_one_doc(seed, items, detector)
+
+        assert len(records) == 1
+        assert records[0]["gold_positive"] is False
 
 
 # --------------------------------------------------------------------------- #
