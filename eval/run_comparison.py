@@ -253,10 +253,26 @@ class ConditionResult:
     contested: int = 0
     coordination: int = 0
     decisions: list[dict] = field(default_factory=list)
+    # Total documents in the run (detected + undetected). `total_conflicts`
+    # only ever counts documents where detection found >=1 contradiction -
+    # this is the wider denominator end_to_end_accuracy needs.
+    total_docs: int = 0
 
     @property
     def accuracy(self) -> float:
+        """Resolution-only accuracy: correct / decisive, computed only over
+        documents where a conflict was actually detected. Isolates resolver
+        quality alone - a resolver never sees a document detection missed."""
         return self.correct / self.decisive if self.decisive > 0 else 0.0
+
+    @property
+    def end_to_end_accuracy(self) -> float:
+        """correct / total_docs (all documents, detected or not). A document
+        detection never flagged never reaches this condition's decisions -
+        it contributes 0 to `correct` but still counts in the denominator,
+        since the system as a whole failed to produce the right answer for
+        it, whether the failure was in detection or resolution."""
+        return self.correct / self.total_docs if self.total_docs > 0 else 0.0
 
     @property
     def escalation_rate(self) -> float:
@@ -276,12 +292,14 @@ class ConditionResult:
         return {
             "name": self.name,
             "total_conflicts": self.total_conflicts,
+            "total_docs": self.total_docs,
             "decisive": self.decisive,
             "correct": self.correct,
             "incorrect": self.incorrect,
             "contested": self.contested,
             "coordination": self.coordination,
             "accuracy": round(self.accuracy, 4),
+            "end_to_end_accuracy": round(self.end_to_end_accuracy, 4),
             "escalation_rate": round(self.escalation_rate, 4),
             "per_type_accuracy": {k: round(v, 4) for k, v in self.per_type_accuracy().items()},
             "decisions": self.decisions,
@@ -432,7 +450,9 @@ def _score_one_topic(
     return decision
 
 
-def _condition_result_from_decisions(name: str, decisions: list[dict]) -> ConditionResult:
+def _condition_result_from_decisions(
+    name: str, decisions: list[dict], total_docs: int = 0
+) -> ConditionResult:
     """Reconstruct a full ``ConditionResult`` purely from its decision dicts.
 
     Every summary counter (``total_conflicts``, ``decisive``, ``correct``, ...)
@@ -441,8 +461,15 @@ def _condition_result_from_decisions(name: str, decisions: list[dict]) -> Condit
     checkpoint - is fully described by its decisions list alone. This is what
     makes merging checkpoint-resumed and freshly-scored decisions trivial: just
     concatenate the dicts and rebuild the counters from them.
+
+    ``total_docs``: total documents in the run, detected or not - passed in
+    separately since it's not derivable from ``decisions`` (a document
+    detection never flagged has no decision dict at all). Needed for
+    ``end_to_end_accuracy``; defaults to 0 (matching ``len(decisions)`` when
+    the caller doesn't care about the distinction, e.g. existing callers that
+    only inspect resolution-only ``accuracy``).
     """
-    rec = ConditionResult(name=name)
+    rec = ConditionResult(name=name, total_docs=total_docs)
     for d in decisions:
         rec.total_conflicts += 1
         if d.get("classification") == "COORDINATION":
@@ -512,11 +539,25 @@ def _write_summary(
 
     lines.append("## Resolution Accuracy")
     lines.append("")
-    lines.append("| Condition | Accuracy | Decisive | Correct | Contested | Escalation |")
-    lines.append("|-----------|----------|----------|---------|-----------|------------|")
+    lines.append(
+        "Two different questions, reported side by side: **resolution-only** "
+        "isolates resolver quality alone (accuracy given that detection already "
+        "found the conflict); **end-to-end** is the whole system's accuracy, "
+        "including the documents where detection found nothing to resolve at "
+        "all (those count as incorrect, since the system as a whole failed to "
+        "produce the right answer for them)."
+    )
+    lines.append("")
+    lines.append(
+        "| Condition | Resolution-only | (basis) | End-to-end | (basis) | Contested | Escalation |"
+    )
+    lines.append(
+        "|-----------|------------------|---------|------------|---------|-----------|------------|"
+    )
     for name, cr in results.items():
         lines.append(
-            f"| {name} | {cr.accuracy:.1%} | {cr.decisive} | {cr.correct} | "
+            f"| {name} | {cr.accuracy:.1%} | {cr.correct}/{cr.decisive} decisive | "
+            f"{cr.end_to_end_accuracy:.1%} | {cr.correct}/{cr.total_docs} end-to-end | "
             f"{cr.contested} | {cr.escalation_rate:.1%} |"
         )
     lines.append("")
@@ -681,12 +722,12 @@ def run_comparison(
             ckpt_mod.save_checkpoint(ckpt, ckpt_file)
 
         ordered_decisions = [decisions_for_cond[d] for d in doc_ids if d in decisions_for_cond]
-        cr = _condition_result_from_decisions(cond, ordered_decisions)
+        cr = _condition_result_from_decisions(cond, ordered_decisions, total_docs=len(doc_ids))
         elapsed = time.perf_counter() - t0
         results[cond] = cr
         print(
-            f"[phase C] {cond:25s}  acc={cr.accuracy:.1%}  "
-            f"correct={cr.correct}/{cr.decisive}  "
+            f"[phase C] {cond:25s}  acc={cr.accuracy:.1%} ({cr.correct}/{cr.decisive} decisive)  "
+            f"end_to_end={cr.end_to_end_accuracy:.1%} ({cr.correct}/{cr.total_docs})  "
             f"contested={cr.contested}  ({elapsed:.2f}s)"
         )
 
@@ -764,7 +805,12 @@ def main() -> int:
     # Print per-condition accuracy
     print("\n== accuracy summary ==")
     for name, cr in report["conditions"].items():
-        print(f"  {name:25s}  {cr['accuracy']:.1%}  (decisive={cr['decisive']}, correct={cr['correct']})")
+        print(
+            f"  {name:25s}  resolution-only={cr['accuracy']:.1%} "
+            f"({cr['correct']}/{cr['decisive']} decisive)  "
+            f"end-to-end={cr['end_to_end_accuracy']:.1%} "
+            f"({cr['correct']}/{cr['total_docs']})"
+        )
     return 0
 
 

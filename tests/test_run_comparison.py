@@ -13,7 +13,12 @@ import pytest
 
 from domain.seed_conflicts import COEXIST, SEED_CONFLICTS, SEEDS_BY_ID, ConflictType, Difficulty, Excerpt, SeedConflict
 from eval.fake_backend import FakeEmbedder, RuleJudgeLLM, ScopedFakeLLM
-from eval.run_comparison import _cluster_correctness, _detect_one_doc, run_comparison
+from eval.run_comparison import (
+    _cluster_correctness,
+    _condition_result_from_decisions,
+    _detect_one_doc,
+    run_comparison,
+)
 from memory.detector import ConflictDetector
 from memory.store import MemoryItem
 
@@ -217,6 +222,82 @@ class TestClusterCorrectness:
         items = [self._item("agent_A", "abstract"), self._item("agent_B", "eval")]
         result = _cluster_correctness(items, gold=COEXIST)
         assert result == {"doc#abstract": True, "doc#eval": True}
+
+
+# --------------------------------------------------------------------------- #
+# resolution-only vs. end-to-end accuracy: reporting BOTH explicitly instead
+# of silently excluding documents where detection found nothing to resolve.
+# --------------------------------------------------------------------------- #
+class TestEndToEndAccuracy:
+    def test_end_to_end_lower_than_resolution_only_when_detection_misses(self):
+        """2 decided-correct docs out of 3 total: resolution-only accuracy
+        (2/2 decisive) must be higher than end-to-end accuracy (2/3 total),
+        since the undetected 3rd doc counts as incorrect end-to-end but is
+        simply absent from the resolution-only basis."""
+        decisions = [
+            {
+                "topic": "t1", "doc_id": "d1", "conflict_type": "factual", "difficulty": "obvious",
+                "gold_excerpt": "e0", "classification": "CREDIBILITY", "outcome": "decisive",
+                "correct": True, "rationale": "r",
+            },
+            {
+                "topic": "t2", "doc_id": "d2", "conflict_type": "factual", "difficulty": "obvious",
+                "gold_excerpt": "e0", "classification": "CREDIBILITY", "outcome": "decisive",
+                "correct": True, "rationale": "r",
+            },
+        ]
+        cr = _condition_result_from_decisions("last_write_wins", decisions, total_docs=3)
+
+        assert cr.accuracy == 1.0  # 2/2 decisive, both correct
+        assert cr.end_to_end_accuracy == pytest.approx(2 / 3)  # 2/3 total docs
+        assert cr.end_to_end_accuracy < cr.accuracy
+
+        d = cr.to_dict()
+        assert d["accuracy"] == 1.0
+        assert d["end_to_end_accuracy"] == pytest.approx(2 / 3, abs=1e-4)
+        assert d["total_docs"] == 3
+        assert d["decisive"] == 2
+
+    def test_equal_when_every_document_was_decisive(self):
+        """No undetected documents (total_docs == decisive count): both
+        metrics agree - end-to-end accuracy is only ever lower, never higher."""
+        decisions = [
+            {
+                "topic": "t1", "doc_id": "d1", "conflict_type": "factual", "difficulty": "obvious",
+                "gold_excerpt": "e0", "classification": "CREDIBILITY", "outcome": "decisive",
+                "correct": True, "rationale": "r",
+            },
+        ]
+        cr = _condition_result_from_decisions("last_write_wins", decisions, total_docs=1)
+        assert cr.accuracy == cr.end_to_end_accuracy == 1.0
+
+    def test_full_pipeline_end_to_end_accounts_for_undetected_doc(self, tmp_path):
+        """Through the real run_comparison() pipeline: a seed whose two
+        excerpts are IDENTICAL text never produces a detected contradiction
+        (ScopedFakeLLM: equal claims -> ENTAILMENT), so it's invisible to
+        resolution-only accuracy but must still lower end-to-end accuracy."""
+        undetectable = SeedConflict(
+            doc_id="doc-undetectable",
+            title="t",
+            topic="undetectable_topic",
+            question="q?",
+            excerpts=(
+                Excerpt("e0", "s0", "identical text"),
+                Excerpt("e1", "s1", "identical text"),
+            ),
+            gold_excerpt_id="e0",
+            gold_answer="a",
+            conflict_type=ConflictType.FACTUAL,
+            difficulty=Difficulty.MODERATE,
+        )
+        seeds = [SEEDS_BY_ID["doc-benchmark"], undetectable]
+        report = run_comparison(seeds, backend="fake", threshold=0.0, out_dir=str(tmp_path))
+
+        lww = report["conditions"]["last_write_wins"]
+        assert lww["total_docs"] == 2
+        assert lww["decisive"] == 1  # only doc-benchmark's conflict was detected
+        assert lww["end_to_end_accuracy"] < lww["accuracy"]
+        assert lww["end_to_end_accuracy"] == pytest.approx(lww["correct"] / 2, abs=1e-4)
 
 
 # --------------------------------------------------------------------------- #
