@@ -31,7 +31,7 @@ always crowns a winner).
 
 from __future__ import annotations
 
-from baselines.base import Resolution
+from baselines.base import ItemOutcome, Outcome, Resolution
 from memory.store import Authority, Conflict, MemoryItem, Origin, SourceType, Status
 
 INDEPENDENT = "independent"  # orchestrator's label for group-less agents
@@ -150,17 +150,26 @@ class StaticConfidence:
             top_clusters.values(),
             key=lambda members: max(m.timestamp for m in members),
         )
-        winners = best_cluster
-        losers = [it for it in items if it.id not in {w.id for w in winners}]
+        # Confirm every item in the winning cluster, not just one - two
+        # claims tied for the top score on the same answer both actually won;
+        # collapsing to a single winner_id would wrongly supersede the other
+        # tied, top-scoring claim(s) (same bug ReliabilityResolver.resolve()
+        # had before it was fixed to confirm winning_cluster as a whole).
+        winning_cluster = best_cluster
+        representative = max(winning_cluster, key=lambda it: it.timestamp)  # display only
+        losers = [it for it in items if it.id not in {w.id for w in winning_cluster}]
 
-        return Resolution.single_winner(
+        return Resolution(
             topic=conflict.topic,
             strategy=self.name,
-            winner_id=winners[0].id,
-            superseded_ids=[it.id for it in losers],
+            outcomes=(
+                [ItemOutcome(it.id, Outcome.CONFIRMED, "in winning cluster") for it in winning_cluster]
+                + [ItemOutcome(it.id, Outcome.SUPERSEDED, "lost to winning cluster") for it in losers]
+            ),
             rationale=(
                 f"fixed weight table: top score {best_score:.2f} "
-                f"({winners[0].agent_id}); corroboration groups per answer: "
+                f"(winning cluster: {[it.agent_id for it in winning_cluster]}, "
+                f"representative: {representative.agent_id}); corroboration groups per answer: "
                 f"{ {k: len(v) for k, v in groups_per_answer.items()} }"
             ),
             scores=scores,

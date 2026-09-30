@@ -241,6 +241,47 @@ class TestStaticConfidence:
         assert a1_flat == pytest.approx(c1_flat)  # grp_A-with-itself: no bonus, ~= lone claim
         assert a2_flat == pytest.approx(c1_flat)
 
+    # ------------------------------------------------------------------- #
+    # Regression: resolve() must confirm the WHOLE winning cluster, not just
+    # one representative item - the same single-winner bug
+    # ReliabilityResolver.resolve() had before it was fixed earlier tonight.
+    # best_cluster can legitimately have 2+ members (two items tied for the
+    # top score, backing the same answer); collapsing to
+    # Resolution.single_winner(winners[0]) wrongly superseded the other tied
+    # member(s). A NATURAL tie needs RECENCY_BONUS zeroed out (it strictly
+    # separates every item by write-order rank otherwise - see
+    # static_confidence.py's own module docstring / the investigation that
+    # found this), so this test disables it via monkeypatch to isolate the
+    # provenance+corroboration scoring the bug actually lives in.
+    # ------------------------------------------------------------------- #
+    def test_resolve_confirms_entire_winning_cluster_not_one_item(self, monkeypatch):
+        """2 items tied for the top score, same answer: both must be
+        confirmed, only the weaker, different-answer item superseded."""
+        import baselines.static_confidence as static_confidence_module
+
+        monkeypatch.setattr(static_confidence_module, "RECENCY_BONUS", 0.0)
+        sc = StaticConfidence()
+
+        tied_1 = _make_item(
+            "agent_A", "X", source_id="d#e0", agent_group=INDEPENDENT,
+            origin=Origin.TOOL, source_type=SourceType.RETRIEVAL, authority=Authority.MEDIUM,
+        )
+        tied_2 = _make_item(
+            "agent_B", "X", source_id="d#e0", agent_group=INDEPENDENT,
+            origin=Origin.TOOL, source_type=SourceType.RETRIEVAL, authority=Authority.MEDIUM,
+        )
+        weaker = _make_item(
+            "agent_C", "Y", source_id="d#e1", agent_group=INDEPENDENT,
+            origin=Origin.TOOL, source_type=SourceType.RETRIEVAL, authority=Authority.LOW,
+        )
+        res = sc.resolve(Conflict(topic="t", items=[tied_1, tied_2, weaker]))
+
+        assert res.scores[tied_1.id] == pytest.approx(res.scores[tied_2.id])  # genuinely tied
+        assert set(res.confirmed_ids) == {tied_1.id, tied_2.id}
+        assert set(res.superseded_ids) == {weaker.id}
+        assert not res.is_single_winner  # 2 confirmed, not 1 - this is the point
+        assert res.winner_id is None
+
     def test_stateless(self):
         """Two resolve calls give the same result (no memory)."""
         sc = StaticConfidence()
