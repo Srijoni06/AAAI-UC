@@ -155,6 +155,85 @@ class TestPeerMemory:
             pm.update(items, resolution, correct=False)
         assert abs(pm.get_correlation("a", "b")) <= 0.95
 
+    # ------------------------------------------------------------------- #
+    # Regression: correlation must be scoped to THIS PAIR's own answer
+    # cluster, not the topic-level resolver decision. Before this fix, every
+    # pair in a conflict was scored against the SAME single `correct` flag
+    # (whether the resolver's *confirmed* cluster matched gold) - so a pair
+    # that agreed on a *different*, actually-correct cluster could get wrongly
+    # flagged as shared bias, and a pair that agreed on a *different*,
+    # actually-wrong cluster could wrongly dodge being flagged at all.
+    # ------------------------------------------------------------------- #
+    def test_cluster_correct_protects_pair_on_a_different_correct_cluster(self):
+        """b/e agree on the GOLD-correct answer, but the resolver's own pick
+        this round was a different (wrong) cluster (a/c/d) - correct=False.
+        With per-cluster info, b/e must NOT be treated as shared bias."""
+        pm = PeerMemory()
+        items = [
+            _item("a", "wrong answer", source_id="d#eAnchor"),
+            _item("c", "wrong answer", source_id="d#eAnchor"),
+            _item("d", "wrong answer", source_id="d#eAnchor"),
+            _item("b", "right answer", source_id="d#eOther"),
+            _item("e", "right answer", source_id="d#eOther"),
+        ]
+        resolution = Resolution(
+            topic="t",
+            strategy="test",
+            outcomes=[
+                ItemOutcome(items[0].id, Outcome.CONFIRMED),
+                ItemOutcome(items[1].id, Outcome.CONFIRMED),
+                ItemOutcome(items[2].id, Outcome.CONFIRMED),
+                ItemOutcome(items[3].id, Outcome.SUPERSEDED),
+                ItemOutcome(items[4].id, Outcome.SUPERSEDED),
+            ],
+        )
+        cluster_correct = {"d#eAnchor": False, "d#eOther": True}
+        pm.update(items, resolution, correct=False, cluster_correct=cluster_correct)
+
+        assert pm.get_correlation("b", "e") == 0.0  # untouched - their cluster was right
+        assert pm.get_correlation("a", "c") > 0.0   # correctly flagged - their cluster was wrong
+        assert pm.get_correlation("a", "d") > 0.0
+        assert pm.get_correlation("c", "d") > 0.0
+
+    def test_cluster_correct_still_flags_wrong_cluster_when_topic_was_correct(self):
+        """Symmetric case: a/c agree on a genuinely WRONG answer, but the
+        resolver's overall pick this round (b/e's cluster) was correct -
+        correct=True. a/c's agreement must still be flagged as shared bias."""
+        pm = PeerMemory()
+        items = [
+            _item("a", "wrong answer", source_id="d#eAnchor"),
+            _item("c", "wrong answer", source_id="d#eAnchor"),
+            _item("b", "right answer", source_id="d#eOther"),
+            _item("e", "right answer", source_id="d#eOther"),
+        ]
+        resolution = Resolution(
+            topic="t",
+            strategy="test",
+            outcomes=[
+                ItemOutcome(items[0].id, Outcome.SUPERSEDED),
+                ItemOutcome(items[1].id, Outcome.SUPERSEDED),
+                ItemOutcome(items[2].id, Outcome.CONFIRMED),
+                ItemOutcome(items[3].id, Outcome.CONFIRMED),
+            ],
+        )
+        cluster_correct = {"d#eAnchor": False, "d#eOther": True}
+        pm.update(items, resolution, correct=True, cluster_correct=cluster_correct)
+
+        assert pm.get_correlation("a", "c") > 0.0   # still flagged despite topic-level correct=True
+        assert pm.get_correlation("b", "e") == 0.0  # untouched - genuinely valid corroboration
+
+    def test_without_cluster_correct_falls_back_to_topic_level(self):
+        """No cluster_correct given -> old topic-level-only behaviour, for
+        callers that don't have per-cluster info (backward compatible)."""
+        pm = PeerMemory()
+        items = [
+            _item("a", "A", source_id="d#e0"),
+            _item("b", "A", source_id="d#e0"),
+        ]
+        resolution = Resolution.coexist(topic="t", strategy="test", item_ids=[it.id for it in items])
+        pm.update(items, resolution, correct=False)  # no cluster_correct
+        assert pm.get_correlation("a", "b") > 0.0  # falls back to the single `correct` flag
+
     def test_pair_key_is_canonical(self):
         assert _pair_key("a", "b") == _pair_key("b", "a")
 

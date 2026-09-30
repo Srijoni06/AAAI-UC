@@ -70,7 +70,14 @@ class PeerMemory:
 
     # -- update --------------------------------------------------------- #
 
-    def update(self, items: Iterable, resolution: Resolution, *, correct: bool = True) -> None:
+    def update(
+        self,
+        items: Iterable,
+        resolution: Resolution,
+        *,
+        correct: bool = True,
+        cluster_correct: dict[str, bool] | None = None,
+    ) -> None:
         """Update competence and correlation from a resolution decision.
 
         ``items``: the full list of MemoryItem objects that were in the
@@ -92,15 +99,33 @@ class PeerMemory:
         is penalised and superseded agents get a slight boost (they were
         right after all). Contested items — or any item id the resolution
         doesn't cover at all — get no competence update: no signal either way.
+        This is a topic-level flag by design: competence is about *this
+        item's own* confirmed/superseded status, which is unambiguous.
+
+        ``cluster_correct`` (optional): a ``cluster_key -> bool`` map of
+        whether *that specific answer cluster* — not the resolver's overall
+        pick — matches gold. The correlation update needs this, and
+        ``correct`` alone is NOT a safe substitute: ``correct`` only says
+        whether the resolver's *confirmed* cluster was right, so a pair that
+        agrees on a *different* cluster (the actual gold-correct one, just
+        not what the resolver picked) would otherwise be scored against the
+        wrong cluster's correctness entirely. When omitted, every pair falls
+        back to the single topic-level ``correct`` (matches the old
+        behaviour — for direct/unit-level callers that don't have per-cluster
+        info).
 
         Correlation update: agreement alone is not evidence of shared bias -
         two agents can agree because they are both independently right. The
-        signal this project actually needs is *correlated error*:
-          - agree (same answer key) AND that answer was incorrect -> push
-            correlation toward 1.0 (shared bias: they were wrong together).
-          - agree AND that answer was correct -> no update at all; leave the
-            existing score unchanged (valid corroboration is not evidence of
-            bias either way, in either direction).
+        signal this project actually needs is *correlated error*, evaluated
+        per pair against THEIR OWN shared cluster's correctness:
+          - agree (same answer key) AND that specific cluster was incorrect
+            -> push correlation toward 1.0 (shared bias: they were wrong
+            together) - regardless of whether some OTHER cluster happened to
+            be the resolver's confirmed pick.
+          - agree AND that specific cluster was correct -> no update at all;
+            leave the existing score unchanged (valid corroboration is not
+            evidence of bias either way, in either direction) - even if a
+            DIFFERENT, wrong cluster is what the resolver actually confirmed.
           - disagree (different answer keys) -> push correlation toward -1.0,
             regardless of correctness (disagreement is still evidence of
             independence).
@@ -153,8 +178,17 @@ class PeerMemory:
                 b_key = _ck(items[b_idx])
                 agreed = a_key == b_key
 
-                if agreed and correct:
-                    continue  # valid corroboration - not evidence of shared bias
+                if agreed:
+                    # Scope correctness to THIS pair's own shared cluster,
+                    # not the topic-level resolver decision - falls back to
+                    # `correct` only when the caller has no per-cluster info.
+                    pair_correct = (
+                        cluster_correct.get(a_key, correct)
+                        if cluster_correct is not None
+                        else correct
+                    )
+                    if pair_correct:
+                        continue  # valid corroboration - not evidence of shared bias
 
                 # agreed (and incorrect) -> shared bias; disagreed -> independent
                 target = 1.0 if agreed else -1.0

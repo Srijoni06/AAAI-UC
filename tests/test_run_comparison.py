@@ -13,7 +13,7 @@ import pytest
 
 from domain.seed_conflicts import COEXIST, SEED_CONFLICTS, SEEDS_BY_ID, ConflictType, Difficulty, Excerpt, SeedConflict
 from eval.fake_backend import FakeEmbedder, RuleJudgeLLM, ScopedFakeLLM
-from eval.run_comparison import _detect_one_doc, run_comparison
+from eval.run_comparison import _cluster_correctness, _detect_one_doc, run_comparison
 from memory.detector import ConflictDetector
 from memory.store import MemoryItem
 
@@ -188,6 +188,35 @@ class TestGoldPositiveCoexistPairs:
 
         assert len(records) == 1
         assert records[0]["gold_positive"] is False
+
+
+# --------------------------------------------------------------------------- #
+# _cluster_correctness: per-cluster correctness map fed to PeerMemory.update(),
+# so correlation tracking can be scoped to each pair's own answer cluster
+# instead of the single topic-level resolver-decision flag.
+# --------------------------------------------------------------------------- #
+class TestClusterCorrectness:
+    def _item(self, agent_id: str, excerpt_id: str) -> MemoryItem:
+        return MemoryItem(
+            agent_id=agent_id,
+            topic="t",
+            content=f"claim by {agent_id}",
+            metadata={"source_id": f"doc#{excerpt_id}", "excerpt_id": excerpt_id},
+        )
+
+    def test_maps_each_cluster_independently_of_resolver_pick(self):
+        items = [
+            self._item("agent_A", "eAnchor"),
+            self._item("agent_C", "eAnchor"),
+            self._item("agent_B", "eOther"),
+        ]
+        result = _cluster_correctness(items, gold="eOther")
+        assert result == {"doc#eAnchor": False, "doc#eOther": True}
+
+    def test_coexist_gold_marks_every_cluster_correct(self):
+        items = [self._item("agent_A", "abstract"), self._item("agent_B", "eval")]
+        result = _cluster_correctness(items, gold=COEXIST)
+        assert result == {"doc#abstract": True, "doc#eval": True}
 
 
 # --------------------------------------------------------------------------- #

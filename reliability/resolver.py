@@ -146,18 +146,29 @@ class ReliabilityResolver:
         resolution: Resolution,
         *,
         correct: bool = True,
+        cluster_correct: dict[str, bool] | None = None,
     ) -> None:
         """Feed the resolution outcome back into peer_memory.
 
         After the resolver makes a decision, call this with the full conflict
         items and the resolution to update competence and correlation.
 
-        ``correct`` should be ``True`` when the resolver's decision matched
-        the gold label.  When ``False``, competence of confirmed agents is
-        penalised and superseded agents get a slight boost (they were right
-        after all).
+        ``correct`` should be ``True`` when the resolver's decision (its
+        confirmed cluster) matched the gold label. Used for the competence
+        update, which is about each item's own confirmed/superseded status.
+
+        ``cluster_correct`` (optional): a ``cluster_key -> bool`` map of
+        whether *that specific answer cluster* matches gold, independent of
+        which cluster the resolver actually confirmed. The correlation
+        update needs this - two agents agreeing on the gold-correct answer
+        must not be treated as shared bias just because a *different*
+        cluster happened to be the resolver's pick this round. Without it,
+        PeerMemory.update() falls back to scoring every pair by the single
+        topic-level ``correct`` flag (see its docstring).
         """
-        self.peer_memory.update(all_items, resolution, correct=correct)
+        self.peer_memory.update(
+            all_items, resolution, correct=correct, cluster_correct=cluster_correct
+        )
 
     # ------------------------------------------------------------------ #
     # Scoring helpers                                                     #

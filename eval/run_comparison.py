@@ -35,7 +35,7 @@ from typing import Optional
 from agents.orchestrator import DEFAULT_ROSTER, run as orch_run
 from baselines.base import apply_resolution
 from baselines.last_write_wins import LastWriteWins
-from baselines.majority_vote import MajorityVote
+from baselines.majority_vote import MajorityVote, cluster_key
 from baselines.static_confidence import StaticConfidence
 from domain.seed_conflicts import (
     COEXIST,
@@ -288,6 +288,28 @@ class ConditionResult:
         }
 
 
+def _cluster_correctness(items: list[MemoryItem], gold: str) -> dict[str, bool]:
+    """Map each live answer cluster's key to whether THAT cluster's own
+    answer matches gold - independent of which cluster the resolver actually
+    picked as the overall winner.
+
+    This is what PeerMemory.update()'s correlation tracking needs: a pair of
+    agents that agree on the gold-correct answer must not be penalised just
+    because a *different* cluster happened to be the resolver's confirmed
+    pick this round (see the correlation-scoping investigation this fixes -
+    the topic-level `correct` flag alone can't distinguish "this pair's own
+    cluster was right" from "some other cluster was right/wrong").
+    """
+    return {
+        cluster_key(it): (
+            True  # COEXIST: every cluster validly coexists, none are "wrong"
+            if gold == COEXIST
+            else it.metadata.get("excerpt_id") == gold
+        )
+        for it in items
+    }
+
+
 def _score_one_topic(
     name: str,
     resolver,
@@ -400,7 +422,12 @@ def _score_one_topic(
     # principle, so this stops doing it regardless of what the callee needs.
     if hasattr(resolver, "update_memory"):
         post_items = store.list(topic=topic)
-        resolver.update_memory(post_items, resolution, correct=bool(confirmed_excerpts) and is_correct)
+        resolver.update_memory(
+            post_items,
+            resolution,
+            correct=bool(confirmed_excerpts) and is_correct,
+            cluster_correct=_cluster_correctness(post_items, gold),
+        )
 
     return decision
 
