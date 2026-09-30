@@ -5,26 +5,28 @@
     "threshold": -1.0,
     "agent_llm": "local:llama3.1:8b",
     "judge_llm": "local:qwen2.5:14b",
-    "timestamp": "2026-09-29T07:48:34"
+    "timestamp": "2026-09-30T14:54:15"
   },
   "detection": {
     "TP": 94,
     "FP": 2,
-    "FN": 20,
+    "FN": 8,
     "precision": 0.9792,
-    "recall": 0.8246,
-    "f1": 0.8952
+    "recall": 0.9216,
+    "f1": 0.9495
   },
   "conditions": {
     "null": {
       "name": "null",
       "total_conflicts": 16,
+      "total_docs": 20,
       "decisive": 0,
       "correct": 0,
       "incorrect": 0,
       "contested": 16,
       "coordination": 0,
       "accuracy": 0.0,
+      "end_to_end_accuracy": 0.0,
       "escalation_rate": 1.0,
       "per_type_accuracy": {
         "factual": 0.0,
@@ -214,12 +216,14 @@
     "last_write_wins": {
       "name": "last_write_wins",
       "total_conflicts": 16,
+      "total_docs": 20,
       "decisive": 16,
       "correct": 11,
       "incorrect": 5,
       "contested": 0,
       "coordination": 0,
       "accuracy": 0.6875,
+      "end_to_end_accuracy": 0.55,
       "escalation_rate": 0.0,
       "per_type_accuracy": {
         "factual": 1.0,
@@ -237,7 +241,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "most recent write (agent_A @ 1790638927.836) supersedes 4 earlier claim(s)"
+          "rationale": "most recent write (agent_A @ 1790760165.221) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "improvement_over_baseline",
@@ -248,7 +252,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "most recent write (agent_B @ 1790638927.889) supersedes 4 earlier claim(s)"
+          "rationale": "most recent write (agent_B @ 1790760165.251) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "beats_prior_sota",
@@ -259,7 +263,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": false,
-          "rationale": "most recent write (agent_A @ 1790638927.943) supersedes 4 earlier claim(s)"
+          "rationale": "most recent write (agent_A @ 1790760165.284) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "training_supervision",
@@ -270,7 +274,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "most recent write (agent_B @ 1790638927.989) supersedes 4 earlier claim(s)"
+          "rationale": "most recent write (agent_B @ 1790760165.318) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "humaneval_pass_at_1",
@@ -281,7 +285,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "most recent write (agent_D @ 1790638928.082) supersedes 4 earlier claim(s)"
+          "rationale": "most recent write (agent_D @ 1790760165.394) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "base_model_init",
@@ -292,7 +296,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "most recent write (agent_B @ 1790638928.123) supersedes 4 earlier claim(s)"
+          "rationale": "most recent write (agent_B @ 1790760165.437) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "reported_eval_split",
@@ -303,7 +307,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "most recent write (agent_A @ 1790638928.183) supersedes 4 earlier claim(s)"
+          "rationale": "most recent write (agent_A @ 1790760165.469) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "inference_speedup",
@@ -314,7 +318,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": false,
-          "rationale": "most recent write (agent_D @ 1790638928.289) supersedes 4 earlier claim(s)"
+          "rationale": "most recent write (agent_D @ 1790760165.537) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "pretraining_compute_cost",
@@ -325,7 +329,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": false,
-          "rationale": "most recent write (agent_A @ 1790638928.337) supersedes 4 earlier claim(s)"
+          "rationale": "most recent write (agent_A @ 1790760165.570) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "human_preference_win_rate",
@@ -336,7 +340,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "most recent write (agent_B @ 1790638928.450) supersedes 4 earlier claim(s)"
+          "rationale": "most recent write (agent_B @ 1790760165.637) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "leaderboard_rank",
@@ -347,7 +351,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": false,
-          "rationale": "most recent write (agent_D @ 1790638928.495) supersedes 4 earlier claim(s)"
+          "rationale": "most recent write (agent_D @ 1790760165.670) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "reported_f1",
@@ -358,7 +362,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "most recent write (agent_E @ 1790638928.545) supersedes 4 earlier claim(s)"
+          "rationale": "most recent write (agent_E @ 1790760165.704) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "judge_model_version",
@@ -369,7 +373,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "most recent write (agent_D @ 1790638928.591) supersedes 4 earlier claim(s)"
+          "rationale": "most recent write (agent_D @ 1790760165.738) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "evaluation_dataset_version",
@@ -380,7 +384,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "most recent write (agent_A @ 1790638928.644) supersedes 4 earlier claim(s)"
+          "rationale": "most recent write (agent_A @ 1790760165.773) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "who_scored_88_5_em",
@@ -391,7 +395,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": false,
-          "rationale": "most recent write (agent_A @ 1790638928.687) supersedes 4 earlier claim(s)"
+          "rationale": "most recent write (agent_A @ 1790760165.813) supersedes 4 earlier claim(s)"
         },
         {
           "topic": "rope_contribution",
@@ -402,19 +406,21 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "most recent write (agent_C @ 1790638928.731) supersedes 4 earlier claim(s)"
+          "rationale": "most recent write (agent_C @ 1790760165.847) supersedes 4 earlier claim(s)"
         }
       ]
     },
     "majority_vote": {
       "name": "majority_vote",
       "total_conflicts": 16,
+      "total_docs": 20,
       "decisive": 16,
       "correct": 6,
       "incorrect": 10,
       "contested": 0,
       "coordination": 0,
       "accuracy": 0.375,
+      "end_to_end_accuracy": 0.3,
       "escalation_rate": 0.0,
       "per_type_accuracy": {
         "factual": 0.6,
@@ -604,12 +610,14 @@
     "static_confidence": {
       "name": "static_confidence",
       "total_conflicts": 16,
+      "total_docs": 20,
       "decisive": 16,
       "correct": 10,
       "incorrect": 6,
       "contested": 0,
       "coordination": 0,
       "accuracy": 0.625,
+      "end_to_end_accuracy": 0.5,
       "escalation_rate": 0.0,
       "per_type_accuracy": {
         "factual": 0.4,
@@ -627,7 +635,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": false,
-          "rationale": "fixed weight table: top score 4.40 (agent_E); corroboration groups per answer: {'doc-benchmark#results': 1, 'doc-benchmark#intro': 2}"
+          "rationale": "fixed weight table: top score 4.40 (winning cluster: ['agent_E'], representative: agent_E); corroboration groups per answer: {'doc-benchmark#results': 1, 'doc-benchmark#intro': 2}"
         },
         {
           "topic": "improvement_over_baseline",
@@ -638,7 +646,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "fixed weight table: top score 4.45 (agent_B); corroboration groups per answer: {'doc-gain#abstract': 1, 'doc-gain#discussion': 2}"
+          "rationale": "fixed weight table: top score 4.45 (winning cluster: ['agent_B'], representative: agent_B); corroboration groups per answer: {'doc-gain#abstract': 1, 'doc-gain#discussion': 2}"
         },
         {
           "topic": "beats_prior_sota",
@@ -649,7 +657,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "fixed weight table: top score 4.35 (agent_B); corroboration groups per answer: {'doc-sota#body': 1, 'doc-sota#erratum': 2}"
+          "rationale": "fixed weight table: top score 4.35 (winning cluster: ['agent_B'], representative: agent_B); corroboration groups per answer: {'doc-sota#body': 1, 'doc-sota#erratum': 2}"
         },
         {
           "topic": "training_supervision",
@@ -660,7 +668,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "fixed weight table: top score 4.45 (agent_B); corroboration groups per answer: {'doc-supervision#abstract': 1, 'doc-supervision#method': 2}"
+          "rationale": "fixed weight table: top score 4.45 (winning cluster: ['agent_B'], representative: agent_B); corroboration groups per answer: {'doc-supervision#abstract': 1, 'doc-supervision#method': 2}"
         },
         {
           "topic": "humaneval_pass_at_1",
@@ -671,7 +679,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": false,
-          "rationale": "fixed weight table: top score 4.30 (agent_B); corroboration groups per answer: {'doc-humaneval#abstract': 2, 'doc-humaneval#table': 1}"
+          "rationale": "fixed weight table: top score 4.30 (winning cluster: ['agent_B'], representative: agent_B); corroboration groups per answer: {'doc-humaneval#abstract': 2, 'doc-humaneval#table': 1}"
         },
         {
           "topic": "base_model_init",
@@ -682,7 +690,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "fixed weight table: top score 4.45 (agent_B); corroboration groups per answer: {'doc-init#related': 1, 'doc-init#repro': 2}"
+          "rationale": "fixed weight table: top score 4.45 (winning cluster: ['agent_B'], representative: agent_B); corroboration groups per answer: {'doc-init#related': 1, 'doc-init#repro': 2}"
         },
         {
           "topic": "reported_eval_split",
@@ -693,7 +701,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": false,
-          "rationale": "fixed weight table: top score 4.40 (agent_E); corroboration groups per answer: {'doc-split#footnote': 1, 'doc-split#setup': 2}"
+          "rationale": "fixed weight table: top score 4.40 (winning cluster: ['agent_E'], representative: agent_E); corroboration groups per answer: {'doc-split#footnote': 1, 'doc-split#setup': 2}"
         },
         {
           "topic": "inference_speedup",
@@ -704,7 +712,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "fixed weight table: top score 4.35 (agent_B); corroboration groups per answer: {'doc-speedup#analysis': 2, 'doc-speedup#abstract': 1}"
+          "rationale": "fixed weight table: top score 4.35 (winning cluster: ['agent_B'], representative: agent_B); corroboration groups per answer: {'doc-speedup#analysis': 2, 'doc-speedup#abstract': 1}"
         },
         {
           "topic": "pretraining_compute_cost",
@@ -715,7 +723,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "fixed weight table: top score 4.40 (agent_E); corroboration groups per answer: {'doc-cost#intro': 1, 'doc-cost#compute': 2}"
+          "rationale": "fixed weight table: top score 4.40 (winning cluster: ['agent_E'], representative: agent_E); corroboration groups per answer: {'doc-cost#intro': 1, 'doc-cost#compute': 2}"
         },
         {
           "topic": "human_preference_win_rate",
@@ -726,7 +734,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "fixed weight table: top score 4.45 (agent_B); corroboration groups per answer: {'doc-winrate#abstract': 1, 'doc-winrate#study': 2}"
+          "rationale": "fixed weight table: top score 4.45 (winning cluster: ['agent_B'], representative: agent_B); corroboration groups per answer: {'doc-winrate#abstract': 1, 'doc-winrate#study': 2}"
         },
         {
           "topic": "leaderboard_rank",
@@ -737,7 +745,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "fixed weight table: top score 4.40 (agent_B); corroboration groups per answer: {'doc-leaderboard#cr_note': 2, 'doc-leaderboard#body': 1}"
+          "rationale": "fixed weight table: top score 4.40 (winning cluster: ['agent_B'], representative: agent_B); corroboration groups per answer: {'doc-leaderboard#cr_note': 2, 'doc-leaderboard#body': 1}"
         },
         {
           "topic": "reported_f1",
@@ -748,7 +756,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "fixed weight table: top score 4.45 (agent_E); corroboration groups per answer: {'doc-scoring-bug#table': 1, 'doc-scoring-bug#changelog': 2}"
+          "rationale": "fixed weight table: top score 4.45 (winning cluster: ['agent_E'], representative: agent_E); corroboration groups per answer: {'doc-scoring-bug#table': 1, 'doc-scoring-bug#changelog': 2}"
         },
         {
           "topic": "judge_model_version",
@@ -759,7 +767,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": false,
-          "rationale": "fixed weight table: top score 4.40 (agent_E); corroboration groups per answer: {'doc-api-version#setup': 2, 'doc-api-version#revision': 1}"
+          "rationale": "fixed weight table: top score 4.40 (winning cluster: ['agent_E'], representative: agent_E); corroboration groups per answer: {'doc-api-version#setup': 2, 'doc-api-version#revision': 1}"
         },
         {
           "topic": "evaluation_dataset_version",
@@ -770,7 +778,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": false,
-          "rationale": "fixed weight table: top score 4.40 (agent_E); corroboration groups per answer: {'doc-dataset-version#arxiv_v2': 1, 'doc-dataset-version#arxiv_v1': 2}"
+          "rationale": "fixed weight table: top score 4.40 (winning cluster: ['agent_E'], representative: agent_E); corroboration groups per answer: {'doc-dataset-version#arxiv_v2': 1, 'doc-dataset-version#arxiv_v1': 2}"
         },
         {
           "topic": "who_scored_88_5_em",
@@ -781,7 +789,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "fixed weight table: top score 4.40 (agent_B); corroboration groups per answer: {'doc-attribution#tablenote': 2, 'doc-attribution#claim': 1}"
+          "rationale": "fixed weight table: top score 4.40 (winning cluster: ['agent_B'], representative: agent_B); corroboration groups per answer: {'doc-attribution#tablenote': 2, 'doc-attribution#claim': 1}"
         },
         {
           "topic": "rope_contribution",
@@ -792,22 +800,24 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": false,
-          "rationale": "fixed weight table: top score 4.40 (agent_B); corroboration groups per answer: {'doc-rope#contrib': 2, 'doc-rope#method': 1}"
+          "rationale": "fixed weight table: top score 4.40 (winning cluster: ['agent_B'], representative: agent_B); corroboration groups per answer: {'doc-rope#contrib': 2, 'doc-rope#method': 1}"
         }
       ]
     },
     "reliability_aware": {
       "name": "reliability_aware",
       "total_conflicts": 16,
+      "total_docs": 20,
       "decisive": 16,
-      "correct": 8,
-      "incorrect": 8,
+      "correct": 9,
+      "incorrect": 7,
       "contested": 0,
       "coordination": 0,
-      "accuracy": 0.5,
+      "accuracy": 0.5625,
+      "end_to_end_accuracy": 0.45,
       "escalation_rate": 0.0,
       "per_type_accuracy": {
-        "factual": 0.4,
+        "factual": 0.6,
         "magnitude": 0.75,
         "staleness": 0.4,
         "provenance": 0.5
@@ -833,7 +843,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": false,
-          "rationale": "reliability-aware: answer 'doc-gain#abstract' scored 13.950 (winning cluster: ['agent_D', 'agent_C', 'agent_A'], representative: agent_D) (discounts: doc-gain#abstract\u00d71.000, doc-gain#discussion\u00d71.000); votes: {'doc-gain#abstract': 3, 'doc-gain#discussion': 2}; competence: {'agent_D': '0.57', 'agent_E': '0.42', 'agent_C': '0.57', 'agent_A': '0.57', 'agent_B': '0.42'}"
+          "rationale": "reliability-aware: answer 'doc-gain#abstract' scored 13.950 (winning cluster: ['agent_D', 'agent_C', 'agent_A'], representative: agent_D) (discounts: doc-gain#abstract\u00d71.000, doc-gain#discussion\u00d70.928); votes: {'doc-gain#abstract': 3, 'doc-gain#discussion': 2}; competence: {'agent_D': '0.57', 'agent_E': '0.42', 'agent_C': '0.57', 'agent_A': '0.57', 'agent_B': '0.42'}"
         },
         {
           "topic": "beats_prior_sota",
@@ -854,8 +864,8 @@
           "gold_excerpt": "method",
           "classification": "CREDIBILITY",
           "outcome": "decisive",
-          "correct": false,
-          "rationale": "reliability-aware: answer 'doc-supervision#abstract' scored 8.399 (winning cluster: ['agent_D', 'agent_C', 'agent_A'], representative: agent_D) (discounts: doc-supervision#abstract\u00d70.646, doc-supervision#method\u00d70.865); votes: {'doc-supervision#abstract': 3, 'doc-supervision#method': 2}; competence: {'agent_D': '0.42', 'agent_E': '0.58', 'agent_C': '0.42', 'agent_A': '0.42', 'agent_B': '0.58'}"
+          "correct": true,
+          "rationale": "reliability-aware: answer 'doc-supervision#method' scored 8.666 (winning cluster: ['agent_E', 'agent_B'], representative: agent_E) (discounts: doc-supervision#abstract\u00d70.646, doc-supervision#method\u00d70.928); votes: {'doc-supervision#abstract': 3, 'doc-supervision#method': 2}; competence: {'agent_D': '0.42', 'agent_E': '0.58', 'agent_C': '0.42', 'agent_A': '0.42', 'agent_B': '0.58'}"
         },
         {
           "topic": "humaneval_pass_at_1",
@@ -866,7 +876,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": false,
-          "rationale": "reliability-aware: answer 'doc-humaneval#abstract' scored 7.755 (winning cluster: ['agent_E', 'agent_B'], representative: agent_E) (discounts: doc-humaneval#abstract\u00d70.809, doc-humaneval#table\u00d70.529); votes: {'doc-humaneval#abstract': 2, 'doc-humaneval#table': 3}; competence: {'agent_E': '0.65', 'agent_B': '0.65', 'agent_A': '0.35', 'agent_C': '0.35', 'agent_D': '0.35'}"
+          "rationale": "reliability-aware: answer 'doc-humaneval#abstract' scored 8.897 (winning cluster: ['agent_E', 'agent_B'], representative: agent_E) (discounts: doc-humaneval#abstract\u00d70.928, doc-humaneval#table\u00d70.529); votes: {'doc-humaneval#abstract': 2, 'doc-humaneval#table': 3}; competence: {'agent_E': '0.65', 'agent_B': '0.65', 'agent_A': '0.35', 'agent_C': '0.35', 'agent_D': '0.35'}"
         },
         {
           "topic": "base_model_init",
@@ -877,7 +887,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "reliability-aware: answer 'doc-init#repro' scored 6.990 (winning cluster: ['agent_E', 'agent_B'], representative: agent_E) (discounts: doc-init#related\u00d70.439, doc-init#repro\u00d70.760); votes: {'doc-init#related': 3, 'doc-init#repro': 2}; competence: {'agent_D': '0.45', 'agent_A': '0.45', 'agent_E': '0.55', 'agent_C': '0.45', 'agent_B': '0.55'}"
+          "rationale": "reliability-aware: answer 'doc-init#repro' scored 7.954 (winning cluster: ['agent_E', 'agent_B'], representative: agent_E) (discounts: doc-init#related\u00d70.529, doc-init#repro\u00d70.865); votes: {'doc-init#related': 3, 'doc-init#repro': 2}; competence: {'agent_D': '0.45', 'agent_A': '0.45', 'agent_E': '0.55', 'agent_C': '0.45', 'agent_B': '0.55'}"
         },
         {
           "topic": "reported_eval_split",
@@ -888,7 +898,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": false,
-          "rationale": "reliability-aware: answer 'doc-split#setup' scored 7.195 (winning cluster: ['agent_B', 'agent_E'], representative: agent_B) (discounts: doc-split#footnote\u00d70.439, doc-split#setup\u00d70.760); votes: {'doc-split#footnote': 3, 'doc-split#setup': 2}; competence: {'agent_C': '0.38', 'agent_D': '0.38', 'agent_B': '0.62', 'agent_E': '0.62', 'agent_A': '0.38'}"
+          "rationale": "reliability-aware: answer 'doc-split#setup' scored 8.188 (winning cluster: ['agent_B', 'agent_E'], representative: agent_B) (discounts: doc-split#footnote\u00d70.439, doc-split#setup\u00d70.865); votes: {'doc-split#footnote': 3, 'doc-split#setup': 2}; competence: {'agent_C': '0.38', 'agent_D': '0.38', 'agent_B': '0.62', 'agent_E': '0.62', 'agent_A': '0.38'}"
         },
         {
           "topic": "inference_speedup",
@@ -899,7 +909,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "reliability-aware: answer 'doc-speedup#analysis' scored 6.521 (winning cluster: ['agent_E', 'agent_B'], representative: agent_E) (discounts: doc-speedup#analysis\u00d70.717, doc-speedup#abstract\u00d70.368); votes: {'doc-speedup#analysis': 2, 'doc-speedup#abstract': 3}; competence: {'agent_E': '0.52', 'agent_A': '0.48', 'agent_B': '0.52', 'agent_C': '0.48', 'agent_D': '0.48'}"
+          "rationale": "reliability-aware: answer 'doc-speedup#analysis' scored 7.360 (winning cluster: ['agent_E', 'agent_B'], representative: agent_E) (discounts: doc-speedup#analysis\u00d70.809, doc-speedup#abstract\u00d70.439); votes: {'doc-speedup#analysis': 2, 'doc-speedup#abstract': 3}; competence: {'agent_E': '0.52', 'agent_A': '0.48', 'agent_B': '0.52', 'agent_C': '0.48', 'agent_D': '0.48'}"
         },
         {
           "topic": "pretraining_compute_cost",
@@ -910,7 +920,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "reliability-aware: answer 'doc-cost#compute' scored 6.725 (winning cluster: ['agent_B', 'agent_E'], representative: agent_B) (discounts: doc-cost#intro\u00d70.368, doc-cost#compute\u00d70.717); votes: {'doc-cost#intro': 3, 'doc-cost#compute': 2}; competence: {'agent_D': '0.40', 'agent_C': '0.40', 'agent_B': '0.60', 'agent_E': '0.60', 'agent_A': '0.40'}"
+          "rationale": "reliability-aware: answer 'doc-cost#compute' scored 7.591 (winning cluster: ['agent_B', 'agent_E'], representative: agent_B) (discounts: doc-cost#intro\u00d70.368, doc-cost#compute\u00d70.809); votes: {'doc-cost#intro': 3, 'doc-cost#compute': 2}; competence: {'agent_D': '0.40', 'agent_C': '0.40', 'agent_B': '0.60', 'agent_E': '0.60', 'agent_A': '0.40'}"
         },
         {
           "topic": "human_preference_win_rate",
@@ -921,7 +931,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "reliability-aware: answer 'doc-winrate#study' scored 6.899 (winning cluster: ['agent_E', 'agent_B'], representative: agent_E) (discounts: doc-winrate#abstract\u00d70.368, doc-winrate#study\u00d70.717); votes: {'doc-winrate#abstract': 3, 'doc-winrate#study': 2}; competence: {'agent_A': '0.34', 'agent_C': '0.34', 'agent_D': '0.34', 'agent_E': '0.66', 'agent_B': '0.66'}"
+          "rationale": "reliability-aware: answer 'doc-winrate#study' scored 7.787 (winning cluster: ['agent_E', 'agent_B'], representative: agent_E) (discounts: doc-winrate#abstract\u00d70.313, doc-winrate#study\u00d70.809); votes: {'doc-winrate#abstract': 3, 'doc-winrate#study': 2}; competence: {'agent_A': '0.34', 'agent_C': '0.34', 'agent_D': '0.34', 'agent_E': '0.66', 'agent_B': '0.66'}"
         },
         {
           "topic": "leaderboard_rank",
@@ -932,7 +942,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "reliability-aware: answer 'doc-leaderboard#cr_note' scored 7.046 (winning cluster: ['agent_E', 'agent_B'], representative: agent_E) (discounts: doc-leaderboard#cr_note\u00d70.717, doc-leaderboard#body\u00d70.368); votes: {'doc-leaderboard#cr_note': 2, 'doc-leaderboard#body': 3}; competence: {'agent_E': '0.71', 'agent_C': '0.29', 'agent_A': '0.29', 'agent_B': '0.71', 'agent_D': '0.29'}"
+          "rationale": "reliability-aware: answer 'doc-leaderboard#cr_note' scored 7.953 (winning cluster: ['agent_E', 'agent_B'], representative: agent_E) (discounts: doc-leaderboard#cr_note\u00d70.809, doc-leaderboard#body\u00d70.269); votes: {'doc-leaderboard#cr_note': 2, 'doc-leaderboard#body': 3}; competence: {'agent_E': '0.71', 'agent_C': '0.29', 'agent_A': '0.29', 'agent_B': '0.71', 'agent_D': '0.29'}"
         },
         {
           "topic": "reported_f1",
@@ -943,7 +953,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "reliability-aware: answer 'doc-scoring-bug#changelog' scored 7.172 (winning cluster: ['agent_B', 'agent_E'], representative: agent_B) (discounts: doc-scoring-bug#table\u00d70.368, doc-scoring-bug#changelog\u00d70.717); votes: {'doc-scoring-bug#table': 3, 'doc-scoring-bug#changelog': 2}; competence: {'agent_A': '0.25', 'agent_D': '0.25', 'agent_C': '0.25', 'agent_B': '0.75', 'agent_E': '0.75'}"
+          "rationale": "reliability-aware: answer 'doc-scoring-bug#changelog' scored 8.095 (winning cluster: ['agent_B', 'agent_E'], representative: agent_B) (discounts: doc-scoring-bug#table\u00d70.233, doc-scoring-bug#changelog\u00d70.809); votes: {'doc-scoring-bug#table': 3, 'doc-scoring-bug#changelog': 2}; competence: {'agent_A': '0.25', 'agent_D': '0.25', 'agent_C': '0.25', 'agent_B': '0.75', 'agent_E': '0.75'}"
         },
         {
           "topic": "judge_model_version",
@@ -954,7 +964,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": false,
-          "rationale": "reliability-aware: answer 'doc-api-version#setup' scored 7.279 (winning cluster: ['agent_B', 'agent_E'], representative: agent_B) (discounts: doc-api-version#setup\u00d70.717, doc-api-version#revision\u00d70.368); votes: {'doc-api-version#setup': 2, 'doc-api-version#revision': 3}; competence: {'agent_B': '0.79', 'agent_C': '0.21', 'agent_A': '0.21', 'agent_E': '0.79', 'agent_D': '0.21'}"
+          "rationale": "reliability-aware: answer 'doc-api-version#setup' scored 8.215 (winning cluster: ['agent_B', 'agent_E'], representative: agent_B) (discounts: doc-api-version#setup\u00d70.809, doc-api-version#revision\u00d70.205); votes: {'doc-api-version#setup': 2, 'doc-api-version#revision': 3}; competence: {'agent_B': '0.79', 'agent_C': '0.21', 'agent_A': '0.21', 'agent_E': '0.79', 'agent_D': '0.21'}"
         },
         {
           "topic": "evaluation_dataset_version",
@@ -965,7 +975,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": false,
-          "rationale": "reliability-aware: answer 'doc-dataset-version#arxiv_v1' scored 6.571 (winning cluster: ['agent_B', 'agent_E'], representative: agent_B) (discounts: doc-dataset-version#arxiv_v2\u00d70.313, doc-dataset-version#arxiv_v1\u00d70.679); votes: {'doc-dataset-version#arxiv_v2': 3, 'doc-dataset-version#arxiv_v1': 2}; competence: {'agent_D': '0.33', 'agent_B': '0.67', 'agent_C': '0.33', 'agent_E': '0.67', 'agent_A': '0.33'}"
+          "rationale": "reliability-aware: answer 'doc-dataset-version#arxiv_v1' scored 7.357 (winning cluster: ['agent_B', 'agent_E'], representative: agent_B) (discounts: doc-dataset-version#arxiv_v2\u00d70.205, doc-dataset-version#arxiv_v1\u00d70.760); votes: {'doc-dataset-version#arxiv_v2': 3, 'doc-dataset-version#arxiv_v1': 2}; competence: {'agent_D': '0.33', 'agent_B': '0.67', 'agent_C': '0.33', 'agent_E': '0.67', 'agent_A': '0.33'}"
         },
         {
           "topic": "who_scored_88_5_em",
@@ -976,7 +986,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": true,
-          "rationale": "reliability-aware: answer 'doc-attribution#tablenote' scored 5.988 (winning cluster: ['agent_E', 'agent_B'], representative: agent_E) (discounts: doc-attribution#tablenote\u00d70.645, doc-attribution#claim\u00d70.269); votes: {'doc-attribution#tablenote': 2, 'doc-attribution#claim': 3}; competence: {'agent_E': '0.57', 'agent_C': '0.43', 'agent_D': '0.43', 'agent_B': '0.57', 'agent_A': '0.43'}"
+          "rationale": "reliability-aware: answer 'doc-attribution#tablenote' scored 6.651 (winning cluster: ['agent_E', 'agent_B'], representative: agent_E) (discounts: doc-attribution#tablenote\u00d70.717, doc-attribution#claim\u00d70.205); votes: {'doc-attribution#tablenote': 2, 'doc-attribution#claim': 3}; competence: {'agent_E': '0.57', 'agent_C': '0.43', 'agent_D': '0.43', 'agent_B': '0.57', 'agent_A': '0.43'}"
         },
         {
           "topic": "rope_contribution",
@@ -987,7 +997,7 @@
           "classification": "CREDIBILITY",
           "outcome": "decisive",
           "correct": false,
-          "rationale": "reliability-aware: answer 'doc-rope#contrib' scored 6.154 (winning cluster: ['agent_E', 'agent_B'], representative: agent_E) (discounts: doc-rope#contrib\u00d70.645, doc-rope#method\u00d70.269); votes: {'doc-rope#contrib': 2, 'doc-rope#method': 3}; competence: {'agent_E': '0.63', 'agent_D': '0.37', 'agent_A': '0.37', 'agent_B': '0.63', 'agent_C': '0.37'}"
+          "rationale": "reliability-aware: answer 'doc-rope#contrib' scored 6.836 (winning cluster: ['agent_E', 'agent_B'], representative: agent_E) (discounts: doc-rope#contrib\u00d70.717, doc-rope#method\u00d70.182); votes: {'doc-rope#contrib': 2, 'doc-rope#method': 3}; competence: {'agent_E': '0.63', 'agent_D': '0.37', 'agent_A': '0.37', 'agent_B': '0.63', 'agent_C': '0.37'}"
         }
       ]
     }

@@ -5,15 +5,15 @@
     "threshold": -1.0,
     "agent_llm": "local:llama3.1:8b",
     "judge_llm": "local:qwen2.5:14b",
-    "timestamp": "2026-09-29T07:48:34"
+    "timestamp": "2026-09-30T14:54:15"
   },
   "counts": {
     "TP": 94,
     "FP": 2,
-    "FN": 20,
+    "FN": 8,
     "precision": 0.9792,
-    "recall": 0.8246,
-    "f1": 0.8952
+    "recall": 0.9216,
+    "f1": 0.9495
   },
   "pairs": [
     {
@@ -34,14 +34,14 @@
       "rationale_b_first": "Both claims state that OntoNotes 5.0 is the primary benchmark dataset used to evaluate the method, just phrased slightly differently.",
       "similarity": 0.9817,
       "claim_1": {
-        "item_id": "2ad554a1ade1",
+        "item_id": "61e333188312",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "results",
         "text": "OntoNotes 5.0 is the primary benchmark dataset used to evaluate the method."
       },
       "claim_2": {
-        "item_id": "1951210b6925",
+        "item_id": "d765c42fa5b5",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "results",
@@ -66,14 +66,14 @@
       "rationale_b_first": "The two claims provide different names for the primary benchmark dataset used to evaluate the method, which are mutually exclusive.",
       "similarity": 0.648,
       "claim_1": {
-        "item_id": "2b70bfc46b30",
+        "item_id": "109c293e5b86",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "intro",
         "text": "The primary benchmark dataset used to evaluate the method is the CoNLL-2003 English named-entity benchmark."
       },
       "claim_2": {
-        "item_id": "1951210b6925",
+        "item_id": "d765c42fa5b5",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "results",
@@ -98,14 +98,14 @@
       "rationale_b_first": "The two claims provide different names for the primary benchmark dataset used to evaluate the method, which are mutually exclusive. Claim 1 specifies 'CoNLL-2003 English named-entity benchmark' while Claim 2 specifies 'OntoNotes 5.0'. These are distinct datasets, and both cannot be the primary benchmark simultaneously.",
       "similarity": 0.648,
       "claim_1": {
-        "item_id": "1951210b6925",
+        "item_id": "d765c42fa5b5",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "results",
         "text": "The primary benchmark dataset used to evaluate the method is OntoNotes 5.0."
       },
       "claim_2": {
-        "item_id": "0bef90b79d74",
+        "item_id": "9df0f2164508",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "intro",
@@ -130,14 +130,14 @@
       "rationale_b_first": "Both claims state that OntoNotes 5.0 is the primary benchmark dataset used to evaluate the method, just phrased slightly differently.",
       "similarity": 0.9817,
       "claim_1": {
-        "item_id": "6cad957b0db9",
+        "item_id": "b38e798f9b17",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "results",
         "text": "OntoNotes 5.0 is the primary benchmark dataset used to evaluate the method."
       },
       "claim_2": {
-        "item_id": "1951210b6925",
+        "item_id": "d765c42fa5b5",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "results",
@@ -162,14 +162,14 @@
       "rationale_b_first": "The two claims provide different names for the primary benchmark dataset used to evaluate the method, with Claim 1 specifying 'OntoNotes 5.0' and Claim 2 specifying 'CoNLL-2003 English named-entity benchmark'. These are distinct datasets, and both cannot be the primary benchmark simultaneously.",
       "similarity": 0.6495,
       "claim_1": {
-        "item_id": "2b70bfc46b30",
+        "item_id": "109c293e5b86",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "intro",
         "text": "The primary benchmark dataset used to evaluate the method is the CoNLL-2003 English named-entity benchmark."
       },
       "claim_2": {
-        "item_id": "2ad554a1ade1",
+        "item_id": "61e333188312",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "results",
@@ -194,14 +194,14 @@
       "rationale_b_first": "The two claims present different datasets as the primary benchmark for evaluating the method. Claim 1 specifies CoNLL-2003 English named-entity benchmark, while Claim 2 specifies OntoNotes 5.0. These are distinct datasets and cannot both be the primary benchmark simultaneously.",
       "similarity": 0.6495,
       "claim_1": {
-        "item_id": "2ad554a1ade1",
+        "item_id": "61e333188312",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "results",
         "text": "OntoNotes 5.0 is the primary benchmark dataset used to evaluate the method."
       },
       "claim_2": {
-        "item_id": "0bef90b79d74",
+        "item_id": "9df0f2164508",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "intro",
@@ -226,14 +226,14 @@
       "rationale_b_first": "Both claims state the exact same fact, that OntoNotes 5.0 is the primary benchmark dataset used to evaluate the method, without any variation in wording or substance.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "6cad957b0db9",
+        "item_id": "b38e798f9b17",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "results",
         "text": "OntoNotes 5.0 is the primary benchmark dataset used to evaluate the method."
       },
       "claim_2": {
-        "item_id": "2ad554a1ade1",
+        "item_id": "61e333188312",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "results",
@@ -258,14 +258,14 @@
       "rationale_b_first": "Both claims state exactly the same fact, that the primary benchmark dataset used to evaluate the method is the CoNLL-2003 English named-entity benchmark. The claims are identical and thus entail each other.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "2b70bfc46b30",
+        "item_id": "109c293e5b86",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "intro",
         "text": "The primary benchmark dataset used to evaluate the method is the CoNLL-2003 English named-entity benchmark."
       },
       "claim_2": {
-        "item_id": "0bef90b79d74",
+        "item_id": "9df0f2164508",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "intro",
@@ -290,14 +290,14 @@
       "rationale_b_first": "The two claims present different datasets as the primary benchmark for evaluating the method. Claim 1 specifies the CoNLL-2003 English named-entity benchmark, while Claim 2 specifies OntoNotes 5.0. These are distinct datasets and cannot both be the primary benchmark simultaneously.",
       "similarity": 0.6495,
       "claim_1": {
-        "item_id": "6cad957b0db9",
+        "item_id": "b38e798f9b17",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "results",
         "text": "OntoNotes 5.0 is the primary benchmark dataset used to evaluate the method."
       },
       "claim_2": {
-        "item_id": "2b70bfc46b30",
+        "item_id": "109c293e5b86",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "intro",
@@ -322,14 +322,14 @@
       "rationale_b_first": "The two claims present different datasets as the primary benchmark for evaluating the method. Claim 1 specifies CoNLL-2003 English named-entity benchmark, while Claim 2 specifies OntoNotes 5.0. These are distinct datasets and cannot both be the primary benchmark simultaneously.",
       "similarity": 0.6495,
       "claim_1": {
-        "item_id": "6cad957b0db9",
+        "item_id": "b38e798f9b17",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "results",
         "text": "OntoNotes 5.0 is the primary benchmark dataset used to evaluate the method."
       },
       "claim_2": {
-        "item_id": "0bef90b79d74",
+        "item_id": "9df0f2164508",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "intro",
@@ -354,14 +354,14 @@
       "rationale_b_first": "The two claims provide different numerical values for the Exact Match improvement over the DPR baseline, with Claim 1 stating a +0.5 improvement and Claim 2 stating a +4.2 improvement. These values are materially different and cannot both be true simultaneously, constituting a contradiction.",
       "similarity": 0.969,
       "claim_1": {
-        "item_id": "1db1ee2af96e",
+        "item_id": "fae81d07e263",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "The method's Exact Match improvement over the DPR baseline is +4.2."
       },
       "claim_2": {
-        "item_id": "a2043c48adaa",
+        "item_id": "c9c7bd4315dc",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "discussion",
@@ -386,14 +386,14 @@
       "rationale_b_first": "Both claims state exactly the same fact, that the method's Exact Match improvement over the DPR baseline is +4.2, using identical wording.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "ecd7203ccf53",
+        "item_id": "bf04aaee2c24",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "The method's Exact Match improvement over the DPR baseline is +4.2."
       },
       "claim_2": {
-        "item_id": "1db1ee2af96e",
+        "item_id": "fae81d07e263",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -418,14 +418,14 @@
       "rationale_b_first": "Both claims state exactly the same fact, that the method's Exact Match improvement over the DPR baseline is +4.2, using identical wording.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "35f3177611ff",
+        "item_id": "541850e877d6",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "The method's Exact Match improvement over the DPR baseline is +4.2."
       },
       "claim_2": {
-        "item_id": "1db1ee2af96e",
+        "item_id": "fae81d07e263",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -450,14 +450,14 @@
       "rationale_b_first": "The two claims provide different numerical values for the Exact Match improvement over the DPR baseline, with Claim 1 stating a +4.2 improvement and Claim 2 stating a +0.5 gain. These values are materially different and cannot both be true simultaneously, constituting a contradiction.",
       "similarity": 0.8367,
       "claim_1": {
-        "item_id": "638df0290c22",
+        "item_id": "57cfff38477e",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "discussion",
         "text": "The method yields a modest +0.5 Exact Match (EM) gain over the DPR baseline."
       },
       "claim_2": {
-        "item_id": "1db1ee2af96e",
+        "item_id": "fae81d07e263",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -482,14 +482,14 @@
       "rationale_b_first": "The two claims provide different numerical values for the Exact Match improvement over the DPR baseline, with Claim 1 stating a +0.5 improvement and Claim 2 stating a +4.2 improvement. These values are materially different and cannot both be true simultaneously, constituting a contradiction.",
       "similarity": 0.969,
       "claim_1": {
-        "item_id": "ecd7203ccf53",
+        "item_id": "bf04aaee2c24",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "The method's Exact Match improvement over the DPR baseline is +4.2."
       },
       "claim_2": {
-        "item_id": "a2043c48adaa",
+        "item_id": "c9c7bd4315dc",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "discussion",
@@ -514,14 +514,14 @@
       "rationale_b_first": "The two claims provide different numerical values for the Exact Match improvement over the DPR baseline, with Claim 1 stating a +0.5 improvement and Claim 2 stating a +4.2 improvement. These values are materially different and cannot both be true simultaneously, constituting a contradiction.",
       "similarity": 0.969,
       "claim_1": {
-        "item_id": "35f3177611ff",
+        "item_id": "541850e877d6",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "The method's Exact Match improvement over the DPR baseline is +4.2."
       },
       "claim_2": {
-        "item_id": "a2043c48adaa",
+        "item_id": "c9c7bd4315dc",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "discussion",
@@ -546,14 +546,14 @@
       "rationale_b_first": "Both claims state that the method's Exact Match improvement over the DPR baseline is +0.5, with Claim 2 using the term 'modest' to describe the gain but otherwise affirming the same numerical value and fact.",
       "similarity": 0.8702,
       "claim_1": {
-        "item_id": "638df0290c22",
+        "item_id": "57cfff38477e",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "discussion",
         "text": "The method yields a modest +0.5 Exact Match (EM) gain over the DPR baseline."
       },
       "claim_2": {
-        "item_id": "a2043c48adaa",
+        "item_id": "c9c7bd4315dc",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "discussion",
@@ -578,14 +578,14 @@
       "rationale_b_first": "Both claims state exactly the same fact, that the method's Exact Match improvement over the DPR baseline is +4.2. There is no difference in the substance or value reported, so they entail each other.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "35f3177611ff",
+        "item_id": "541850e877d6",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "The method's Exact Match improvement over the DPR baseline is +4.2."
       },
       "claim_2": {
-        "item_id": "ecd7203ccf53",
+        "item_id": "bf04aaee2c24",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -610,14 +610,14 @@
       "rationale_b_first": "The two claims provide different numerical values for the Exact Match improvement over the DPR baseline, with Claim 1 stating a +4.2 improvement and Claim 2 stating a +0.5 gain. These values are materially different and cannot both be true simultaneously, constituting a contradiction.",
       "similarity": 0.8367,
       "claim_1": {
-        "item_id": "638df0290c22",
+        "item_id": "57cfff38477e",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "discussion",
         "text": "The method yields a modest +0.5 Exact Match (EM) gain over the DPR baseline."
       },
       "claim_2": {
-        "item_id": "ecd7203ccf53",
+        "item_id": "bf04aaee2c24",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -642,14 +642,14 @@
       "rationale_b_first": "The two claims provide different numerical values for the Exact Match improvement over the DPR baseline, with Claim 1 stating a +0.5 EM gain and Claim 2 stating a +4.2 EM improvement. These values are materially different and cannot both be true simultaneously, constituting a contradiction.",
       "similarity": 0.8367,
       "claim_1": {
-        "item_id": "35f3177611ff",
+        "item_id": "541850e877d6",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "The method's Exact Match improvement over the DPR baseline is +4.2."
       },
       "claim_2": {
-        "item_id": "638df0290c22",
+        "item_id": "57cfff38477e",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "discussion",
@@ -674,14 +674,14 @@
       "rationale_b_first": "Claim 1 states that the method does not outperform the prior state of the art on the long-document suite, while Claim 2 explicitly states that the method outperforms the prior state of the art by 1.8 ROUGE-L. These two claims are mutually incompatible and cannot both be true simultaneously.",
       "similarity": 0.7613,
       "claim_1": {
-        "item_id": "1f8465e04c56",
+        "item_id": "0468f5f5c783",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "body",
         "text": "Our method outperforms the prior state of the art on the long-document suite by 1.8 ROUGE-L."
       },
       "claim_2": {
-        "item_id": "651778d5aca0",
+        "item_id": "79ad580cb523",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "erratum",
@@ -706,14 +706,14 @@
       "rationale_b_first": "Claim 1 states that the method outperforms the prior state of the art by 1.8 ROUGE-L, while Claim 2 asserts that the method trails the prior state of the art by 0.3 ROUGE-L. These two claims are mutually incompatible as they describe opposite outcomes for the same metric on the same task.",
       "similarity": 0.908,
       "claim_1": {
-        "item_id": "7d60de87ecf1",
+        "item_id": "3989ca77e06a",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "erratum",
         "text": "The method does not outperform the prior state of the art on the long-document suite, but rather trails it by 0.3 ROUGE-L."
       },
       "claim_2": {
-        "item_id": "1f8465e04c56",
+        "item_id": "0468f5f5c783",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "body",
@@ -738,14 +738,14 @@
       "rationale_b_first": "Both claims state the exact same fact, that the method outperforms the prior state of the art on the long-document suite by 1.8 ROUGE-L. The claims are identical and thus entail each other.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "1f8465e04c56",
+        "item_id": "0468f5f5c783",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "body",
         "text": "Our method outperforms the prior state of the art on the long-document suite by 1.8 ROUGE-L."
       },
       "claim_2": {
-        "item_id": "1e202fd2e4f3",
+        "item_id": "12ce0ff0b6b3",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "body",
@@ -770,14 +770,14 @@
       "rationale_b_first": "Both claims state that the method outperforms the prior state of the art on the long-document suite by exactly 1.8 ROUGE-L, which is the same factual assertion phrased with slightly different wording.",
       "similarity": 0.9853,
       "claim_1": {
-        "item_id": "c4cb4b48ca88",
+        "item_id": "e538d0f67671",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "body",
         "text": "The method outperforms the prior state of the art on the long-document suite by 1.8 ROUGE-L."
       },
       "claim_2": {
-        "item_id": "1f8465e04c56",
+        "item_id": "0468f5f5c783",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "body",
@@ -802,14 +802,14 @@
       "rationale_b_first": "Claim 2 provides a more detailed explanation of Claim 1, specifically stating the extent to which the method trails the prior state of the art. Both claims agree that the method does not outperform the prior state of the art on the long-document suite.",
       "similarity": 0.828,
       "claim_1": {
-        "item_id": "7d60de87ecf1",
+        "item_id": "3989ca77e06a",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "erratum",
         "text": "The method does not outperform the prior state of the art on the long-document suite, but rather trails it by 0.3 ROUGE-L."
       },
       "claim_2": {
-        "item_id": "651778d5aca0",
+        "item_id": "79ad580cb523",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "erratum",
@@ -834,14 +834,14 @@
       "rationale_b_first": "Claim 1 states that the method does not outperform the prior state of the art on the long-document suite, while Claim 2 explicitly states that the method outperforms the prior state of the art by 1.8 ROUGE-L. These two claims are mutually exclusive and cannot both be true simultaneously.",
       "similarity": 0.7613,
       "claim_1": {
-        "item_id": "1e202fd2e4f3",
+        "item_id": "12ce0ff0b6b3",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "body",
         "text": "Our method outperforms the prior state of the art on the long-document suite by 1.8 ROUGE-L."
       },
       "claim_2": {
-        "item_id": "651778d5aca0",
+        "item_id": "79ad580cb523",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "erratum",
@@ -866,14 +866,14 @@
       "rationale_b_first": "Claim 1 states that the method does not outperform the prior state of the art on the long-document suite, while Claim 2 explicitly states that the method does outperform the prior state of the art by a specific margin (1.8 ROUGE-L). These two claims are mutually exclusive and cannot both be true simultaneously.",
       "similarity": 0.7819,
       "claim_1": {
-        "item_id": "c4cb4b48ca88",
+        "item_id": "e538d0f67671",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "body",
         "text": "The method outperforms the prior state of the art on the long-document suite by 1.8 ROUGE-L."
       },
       "claim_2": {
-        "item_id": "651778d5aca0",
+        "item_id": "79ad580cb523",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "erratum",
@@ -898,14 +898,14 @@
       "rationale_b_first": "Claim 1 states that the method outperforms the prior state of the art by 1.8 ROUGE-L, while Claim 2 asserts that the method trails the prior state of the art by 0.3 ROUGE-L. These two claims are mutually incompatible as they describe opposite outcomes in terms of performance.",
       "similarity": 0.908,
       "claim_1": {
-        "item_id": "7d60de87ecf1",
+        "item_id": "3989ca77e06a",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "erratum",
         "text": "The method does not outperform the prior state of the art on the long-document suite, but rather trails it by 0.3 ROUGE-L."
       },
       "claim_2": {
-        "item_id": "1e202fd2e4f3",
+        "item_id": "12ce0ff0b6b3",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "body",
@@ -930,14 +930,14 @@
       "rationale_b_first": "Claim 1 states that the method trails the prior state of the art by 0.3 ROUGE-L, while Claim 2 asserts that the method outperforms the prior state of the art by 1.8 ROUGE-L. These two claims present conflicting outcomes and cannot both be true simultaneously.",
       "similarity": 0.9214,
       "claim_1": {
-        "item_id": "c4cb4b48ca88",
+        "item_id": "e538d0f67671",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "body",
         "text": "The method outperforms the prior state of the art on the long-document suite by 1.8 ROUGE-L."
       },
       "claim_2": {
-        "item_id": "7d60de87ecf1",
+        "item_id": "3989ca77e06a",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "erratum",
@@ -962,14 +962,14 @@
       "rationale_b_first": "Both claims state that the method outperforms the prior state of the art on the long-document suite by exactly 1.8 ROUGE-L, which is the same factual assertion phrased with slightly different wording.",
       "similarity": 0.9853,
       "claim_1": {
-        "item_id": "c4cb4b48ca88",
+        "item_id": "e538d0f67671",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "body",
         "text": "The method outperforms the prior state of the art on the long-document suite by 1.8 ROUGE-L."
       },
       "claim_2": {
-        "item_id": "1e202fd2e4f3",
+        "item_id": "12ce0ff0b6b3",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "body",
@@ -994,14 +994,14 @@
       "rationale_b_first": "Claim 1 explicitly states that the method requires 10,000 human-annotated sentence pairs for training, while Claim 2 asserts that the method requires no labeled data at any stage of training. These two claims are mutually exclusive and cannot both be true simultaneously.",
       "similarity": 0.2369,
       "claim_1": {
-        "item_id": "284e34d46292",
+        "item_id": "c2e5b7e48aee",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "The method requires no labeled data at any stage of training."
       },
       "claim_2": {
-        "item_id": "580f67f84e1a",
+        "item_id": "4b799114d3b3",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "method",
@@ -1026,14 +1026,14 @@
       "rationale_b_first": "Both claims assert that the method does not require human-labeled training data at any stage of training. Claim 1 uses 'no labeled data' and Claim 2 uses 'does not require human-labeled training data,' which are logically equivalent statements.",
       "similarity": 0.8794,
       "claim_1": {
-        "item_id": "e870cf9c2620",
+        "item_id": "f64078009620",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "The method does not require human-labeled training data at any stage of training."
       },
       "claim_2": {
-        "item_id": "284e34d46292",
+        "item_id": "c2e5b7e48aee",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -1058,14 +1058,14 @@
       "rationale_b_first": "Both claims assert that the method does not require human-labeled training data. Claim 1 specifies that it requires no labeled data at any stage of training, which entails Claim 2's assertion that it does not require human-labeled training data.",
       "similarity": 0.8485,
       "claim_1": {
-        "item_id": "9735a87fa4d1",
+        "item_id": "fa4086951647",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "The method does not require human-labeled training data."
       },
       "claim_2": {
-        "item_id": "284e34d46292",
+        "item_id": "c2e5b7e48aee",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -1090,14 +1090,14 @@
       "rationale_b_first": "Claim 1 states that the method requires no labeled data at any stage, while Claim 2 explicitly states that the method requires 10,000 human-labeled sentence pairs for fine-tuning. These claims are mutually exclusive and cannot both be true simultaneously.",
       "similarity": 0.2223,
       "claim_1": {
-        "item_id": "d79edbc6f754",
+        "item_id": "b910b1cead31",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "method",
         "text": "The method requires human-labeled training data, specifically 10,000 human-annotated sentence pairs, to fine-tune the encoder."
       },
       "claim_2": {
-        "item_id": "284e34d46292",
+        "item_id": "c2e5b7e48aee",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -1122,14 +1122,14 @@
       "rationale_b_first": "Claim 1 explicitly states that the method requires 10,000 human-annotated sentence pairs for training, whereas Claim 2 asserts that the method does not require human-labeled training data at any stage of training. These two claims are mutually exclusive and cannot both be true simultaneously.",
       "similarity": 0.3904,
       "claim_1": {
-        "item_id": "e870cf9c2620",
+        "item_id": "f64078009620",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "The method does not require human-labeled training data at any stage of training."
       },
       "claim_2": {
-        "item_id": "580f67f84e1a",
+        "item_id": "4b799114d3b3",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "method",
@@ -1154,14 +1154,14 @@
       "rationale_b_first": "Claim 1 explicitly states that the method requires 10,000 human-annotated sentence pairs for training, which directly contradicts Claim 2's assertion that the method does not require human-labeled training data.",
       "similarity": 0.4439,
       "claim_1": {
-        "item_id": "9735a87fa4d1",
+        "item_id": "fa4086951647",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "The method does not require human-labeled training data."
       },
       "claim_2": {
-        "item_id": "580f67f84e1a",
+        "item_id": "4b799114d3b3",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "method",
@@ -1186,14 +1186,14 @@
       "rationale_b_first": "Both claims affirm that the method requires human-labeled training data, specifically 10,000 human-annotated sentence pairs. Claim 2 provides additional context about fine-tuning the encoder but does not contradict Claim 1.",
       "similarity": 0.8219,
       "claim_1": {
-        "item_id": "d79edbc6f754",
+        "item_id": "b910b1cead31",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "method",
         "text": "The method requires human-labeled training data, specifically 10,000 human-annotated sentence pairs, to fine-tune the encoder."
       },
       "claim_2": {
-        "item_id": "580f67f84e1a",
+        "item_id": "4b799114d3b3",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "method",
@@ -1218,14 +1218,14 @@
       "rationale_b_first": "Both claims assert that the method does not require human-labeled training data. Claim 1 specifies this condition for 'any stage of training,' which is a more detailed version of Claim 2's assertion. Since Claim 2 is a subset of the information provided in Claim 1, the relationship between the two claims is entailment.",
       "similarity": 0.9739,
       "claim_1": {
-        "item_id": "9735a87fa4d1",
+        "item_id": "fa4086951647",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "The method does not require human-labeled training data."
       },
       "claim_2": {
-        "item_id": "e870cf9c2620",
+        "item_id": "f64078009620",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -1250,14 +1250,14 @@
       "rationale_b_first": "Claim 1 states that the method does not require human-labeled training data at any stage, while Claim 2 explicitly states that the method requires 10,000 human-annotated sentence pairs for fine-tuning. These two claims are mutually exclusive and cannot both be true simultaneously.",
       "similarity": 0.368,
       "claim_1": {
-        "item_id": "d79edbc6f754",
+        "item_id": "b910b1cead31",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "method",
         "text": "The method requires human-labeled training data, specifically 10,000 human-annotated sentence pairs, to fine-tune the encoder."
       },
       "claim_2": {
-        "item_id": "e870cf9c2620",
+        "item_id": "f64078009620",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -1282,14 +1282,14 @@
       "rationale_b_first": "Claim 1 explicitly states that the method requires human-labeled training data, while Claim 2 directly contradicts this by stating that the method does not require human-labeled training data.",
       "similarity": 0.426,
       "claim_1": {
-        "item_id": "9735a87fa4d1",
+        "item_id": "fa4086951647",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "The method does not require human-labeled training data."
       },
       "claim_2": {
-        "item_id": "d79edbc6f754",
+        "item_id": "b910b1cead31",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "method",
@@ -1303,8 +1303,8 @@
       "difficulty": "moderate",
       "gold_excerpt_id": "appendix",
       "question": "Which optimizer was used to train the released models?",
-      "gold_positive": true,
-      "outcome": "FN",
+      "gold_positive": false,
+      "outcome": "TN",
       "judged": true,
       "verdict": "ENTAILMENT",
       "rationale": "[a-first=ENTAILMENT] Claim 1 specifies that the released checkpoints were trained with AdamW, which is a specific variant of the Adam optimizer. Claim 2 states that the released models were trained using a standard Adam-style optimizer, which is consistent with AdamW being an Adam-style optimizer. Therefore, Claim 2 entails Claim 1. | [b-first=ENTAILMENT] Both claims refer to the same topic and assert that the released models were trained using an Adam-style optimizer. 'Adam-style' is broad enough to include AdamW, which is a specific variant of Adam with weight decay.",
@@ -1314,14 +1314,14 @@
       "rationale_b_first": "Both claims refer to the same topic and assert that the released models were trained using an Adam-style optimizer. 'Adam-style' is broad enough to include AdamW, which is a specific variant of Adam with weight decay.",
       "similarity": 0.5329,
       "claim_1": {
-        "item_id": "8c5d85d63eb3",
+        "item_id": "c7f068be09dc",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "appendix",
         "text": "The released checkpoints were trained with AdamW."
       },
       "claim_2": {
-        "item_id": "ef3c42f69e14",
+        "item_id": "0f37f18191df",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "intro",
@@ -1335,8 +1335,8 @@
       "difficulty": "moderate",
       "gold_excerpt_id": "appendix",
       "question": "Which optimizer was used to train the released models?",
-      "gold_positive": true,
-      "outcome": "FN",
+      "gold_positive": false,
+      "outcome": "TN",
       "judged": true,
       "verdict": "ENTAILMENT",
       "rationale": "[a-first=ENTAILMENT] Claim 1 specifies that the released models were trained with AdamW, which is a variant of the Adam optimizer that includes specific parameters for weight decay and beta2. Claim 2 states that the models were trained using a standard Adam-style optimizer, which is consistent with AdamW being an Adam variant. Therefore, Claim 2 is entailed by Claim 1. | [b-first=ENTAILMENT] Claim 1 states that the models were trained with a standard Adam-style optimizer, which is a broad description. Claim 2 specifies that AdamW was used, which is a variant of Adam that includes specific hyperparameters. Since AdamW is indeed an Adam-style optimizer, these claims entail each other.",
@@ -1346,14 +1346,14 @@
       "rationale_b_first": "Claim 1 states that the models were trained with a standard Adam-style optimizer, which is a broad description. Claim 2 specifies that AdamW was used, which is a variant of Adam that includes specific hyperparameters. Since AdamW is indeed an Adam-style optimizer, these claims entail each other.",
       "similarity": 0.5003,
       "claim_1": {
-        "item_id": "3dfb63e715ac",
+        "item_id": "b227683010c2",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "appendix",
         "text": "The released checkpoints were trained with AdamW, which includes weight decay of 0.1 and beta2 of 0.95."
       },
       "claim_2": {
-        "item_id": "ef3c42f69e14",
+        "item_id": "0f37f18191df",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "intro",
@@ -1367,8 +1367,8 @@
       "difficulty": "moderate",
       "gold_excerpt_id": "appendix",
       "question": "Which optimizer was used to train the released models?",
-      "gold_positive": true,
-      "outcome": "FN",
+      "gold_positive": false,
+      "outcome": "TN",
       "judged": true,
       "verdict": "ENTAILMENT",
       "rationale": "[a-first=ENTAILMENT] Claim 1 specifies that the released models were trained with AdamW, which is a specific variant of the Adam optimizer. Claim 2 states that the models were trained using a standard Adam-style optimizer, which is consistent with AdamW being an Adam-style optimizer. Therefore, Claim 2 entails Claim 1. | [b-first=ENTAILMENT] Claim 1 states that the models were trained using a standard Adam-style optimizer, which is consistent with Claim 2 specifying AdamW, as AdamW is a variant of the Adam optimizer.",
@@ -1378,14 +1378,14 @@
       "rationale_b_first": "Claim 1 states that the models were trained using a standard Adam-style optimizer, which is consistent with Claim 2 specifying AdamW, as AdamW is a variant of the Adam optimizer.",
       "similarity": 0.7476,
       "claim_1": {
-        "item_id": "f43c8551f058",
+        "item_id": "626e0016bf06",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "appendix",
         "text": "The released models were trained with AdamW."
       },
       "claim_2": {
-        "item_id": "ef3c42f69e14",
+        "item_id": "0f37f18191df",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "intro",
@@ -1410,14 +1410,14 @@
       "rationale_b_first": "Claim 2 provides a more specific description of the optimizer used in Claim 1, including the addition of a cosine learning-rate schedule. However, the core fact that the optimizer is Adam-style remains the same, and Claim 2 does not contradict Claim 1 but rather elaborates on it.",
       "similarity": 0.8945,
       "claim_1": {
-        "item_id": "3bb2e2bde406",
+        "item_id": "2d8de708ff28",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "intro",
         "text": "The released models were trained using a standard Adam-style optimizer with a cosine learning-rate schedule."
       },
       "claim_2": {
-        "item_id": "ef3c42f69e14",
+        "item_id": "0f37f18191df",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "intro",
@@ -1442,14 +1442,14 @@
       "rationale_b_first": "Claim 2 provides more specific details about the AdamW optimizer used in Claim 1, including the weight decay and beta2 parameters. These details do not contradict Claim 1 but rather provide additional information that is consistent with it.",
       "similarity": 0.7517,
       "claim_1": {
-        "item_id": "3dfb63e715ac",
+        "item_id": "b227683010c2",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "appendix",
         "text": "The released checkpoints were trained with AdamW, which includes weight decay of 0.1 and beta2 of 0.95."
       },
       "claim_2": {
-        "item_id": "8c5d85d63eb3",
+        "item_id": "c7f068be09dc",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "appendix",
@@ -1474,14 +1474,14 @@
       "rationale_b_first": "Both claims assert that the released models/checkpoints were trained using AdamW, which is the same underlying fact expressed with slightly different wording.",
       "similarity": 0.7483,
       "claim_1": {
-        "item_id": "8c5d85d63eb3",
+        "item_id": "c7f068be09dc",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "appendix",
         "text": "The released checkpoints were trained with AdamW."
       },
       "claim_2": {
-        "item_id": "f43c8551f058",
+        "item_id": "626e0016bf06",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "appendix",
@@ -1495,8 +1495,8 @@
       "difficulty": "moderate",
       "gold_excerpt_id": "appendix",
       "question": "Which optimizer was used to train the released models?",
-      "gold_positive": true,
-      "outcome": "FN",
+      "gold_positive": false,
+      "outcome": "TN",
       "judged": true,
       "verdict": "ENTAILMENT",
       "rationale": "[a-first=ENTAILMENT] Both claims refer to the same topic and describe the optimizer used for training the released models. While Claim 1 specifies an 'Adam-style optimizer' and Claim 2 mentions 'AdamW', AdamW is a specific variant of the Adam optimizer that includes weight decay as part of the parameter update rule, making it consistent with an 'Adam-style optimizer'. Therefore, the claims entail the same underlying fact. | [b-first=ENTAILMENT] Claim 1 specifies that the released checkpoints were trained with AdamW, which is a variant of the Adam optimizer. Claim 2 states that the models were trained using a standard Adam-style optimizer, which is consistent with AdamW. The addition of a cosine learning-rate schedule in Claim 2 does not contradict Claim 1, as it is a common practice to use such a schedule with AdamW. Therefore, the two claims are entailing each other.",
@@ -1506,14 +1506,14 @@
       "rationale_b_first": "Claim 1 specifies that the released checkpoints were trained with AdamW, which is a variant of the Adam optimizer. Claim 2 states that the models were trained using a standard Adam-style optimizer, which is consistent with AdamW. The addition of a cosine learning-rate schedule in Claim 2 does not contradict Claim 1, as it is a common practice to use such a schedule with AdamW. Therefore, the two claims are entailing each other.",
       "similarity": 0.4561,
       "claim_1": {
-        "item_id": "3bb2e2bde406",
+        "item_id": "2d8de708ff28",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "intro",
         "text": "The released models were trained using a standard Adam-style optimizer with a cosine learning-rate schedule."
       },
       "claim_2": {
-        "item_id": "8c5d85d63eb3",
+        "item_id": "c7f068be09dc",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "appendix",
@@ -1538,14 +1538,14 @@
       "rationale_b_first": "Claim 2 provides more specific details about the AdamW optimizer used in Claim 1, including the weight decay and beta2 parameters. Since Claim 1 is a subset of the information given in Claim 2, and both agree on the use of AdamW, the relationship is ENTAILMENT.",
       "similarity": 0.5902,
       "claim_1": {
-        "item_id": "3dfb63e715ac",
+        "item_id": "b227683010c2",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "appendix",
         "text": "The released checkpoints were trained with AdamW, which includes weight decay of 0.1 and beta2 of 0.95."
       },
       "claim_2": {
-        "item_id": "f43c8551f058",
+        "item_id": "626e0016bf06",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "appendix",
@@ -1559,8 +1559,8 @@
       "difficulty": "moderate",
       "gold_excerpt_id": "appendix",
       "question": "Which optimizer was used to train the released models?",
-      "gold_positive": true,
-      "outcome": "FN",
+      "gold_positive": false,
+      "outcome": "TN",
       "judged": true,
       "verdict": "ENTAILMENT",
       "rationale": "[a-first=NEUTRAL] Both claims refer to the optimizer used for training the released models, but they provide different levels of detail and specificity. Claim 1 specifies that AdamW was used with particular hyperparameters (weight decay of 0.1 and beta2 of 0.95), while Claim 2 describes a more general Adam-style optimizer with a cosine learning-rate schedule. These descriptions are not mutually exclusive and can both be true, as AdamW is indeed an Adam-style optimizer with specific modifications. Therefore, the relationship is NEUTRAL. | [b-first=ENTAILMENT] Both claims refer to the same optimizer used for training the released models, with Claim 1 describing it as 'Adam-style' and Claim 2 specifying 'AdamW' with particular hyperparameters. AdamW is a variant of the Adam optimizer, and the additional details provided in Claim 2 are consistent with the general description in Claim 1.",
@@ -1570,14 +1570,14 @@
       "rationale_b_first": "Both claims refer to the same optimizer used for training the released models, with Claim 1 describing it as 'Adam-style' and Claim 2 specifying 'AdamW' with particular hyperparameters. AdamW is a variant of the Adam optimizer, and the additional details provided in Claim 2 are consistent with the general description in Claim 1.",
       "similarity": 0.4249,
       "claim_1": {
-        "item_id": "3dfb63e715ac",
+        "item_id": "b227683010c2",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "appendix",
         "text": "The released checkpoints were trained with AdamW, which includes weight decay of 0.1 and beta2 of 0.95."
       },
       "claim_2": {
-        "item_id": "3bb2e2bde406",
+        "item_id": "2d8de708ff28",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "intro",
@@ -1591,8 +1591,8 @@
       "difficulty": "moderate",
       "gold_excerpt_id": "appendix",
       "question": "Which optimizer was used to train the released models?",
-      "gold_positive": true,
-      "outcome": "FN",
+      "gold_positive": false,
+      "outcome": "TN",
       "judged": true,
       "verdict": "ENTAILMENT",
       "rationale": "[a-first=ENTAILMENT] Both claims refer to the same topic and assert that the released models were trained using an Adam-style optimizer. AdamW is a variant of the Adam optimizer that includes weight decay as a separate process, which aligns with the description of a 'standard Adam-style optimizer' in Claim 1. Therefore, the claims are logically equivalent and entail each other. | [b-first=ENTAILMENT] Claim 1 specifies that the released models were trained with AdamW, which is a variant of the Adam optimizer. Claim 2 describes the use of a standard Adam-style optimizer, which is consistent with AdamW. The addition of a cosine learning-rate schedule in Claim 2 does not contradict Claim 1, as it is common to use different learning-rate schedules with AdamW. Therefore, the two claims are entailing each other.",
@@ -1602,14 +1602,14 @@
       "rationale_b_first": "Claim 1 specifies that the released models were trained with AdamW, which is a variant of the Adam optimizer. Claim 2 describes the use of a standard Adam-style optimizer, which is consistent with AdamW. The addition of a cosine learning-rate schedule in Claim 2 does not contradict Claim 1, as it is common to use different learning-rate schedules with AdamW. Therefore, the two claims are entailing each other.",
       "similarity": 0.6439,
       "claim_1": {
-        "item_id": "3bb2e2bde406",
+        "item_id": "2d8de708ff28",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "intro",
         "text": "The released models were trained using a standard Adam-style optimizer with a cosine learning-rate schedule."
       },
       "claim_2": {
-        "item_id": "f43c8551f058",
+        "item_id": "626e0016bf06",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "appendix",
@@ -1634,14 +1634,14 @@
       "rationale_b_first": "Claim 2 implies that the model's pass@1 score on HumanEval is 67%, which is explicitly stated in Claim 1. Both claims agree on the same underlying fact, even though Claim 2 is more cautious and less direct in its assertion.",
       "similarity": 0.5937,
       "claim_1": {
-        "item_id": "75d32d39c0af",
+        "item_id": "c4decd9fee2d",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "abstract",
         "text": "The model's pass@1 score on HumanEval is not explicitly stated in the excerpt, but it is implied to be 67% when considering the HumanEval metric, which is not further specified."
       },
       "claim_2": {
-        "item_id": "219c7ab8b4b4",
+        "item_id": "b4396adde15a",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "abstract",
@@ -1666,14 +1666,14 @@
       "rationale_b_first": "The two claims provide different numerical values for the model's pass@1 score on HumanEval, with Claim 1 stating 67% and Claim 2 stating 41.2%. These values are materially different and cannot both be true simultaneously.",
       "similarity": 0.5605,
       "claim_1": {
-        "item_id": "01fbaab6d9c5",
+        "item_id": "2117de313a37",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "table",
         "text": "The model's pass@1 score on HumanEval is 41.2."
       },
       "claim_2": {
-        "item_id": "219c7ab8b4b4",
+        "item_id": "b4396adde15a",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "abstract",
@@ -1698,14 +1698,14 @@
       "rationale_b_first": "The two claims provide different numerical values for the model's pass@1 score on HumanEval, with Claim 1 stating 67% and Claim 2 stating 41.2%. These values are materially different and cannot both be true simultaneously, constituting a contradiction.",
       "similarity": 0.5605,
       "claim_1": {
-        "item_id": "c86de7b95de7",
+        "item_id": "ea52003ea12c",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "table",
         "text": "The model's pass@1 score on HumanEval is 41.2."
       },
       "claim_2": {
-        "item_id": "219c7ab8b4b4",
+        "item_id": "b4396adde15a",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "abstract",
@@ -1730,14 +1730,14 @@
       "rationale_b_first": "The two claims provide different numerical values for the model's pass@1 score on HumanEval, with Claim 1 stating 67% and Claim 2 stating 41.2%. These values are materially different and cannot both be true simultaneously, constituting a contradiction.",
       "similarity": 0.5605,
       "claim_1": {
-        "item_id": "7822719b2d30",
+        "item_id": "b24e6b8278ae",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "table",
         "text": "The model's pass@1 score on HumanEval is 41.2."
       },
       "claim_2": {
-        "item_id": "219c7ab8b4b4",
+        "item_id": "b4396adde15a",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "abstract",
@@ -1762,14 +1762,14 @@
       "rationale_b_first": "Claim 1 implies the pass@1 score is 67%, while Claim 2 explicitly states the pass@1 score is 41.2%. These are materially different numerical values for the same metric, which cannot both be true simultaneously.",
       "similarity": 0.8078,
       "claim_1": {
-        "item_id": "01fbaab6d9c5",
+        "item_id": "2117de313a37",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "table",
         "text": "The model's pass@1 score on HumanEval is 41.2."
       },
       "claim_2": {
-        "item_id": "75d32d39c0af",
+        "item_id": "c4decd9fee2d",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "abstract",
@@ -1794,14 +1794,14 @@
       "rationale_b_first": "The two claims provide different numerical values for the model's pass@1 score on HumanEval: 41.2% and 67%. Since these values are materially different, they cannot both be true simultaneously, constituting a contradiction.",
       "similarity": 0.8078,
       "claim_1": {
-        "item_id": "75d32d39c0af",
+        "item_id": "c4decd9fee2d",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "abstract",
         "text": "The model's pass@1 score on HumanEval is not explicitly stated in the excerpt, but it is implied to be 67% when considering the HumanEval metric, which is not further specified."
       },
       "claim_2": {
-        "item_id": "c86de7b95de7",
+        "item_id": "ea52003ea12c",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "table",
@@ -1826,14 +1826,14 @@
       "rationale_b_first": "Claim 1 provides a specific numerical value of 41.2 for the model's pass@1 score on HumanEval, while Claim 2 suggests the score is 67%. Since these are different numerical values for the same metric, they contradict each other.",
       "similarity": 0.8078,
       "claim_1": {
-        "item_id": "75d32d39c0af",
+        "item_id": "c4decd9fee2d",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "abstract",
         "text": "The model's pass@1 score on HumanEval is not explicitly stated in the excerpt, but it is implied to be 67% when considering the HumanEval metric, which is not further specified."
       },
       "claim_2": {
-        "item_id": "7822719b2d30",
+        "item_id": "b24e6b8278ae",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "table",
@@ -1858,14 +1858,14 @@
       "rationale_b_first": "Both claims state the exact same factual assertion: the model's pass@1 score on HumanEval is 41.2. Since the claims are identical in their factual content, they entail each other.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "01fbaab6d9c5",
+        "item_id": "2117de313a37",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "table",
         "text": "The model's pass@1 score on HumanEval is 41.2."
       },
       "claim_2": {
-        "item_id": "c86de7b95de7",
+        "item_id": "ea52003ea12c",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "table",
@@ -1890,14 +1890,14 @@
       "rationale_b_first": "Both claims state the exact same factual assertion: the model's pass@1 score on HumanEval is 41.2. Since the claims are identical in their factual content, they entail each other.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "01fbaab6d9c5",
+        "item_id": "2117de313a37",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "table",
         "text": "The model's pass@1 score on HumanEval is 41.2."
       },
       "claim_2": {
-        "item_id": "7822719b2d30",
+        "item_id": "b24e6b8278ae",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "table",
@@ -1922,14 +1922,14 @@
       "rationale_b_first": "Both claims state the exact same factual assertion: the model's pass@1 score on HumanEval is 41.2. Since the claims are identical in their factual content, they entail each other.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "c86de7b95de7",
+        "item_id": "ea52003ea12c",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "table",
         "text": "The model's pass@1 score on HumanEval is 41.2."
       },
       "claim_2": {
-        "item_id": "7822719b2d30",
+        "item_id": "b24e6b8278ae",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "table",
@@ -1954,14 +1954,14 @@
       "rationale_b_first": "Both claims state that the released weights were initialized from LLaMA-2-7B, which is the same factual assertion.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "1e2d2943a00e",
+        "item_id": "42dfe51a5941",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "related",
         "text": "The released weights were initialized from LLaMA-2-7B."
       },
       "claim_2": {
-        "item_id": "282b4688c50f",
+        "item_id": "0098c5106a48",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "related",
@@ -1986,14 +1986,14 @@
       "rationale_b_first": "The two claims provide different specific base models from which the released weights were initialized, making them mutually exclusive.",
       "similarity": 0.7075,
       "claim_1": {
-        "item_id": "282b4688c50f",
+        "item_id": "0098c5106a48",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "related",
         "text": "The released weights were initialized from LLaMA-2-7B."
       },
       "claim_2": {
-        "item_id": "317eb42bb37b",
+        "item_id": "2955ae411cbb",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "repro",
@@ -2018,14 +2018,14 @@
       "rationale_b_first": "Both claims state that the released weights were initialized from LLaMA-2-7B, affirming the same underlying fact.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "1be27dfecfac",
+        "item_id": "724c6950cf54",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "related",
         "text": "The released weights were initialized from LLaMA-2-7B."
       },
       "claim_2": {
-        "item_id": "282b4688c50f",
+        "item_id": "0098c5106a48",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "related",
@@ -2050,14 +2050,14 @@
       "rationale_b_first": "The two claims provide different base models from which the released weights were initialized, making them mutually exclusive.",
       "similarity": 0.7075,
       "claim_1": {
-        "item_id": "f4ea9441a220",
+        "item_id": "d312293e9f8e",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "repro",
         "text": "The released weights were initialized from the Mistral-7B-v0.1 base model."
       },
       "claim_2": {
-        "item_id": "282b4688c50f",
+        "item_id": "0098c5106a48",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "related",
@@ -2082,14 +2082,14 @@
       "rationale_b_first": "The two claims provide different base models from which the released weights were initialized, making them contradictory.",
       "similarity": 0.7075,
       "claim_1": {
-        "item_id": "1e2d2943a00e",
+        "item_id": "42dfe51a5941",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "related",
         "text": "The released weights were initialized from LLaMA-2-7B."
       },
       "claim_2": {
-        "item_id": "317eb42bb37b",
+        "item_id": "2955ae411cbb",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "repro",
@@ -2114,14 +2114,14 @@
       "rationale_b_first": "Both claims state that the released weights were initialized from LLaMA-2-7B, which is the same factual assertion.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "1e2d2943a00e",
+        "item_id": "42dfe51a5941",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "related",
         "text": "The released weights were initialized from LLaMA-2-7B."
       },
       "claim_2": {
-        "item_id": "1be27dfecfac",
+        "item_id": "724c6950cf54",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "related",
@@ -2146,14 +2146,14 @@
       "rationale_b_first": "The two claims provide different base models from which the released weights were initialized, making them mutually exclusive.",
       "similarity": 0.7075,
       "claim_1": {
-        "item_id": "1e2d2943a00e",
+        "item_id": "42dfe51a5941",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "related",
         "text": "The released weights were initialized from LLaMA-2-7B."
       },
       "claim_2": {
-        "item_id": "f4ea9441a220",
+        "item_id": "d312293e9f8e",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "repro",
@@ -2178,14 +2178,14 @@
       "rationale_b_first": "The two claims provide different base models from which the released weights were initialized, making them mutually exclusive.",
       "similarity": 0.7075,
       "claim_1": {
-        "item_id": "1be27dfecfac",
+        "item_id": "724c6950cf54",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "related",
         "text": "The released weights were initialized from LLaMA-2-7B."
       },
       "claim_2": {
-        "item_id": "317eb42bb37b",
+        "item_id": "2955ae411cbb",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "repro",
@@ -2210,14 +2210,14 @@
       "rationale_b_first": "Both claims state exactly the same fact, that the released weights were initialized from the Mistral-7B-v0.1 base model, without any variation in wording or substance.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "f4ea9441a220",
+        "item_id": "d312293e9f8e",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "repro",
         "text": "The released weights were initialized from the Mistral-7B-v0.1 base model."
       },
       "claim_2": {
-        "item_id": "317eb42bb37b",
+        "item_id": "2955ae411cbb",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "repro",
@@ -2242,14 +2242,14 @@
       "rationale_b_first": "The two claims provide different base models from which the released weights were initialized, making them mutually exclusive.",
       "similarity": 0.7075,
       "claim_1": {
-        "item_id": "f4ea9441a220",
+        "item_id": "d312293e9f8e",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "repro",
         "text": "The released weights were initialized from the Mistral-7B-v0.1 base model."
       },
       "claim_2": {
-        "item_id": "1be27dfecfac",
+        "item_id": "724c6950cf54",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "related",
@@ -2274,14 +2274,14 @@
       "rationale_b_first": "Both claims state exactly the same fact, that the paper's reported scores are computed on the public validation split, using identical wording.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "28faac38c91d",
+        "item_id": "fa0856ba6bab",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "footnote",
         "text": "The paper's reported scores are computed on the public validation split."
       },
       "claim_2": {
-        "item_id": "afa946f862b7",
+        "item_id": "93030846679e",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "footnote",
@@ -2306,14 +2306,14 @@
       "rationale_b_first": "The claims directly contradict each other by specifying different data splits ('validation split' vs 'test split') for the reported scores.",
       "similarity": 0.8213,
       "claim_1": {
-        "item_id": "0bef3a43d940",
+        "item_id": "294a54ea570a",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "setup",
         "text": "The paper's reported scores are computed on the test split of the benchmark."
       },
       "claim_2": {
-        "item_id": "28faac38c91d",
+        "item_id": "fa0856ba6bab",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "footnote",
@@ -2338,14 +2338,14 @@
       "rationale_b_first": "The claims directly contradict each other by specifying different data splits ('test split' vs 'public validation split') on which the paper's reported scores are computed.",
       "similarity": 0.8213,
       "claim_1": {
-        "item_id": "28faac38c91d",
+        "item_id": "fa0856ba6bab",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "footnote",
         "text": "The paper's reported scores are computed on the public validation split."
       },
       "claim_2": {
-        "item_id": "4f5ba5b44176",
+        "item_id": "799b9c0425b3",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "setup",
@@ -2370,14 +2370,14 @@
       "rationale_b_first": "Both claims state exactly the same fact, that the paper's reported scores are computed on the public validation split, using identical wording.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "734711957c03",
+        "item_id": "916284101b44",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "footnote",
         "text": "The paper's reported scores are computed on the public validation split."
       },
       "claim_2": {
-        "item_id": "28faac38c91d",
+        "item_id": "fa0856ba6bab",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "footnote",
@@ -2402,14 +2402,14 @@
       "rationale_b_first": "The claims directly contradict each other by specifying different data splits ('validation split' vs 'test split') for the reported scores.",
       "similarity": 0.8213,
       "claim_1": {
-        "item_id": "0bef3a43d940",
+        "item_id": "294a54ea570a",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "setup",
         "text": "The paper's reported scores are computed on the test split of the benchmark."
       },
       "claim_2": {
-        "item_id": "afa946f862b7",
+        "item_id": "93030846679e",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "footnote",
@@ -2434,14 +2434,14 @@
       "rationale_b_first": "The claims directly contradict each other by specifying different data splits ('test split' vs 'public validation split') on which the paper's reported scores are computed.",
       "similarity": 0.8213,
       "claim_1": {
-        "item_id": "afa946f862b7",
+        "item_id": "93030846679e",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "footnote",
         "text": "The paper's reported scores are computed on the public validation split."
       },
       "claim_2": {
-        "item_id": "4f5ba5b44176",
+        "item_id": "799b9c0425b3",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "setup",
@@ -2466,14 +2466,14 @@
       "rationale_b_first": "Both claims state exactly the same fact, that the paper's reported scores are computed on the public validation split, using identical wording.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "734711957c03",
+        "item_id": "916284101b44",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "footnote",
         "text": "The paper's reported scores are computed on the public validation split."
       },
       "claim_2": {
-        "item_id": "afa946f862b7",
+        "item_id": "93030846679e",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "footnote",
@@ -2498,14 +2498,14 @@
       "rationale_b_first": "Both claims state exactly the same fact, that the paper's reported scores are computed on the test split of the benchmark, using identical wording.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "0bef3a43d940",
+        "item_id": "294a54ea570a",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "setup",
         "text": "The paper's reported scores are computed on the test split of the benchmark."
       },
       "claim_2": {
-        "item_id": "4f5ba5b44176",
+        "item_id": "799b9c0425b3",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "setup",
@@ -2530,14 +2530,14 @@
       "rationale_b_first": "The claims directly contradict each other by specifying different data splits ('test split' vs 'public validation split') on which the paper's reported scores are computed.",
       "similarity": 0.8213,
       "claim_1": {
-        "item_id": "734711957c03",
+        "item_id": "916284101b44",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "footnote",
         "text": "The paper's reported scores are computed on the public validation split."
       },
       "claim_2": {
-        "item_id": "0bef3a43d940",
+        "item_id": "294a54ea570a",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "setup",
@@ -2562,14 +2562,14 @@
       "rationale_b_first": "The claims directly contradict each other by specifying different data splits ('test split' vs 'public validation split') on which the paper's reported scores are computed.",
       "similarity": 0.8213,
       "claim_1": {
-        "item_id": "734711957c03",
+        "item_id": "916284101b44",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "footnote",
         "text": "The paper's reported scores are computed on the public validation split."
       },
       "claim_2": {
-        "item_id": "4f5ba5b44176",
+        "item_id": "799b9c0425b3",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "setup",
@@ -2594,14 +2594,14 @@
       "rationale_b_first": "Both claims state exactly the same fact, that the parser supports 46 languages, without any additional context or conditions that would differentiate them.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "54fe3b810d00",
+        "item_id": "12e1208b7d27",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "eval",
         "text": "The parser supports 46 languages."
       },
       "claim_2": {
-        "item_id": "f4b989c1f4b7",
+        "item_id": "a2b5d38a7a6e",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "eval",
@@ -2626,14 +2626,14 @@
       "rationale_b_first": "Claim 1 states that PolyParse is trained on 90 languages, while Claim 2 states that the parser supports 46 languages. These claims describe different aspects of the parser's capabilities: training scope versus supported languages for use. They do not contradict each other as the parser could be trained on more languages than it actively supports. They also do not entail each other since supporting fewer languages than trained on is plausible.",
       "similarity": 0.5133,
       "claim_1": {
-        "item_id": "f4b989c1f4b7",
+        "item_id": "a2b5d38a7a6e",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "eval",
         "text": "The parser supports 46 languages."
       },
       "claim_2": {
-        "item_id": "99c590c80b74",
+        "item_id": "73c5263d7d7a",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "abstract",
@@ -2658,14 +2658,14 @@
       "rationale_b_first": "Claim 1 specifies the number of languages the parser supports, while Claim 2 describes the training dataset size. These claims refer to different stages or aspects of the parser's development and do not necessarily contradict each other. The parser could have been trained on a larger set of languages but support a smaller subset in its final version.",
       "similarity": 0.5372,
       "claim_1": {
-        "item_id": "a2a047689a05",
+        "item_id": "c3b9b00af801",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "abstract",
         "text": "PolyParse is trained jointly on 90 languages from the Universal Dependencies v2.11 dataset."
       },
       "claim_2": {
-        "item_id": "f4b989c1f4b7",
+        "item_id": "a2b5d38a7a6e",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "eval",
@@ -2690,14 +2690,14 @@
       "rationale_b_first": "Both claims state exactly the same fact, that the parser supports 46 languages, without any additional context or conditions that would differentiate them.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "59b82b52a8d6",
+        "item_id": "8385e7e37457",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "eval",
         "text": "The parser supports 46 languages."
       },
       "claim_2": {
-        "item_id": "f4b989c1f4b7",
+        "item_id": "a2b5d38a7a6e",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "eval",
@@ -2722,14 +2722,14 @@
       "rationale_b_first": "Claim 1 states that PolyParse is trained on 90 languages, while Claim 2 states that the parser supports 46 languages. These claims describe different aspects of the parser's capabilities: training scope versus supported languages for use. They do not contradict each other as the parser could be trained on more languages than it actively supports. Both claims can be true simultaneously.",
       "similarity": 0.5133,
       "claim_1": {
-        "item_id": "54fe3b810d00",
+        "item_id": "12e1208b7d27",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "eval",
         "text": "The parser supports 46 languages."
       },
       "claim_2": {
-        "item_id": "99c590c80b74",
+        "item_id": "73c5263d7d7a",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "abstract",
@@ -2754,14 +2754,14 @@
       "rationale_b_first": "Claim 1 specifies the number of languages the parser supports, while Claim 2 describes the training dataset size. These claims refer to different stages or aspects of the parser's development and do not necessarily contradict each other. The parser could be trained on a larger set of languages but support a smaller subset for practical or performance reasons.",
       "similarity": 0.5372,
       "claim_1": {
-        "item_id": "a2a047689a05",
+        "item_id": "c3b9b00af801",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "abstract",
         "text": "PolyParse is trained jointly on 90 languages from the Universal Dependencies v2.11 dataset."
       },
       "claim_2": {
-        "item_id": "54fe3b810d00",
+        "item_id": "12e1208b7d27",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "eval",
@@ -2786,14 +2786,14 @@
       "rationale_b_first": "Both claims state exactly the same fact that the parser supports 46 languages, using identical wording.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "59b82b52a8d6",
+        "item_id": "8385e7e37457",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "eval",
         "text": "The parser supports 46 languages."
       },
       "claim_2": {
-        "item_id": "54fe3b810d00",
+        "item_id": "12e1208b7d27",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "eval",
@@ -2818,14 +2818,14 @@
       "rationale_b_first": "Both claims state that PolyParse is trained on 90 languages from Universal Dependencies v2.11, with only minor differences in phrasing that do not change the core factual assertion.",
       "similarity": 0.9761,
       "claim_1": {
-        "item_id": "a2a047689a05",
+        "item_id": "c3b9b00af801",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "abstract",
         "text": "PolyParse is trained jointly on 90 languages from the Universal Dependencies v2.11 dataset."
       },
       "claim_2": {
-        "item_id": "99c590c80b74",
+        "item_id": "73c5263d7d7a",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "abstract",
@@ -2850,14 +2850,14 @@
       "rationale_b_first": "Claim 1 states that PolyParse is trained on 90 languages, while Claim 2 states that the parser supports 46 languages. These claims describe different aspects of the parser's capabilities: training scope versus supported languages for use. They do not contradict each other as the parser could be trained on a broader set of languages than it actively supports for practical use.",
       "similarity": 0.5133,
       "claim_1": {
-        "item_id": "59b82b52a8d6",
+        "item_id": "8385e7e37457",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "eval",
         "text": "The parser supports 46 languages."
       },
       "claim_2": {
-        "item_id": "99c590c80b74",
+        "item_id": "73c5263d7d7a",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "abstract",
@@ -2882,14 +2882,14 @@
       "rationale_b_first": "Claim 1 specifies the number of languages the parser was trained on, while Claim 2 specifies the number of languages the parser supports. These can be different numbers, as the parser might be trained on more languages than it actively supports. Therefore, they do not entail or contradict each other.",
       "similarity": 0.5372,
       "claim_1": {
-        "item_id": "59b82b52a8d6",
+        "item_id": "8385e7e37457",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "eval",
         "text": "The parser supports 46 languages."
       },
       "claim_2": {
-        "item_id": "a2a047689a05",
+        "item_id": "c3b9b00af801",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "abstract",
@@ -2914,14 +2914,14 @@
       "rationale_b_first": "Claim 1 explicitly states a speedup of 1.4x for the proposed method, while Claim 2 asserts that there is no mention of the speedup of inference with the proposed method. These claims are in direct opposition.",
       "similarity": 0.1811,
       "claim_1": {
-        "item_id": "7b1c72a236fb",
+        "item_id": "e3df942fe906",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "This excerpt does not mention the speedup of inference with the proposed method."
       },
       "claim_2": {
-        "item_id": "21f984e14680",
+        "item_id": "79a00f3460c3",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "analysis",
@@ -2946,14 +2946,14 @@
       "rationale_b_first": "Both claims state that the proposed method achieves an end-to-end wall-clock speedup of 1.4x on the same hardware, using nearly identical wording. The slight variation in sentence structure does not change the underlying fact being asserted.",
       "similarity": 0.9922,
       "claim_1": {
-        "item_id": "e0434fa0b4b2",
+        "item_id": "7d484ffa2484",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "analysis",
         "text": "The proposed method results in an end-to-end wall-clock speedup of 1.4x on the same hardware."
       },
       "claim_2": {
-        "item_id": "21f984e14680",
+        "item_id": "79a00f3460c3",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "analysis",
@@ -2978,14 +2978,14 @@
       "rationale_b_first": "Claim 1 discusses the speedup of the proposed method in terms of inference, while Claim 2 states that the excerpt does not mention inference but instead mentions generation. These claims are on the same general topic but assert different aspects that do not entail or contradict each other.",
       "similarity": -0.0249,
       "claim_1": {
-        "item_id": "58cf80233e40",
+        "item_id": "e74813df70cd",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "This excerpt does not mention inference, it mentions generation."
       },
       "claim_2": {
-        "item_id": "21f984e14680",
+        "item_id": "79a00f3460c3",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "analysis",
@@ -3010,14 +3010,14 @@
       "rationale_b_first": "Claim 1 explicitly states a speedup of 1.4x for the proposed method, while Claim 2 asserts that there is no mention of the speedup of inference with the proposed method. These claims are mutually exclusive.",
       "similarity": 0.1851,
       "claim_1": {
-        "item_id": "e54028f39be0",
+        "item_id": "5ffefe800236",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "The excerpt does not mention the speedup of inference with the proposed method."
       },
       "claim_2": {
-        "item_id": "21f984e14680",
+        "item_id": "79a00f3460c3",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "analysis",
@@ -3042,14 +3042,14 @@
       "rationale_b_first": "Claim 1 explicitly states a speedup of 1.4x for the proposed method, while Claim 2 asserts that there is no mention of the speedup of inference with the proposed method. These claims are mutually exclusive and cannot both be true simultaneously.",
       "similarity": 0.2224,
       "claim_1": {
-        "item_id": "7b1c72a236fb",
+        "item_id": "e3df942fe906",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "This excerpt does not mention the speedup of inference with the proposed method."
       },
       "claim_2": {
-        "item_id": "e0434fa0b4b2",
+        "item_id": "7d484ffa2484",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "analysis",
@@ -3074,14 +3074,14 @@
       "rationale_b_first": "Both claims are pointing out that the excerpt does not mention a specific aspect, but they refer to different aspects ('inference' vs 'speedup of inference with the proposed method'). They do not contradict each other and can both be true simultaneously.",
       "similarity": 0.5365,
       "claim_1": {
-        "item_id": "7b1c72a236fb",
+        "item_id": "e3df942fe906",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "This excerpt does not mention the speedup of inference with the proposed method."
       },
       "claim_2": {
-        "item_id": "58cf80233e40",
+        "item_id": "e74813df70cd",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -3106,14 +3106,14 @@
       "rationale_b_first": "Both claims state that the excerpt does not mention the speedup of inference with the proposed method, using nearly identical wording. This indicates that they are asserting the same underlying fact, even though they are phrased slightly differently.",
       "similarity": 0.9884,
       "claim_1": {
-        "item_id": "7b1c72a236fb",
+        "item_id": "e3df942fe906",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "This excerpt does not mention the speedup of inference with the proposed method."
       },
       "claim_2": {
-        "item_id": "e54028f39be0",
+        "item_id": "5ffefe800236",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -3138,14 +3138,14 @@
       "rationale_b_first": "Claim 1 states that the text does not discuss inference but generation, while Claim 2 provides a specific speedup for inference using the proposed method. These claims address different aspects and do not contradict each other.",
       "similarity": -0.03,
       "claim_1": {
-        "item_id": "e0434fa0b4b2",
+        "item_id": "7d484ffa2484",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "analysis",
         "text": "The proposed method results in an end-to-end wall-clock speedup of 1.4x on the same hardware."
       },
       "claim_2": {
-        "item_id": "58cf80233e40",
+        "item_id": "e74813df70cd",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -3170,14 +3170,14 @@
       "rationale_b_first": "Claim 1 states that there is no information about the speedup of inference with the proposed method, while Claim 2 provides a specific speedup value of 1.4x. These claims are mutually exclusive and cannot both be true simultaneously.",
       "similarity": 0.2256,
       "claim_1": {
-        "item_id": "e0434fa0b4b2",
+        "item_id": "7d484ffa2484",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "analysis",
         "text": "The proposed method results in an end-to-end wall-clock speedup of 1.4x on the same hardware."
       },
       "claim_2": {
-        "item_id": "e54028f39be0",
+        "item_id": "5ffefe800236",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -3202,14 +3202,14 @@
       "rationale_b_first": "Claim 1 states that the excerpt does not mention the speedup of inference with the proposed method, while Claim 2 states that the excerpt does not mention inference at all but instead mentions generation. Both claims are about what the excerpt does not mention, but they refer to different aspects (inference speedup vs. inference/generation), so they do not entail or contradict each other.",
       "similarity": 0.5513,
       "claim_1": {
-        "item_id": "58cf80233e40",
+        "item_id": "e74813df70cd",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "This excerpt does not mention inference, it mentions generation."
       },
       "claim_2": {
-        "item_id": "e54028f39be0",
+        "item_id": "5ffefe800236",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -3234,14 +3234,14 @@
       "rationale_b_first": "Both claims state that the pretraining of the released model took under 24 GPU-hours, which is the same factual assertion phrased slightly differently.",
       "similarity": 0.9505,
       "claim_1": {
-        "item_id": "c54ccc8681d3",
+        "item_id": "e290f16fe75c",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
         "text": "The released model was pretrained in under 24 GPU-hours."
       },
       "claim_2": {
-        "item_id": "8c9db7e7d23b",
+        "item_id": "5132e8e2bf7b",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
@@ -3266,14 +3266,14 @@
       "rationale_b_first": "The two claims provide materially different numeric values for the compute cost of pretraining the released model. Claim 1 states it took under 24 GPU-hours, while Claim 2 specifies approximately 11,500 GPU-hours. These values are not compatible and cannot both be true simultaneously.",
       "similarity": 0.9492,
       "claim_1": {
-        "item_id": "f0debcbdd44a",
+        "item_id": "87505860198c",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "compute",
         "text": "Pretraining the released model took approximately 11,500 GPU-hours, which is significantly more than the 24 GPU-hours mentioned in the introduction."
       },
       "claim_2": {
-        "item_id": "8c9db7e7d23b",
+        "item_id": "5132e8e2bf7b",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
@@ -3298,14 +3298,14 @@
       "rationale_b_first": "The two claims provide materially different values for the compute cost of pretraining the released model, with one stating 'approximately 11,500 A100-hours' and the other stating 'under 24 GPU-hours'. These values are not compatible and cannot both be true simultaneously.",
       "similarity": 0.8196,
       "claim_1": {
-        "item_id": "8c9db7e7d23b",
+        "item_id": "5132e8e2bf7b",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
         "text": "The pretraining of the released model took under 24 GPU-hours."
       },
       "claim_2": {
-        "item_id": "abea49987889",
+        "item_id": "0ab6bb464084",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "compute",
@@ -3330,14 +3330,14 @@
       "rationale_b_first": "Both claims state that the pretraining of the released model took under 24 GPU-hours, which is the same factual assertion phrased slightly differently.",
       "similarity": 0.9505,
       "claim_1": {
-        "item_id": "1c61adee8484",
+        "item_id": "0c3c875330fc",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
         "text": "The released model was pretrained in under 24 GPU-hours."
       },
       "claim_2": {
-        "item_id": "8c9db7e7d23b",
+        "item_id": "5132e8e2bf7b",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
@@ -3362,14 +3362,14 @@
       "rationale_b_first": "The two claims provide materially different numeric values for the compute cost of pretraining the released model. Claim 1 states it took under 24 GPU-hours, while Claim 2 specifies approximately 11,500 GPU-hours, which is a significant discrepancy that cannot be reconciled as different stages or contexts of the same measurement.",
       "similarity": 0.9092,
       "claim_1": {
-        "item_id": "f0debcbdd44a",
+        "item_id": "87505860198c",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "compute",
         "text": "Pretraining the released model took approximately 11,500 GPU-hours, which is significantly more than the 24 GPU-hours mentioned in the introduction."
       },
       "claim_2": {
-        "item_id": "c54ccc8681d3",
+        "item_id": "e290f16fe75c",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
@@ -3394,14 +3394,14 @@
       "rationale_b_first": "The two claims provide materially different numeric values for the compute cost of pretraining the released model. Claim 1 states it took approximately 11,500 A100-hours, while Claim 2 states it took under 24 GPU-hours. These values are incompatible and cannot both be true.",
       "similarity": 0.7581,
       "claim_1": {
-        "item_id": "c54ccc8681d3",
+        "item_id": "e290f16fe75c",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
         "text": "The released model was pretrained in under 24 GPU-hours."
       },
       "claim_2": {
-        "item_id": "abea49987889",
+        "item_id": "0ab6bb464084",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "compute",
@@ -3426,14 +3426,14 @@
       "rationale_b_first": "Both claims state the same fact that the released model was pretrained in under 24 GPU-hours, using identical wording.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "1c61adee8484",
+        "item_id": "0c3c875330fc",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
         "text": "The released model was pretrained in under 24 GPU-hours."
       },
       "claim_2": {
-        "item_id": "c54ccc8681d3",
+        "item_id": "e290f16fe75c",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
@@ -3458,14 +3458,14 @@
       "rationale_b_first": "Both claims agree that pretraining the released model took approximately 11,500 GPU-hours. The second claim provides additional context by mentioning a lower number from the introduction, but this does not contradict the main assertion about the pretraining compute cost.",
       "similarity": 0.7897,
       "claim_1": {
-        "item_id": "f0debcbdd44a",
+        "item_id": "87505860198c",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "compute",
         "text": "Pretraining the released model took approximately 11,500 GPU-hours, which is significantly more than the 24 GPU-hours mentioned in the introduction."
       },
       "claim_2": {
-        "item_id": "abea49987889",
+        "item_id": "0ab6bb464084",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "compute",
@@ -3490,14 +3490,14 @@
       "rationale_b_first": "Claim 1 states that pretraining the released model took approximately 11,500 GPU-hours, while Claim 2 states that it took under 24 GPU-hours. These two claims present materially different numerical values for the same quantity (GPU-hours for pretraining), which contradicts each other.",
       "similarity": 0.9092,
       "claim_1": {
-        "item_id": "1c61adee8484",
+        "item_id": "0c3c875330fc",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
         "text": "The released model was pretrained in under 24 GPU-hours."
       },
       "claim_2": {
-        "item_id": "f0debcbdd44a",
+        "item_id": "87505860198c",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "compute",
@@ -3522,14 +3522,14 @@
       "rationale_b_first": "The two claims provide materially different numeric values for the compute cost of pretraining the released model. Claim 1 states it took approximately 11,500 A100-hours, while Claim 2 states it took under 24 GPU-hours. These values are incompatible and cannot both be true.",
       "similarity": 0.7581,
       "claim_1": {
-        "item_id": "1c61adee8484",
+        "item_id": "0c3c875330fc",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
         "text": "The released model was pretrained in under 24 GPU-hours."
       },
       "claim_2": {
-        "item_id": "abea49987889",
+        "item_id": "0ab6bb464084",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "compute",
@@ -3543,8 +3543,8 @@
       "difficulty": "moderate",
       "gold_excerpt_id": "data",
       "question": "How many training examples are actually used for the experiments?",
-      "gold_positive": true,
-      "outcome": "FN",
+      "gold_positive": false,
+      "outcome": "TN",
       "judged": true,
       "verdict": "NEUTRAL",
       "rationale": "[a-first=NEUTRAL] Claim 1 specifies the number of training examples actually used in the experiments, while Claim 2 refers to the total number of sentence pairs in the corpus assembled. These claims describe different stages of the process and do not contradict each other, as the number of training examples used can be less than the total number of sentence pairs in the corpus. | [b-first=NEUTRAL] Claim 1 describes the total number of sentence pairs in the corpus, while Claim 2 specifies the number of pairs used for training experiments. These claims describe different stages of the process and do not contradict each other.",
@@ -3554,14 +3554,14 @@
       "rationale_b_first": "Claim 1 describes the total number of sentence pairs in the corpus, while Claim 2 specifies the number of pairs used for training experiments. These claims describe different stages of the process and do not contradict each other.",
       "similarity": 0.3906,
       "claim_1": {
-        "item_id": "7e98b790da3d",
+        "item_id": "e7cf044f84ab",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "data",
         "text": "312,000 pairs of training examples are used for the experiments."
       },
       "claim_2": {
-        "item_id": "766ee3baad9c",
+        "item_id": "6165cfe5f7b4",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
@@ -3586,14 +3586,14 @@
       "rationale_b_first": "Both claims state that 312,000 pairs are used after filtering and quality control, indicating the same underlying fact.",
       "similarity": 0.4538,
       "claim_1": {
-        "item_id": "7e98b790da3d",
+        "item_id": "e7cf044f84ab",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "data",
         "text": "312,000 pairs of training examples are used for the experiments."
       },
       "claim_2": {
-        "item_id": "e56b7c63ce42",
+        "item_id": "e9b8f721282d",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "data",
@@ -3607,8 +3607,8 @@
       "difficulty": "moderate",
       "gold_excerpt_id": "data",
       "question": "How many training examples are actually used for the experiments?",
-      "gold_positive": true,
-      "outcome": "FN",
+      "gold_positive": false,
+      "outcome": "TN",
       "judged": true,
       "verdict": "NEUTRAL",
       "rationale": "[a-first=NEUTRAL] Both claims refer to the number of training examples used in experiments, but they describe different stages of the process. Claim 1 states the initial number of sentence pairs in the corpus, while Claim 2 specifies the number of pairs actually used after some filtering or selection process. These can both be true simultaneously, as the initial corpus size can be larger than the final training set size. | [b-first=NEUTRAL] Claim 1 specifies the number of training examples used for the experiments as 312,000 pairs, while Claim 2 states that the corpus contains over 1,000,000 sentence pairs, which are used as training examples. These claims describe different stages or contexts of the training process (the total corpus vs the actual training set used), and both can be true simultaneously without contradicting each other.",
@@ -3618,14 +3618,14 @@
       "rationale_b_first": "Claim 1 specifies the number of training examples used for the experiments as 312,000 pairs, while Claim 2 states that the corpus contains over 1,000,000 sentence pairs, which are used as training examples. These claims describe different stages or contexts of the training process (the total corpus vs the actual training set used), and both can be true simultaneously without contradicting each other.",
       "similarity": 0.6365,
       "claim_1": {
-        "item_id": "99693cddcf80",
+        "item_id": "ca0b2eebb4f3",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
         "text": "The corpus contains over 1,000,000 sentence pairs, which are used as training examples for the experiments."
       },
       "claim_2": {
-        "item_id": "7e98b790da3d",
+        "item_id": "e7cf044f84ab",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "data",
@@ -3639,8 +3639,8 @@
       "difficulty": "moderate",
       "gold_excerpt_id": "data",
       "question": "How many training examples are actually used for the experiments?",
-      "gold_positive": true,
-      "outcome": "FN",
+      "gold_positive": false,
+      "outcome": "TN",
       "judged": true,
       "verdict": "NEUTRAL",
       "rationale": "[a-first=NEUTRAL] Claim 1 specifies the number of training examples actually used in the experiments, while Claim 2 refers to the total number of sentence pairs in the corpus assembled. These claims describe different stages of the process and do not contradict each other, as the number used for training can be a subset of the total corpus. | [b-first=NEUTRAL] Claim 1 refers to the total number of sentence pairs in the corpus assembled, while Claim 2 specifies the number of training examples actually used for the experiments. These are different stages of processing and do not contradict each other.",
@@ -3650,14 +3650,14 @@
       "rationale_b_first": "Claim 1 refers to the total number of sentence pairs in the corpus assembled, while Claim 2 specifies the number of training examples actually used for the experiments. These are different stages of processing and do not contradict each other.",
       "similarity": 0.3906,
       "claim_1": {
-        "item_id": "7e98b790da3d",
+        "item_id": "e7cf044f84ab",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "data",
         "text": "312,000 pairs of training examples are used for the experiments."
       },
       "claim_2": {
-        "item_id": "9a631b9a245b",
+        "item_id": "8ac4c324b991",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
@@ -3671,8 +3671,8 @@
       "difficulty": "moderate",
       "gold_excerpt_id": "data",
       "question": "How many training examples are actually used for the experiments?",
-      "gold_positive": true,
-      "outcome": "FN",
+      "gold_positive": false,
+      "outcome": "TN",
       "judged": true,
       "verdict": "NEUTRAL",
       "rationale": "[a-first=NEUTRAL] Both claims refer to the same dataset but describe different stages of its processing. Claim 1 states the initial size of the corpus before any filtering, while Claim 2 describes the size after near-duplicate removal and quality filtering. These are different processing stages that can coexist without contradicting each other. | [b-first=NEUTRAL] Both claims refer to the training set size but describe different stages of the process. Claim 1 specifies the number of pairs after filtering, while Claim 2 refers to the initial corpus size before any filtering. These can both be true simultaneously as they describe different points in the data preparation process.",
@@ -3682,14 +3682,14 @@
       "rationale_b_first": "Both claims refer to the training set size but describe different stages of the process. Claim 1 specifies the number of pairs after filtering, while Claim 2 refers to the initial corpus size before any filtering. These can both be true simultaneously as they describe different points in the data preparation process.",
       "similarity": 0.3135,
       "claim_1": {
-        "item_id": "766ee3baad9c",
+        "item_id": "6165cfe5f7b4",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
         "text": "The corpus assembled contains over 1,000,000 sentence pairs."
       },
       "claim_2": {
-        "item_id": "e56b7c63ce42",
+        "item_id": "e9b8f721282d",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "data",
@@ -3714,14 +3714,14 @@
       "rationale_b_first": "Claim 2 includes the information stated in Claim 1 ('over 1,000,000 sentence pairs') and adds that these pairs are used as training examples for the experiments. The additional information in Claim 2 does not contradict Claim 1 but rather provides more context, thus the two claims are entailing each other.",
       "similarity": 0.8385,
       "claim_1": {
-        "item_id": "99693cddcf80",
+        "item_id": "ca0b2eebb4f3",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
         "text": "The corpus contains over 1,000,000 sentence pairs, which are used as training examples for the experiments."
       },
       "claim_2": {
-        "item_id": "766ee3baad9c",
+        "item_id": "6165cfe5f7b4",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
@@ -3746,14 +3746,14 @@
       "rationale_b_first": "Both claims state the same fact that the corpus assembled contains over 1,000,000 sentence pairs, using identical wording.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "766ee3baad9c",
+        "item_id": "6165cfe5f7b4",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
         "text": "The corpus assembled contains over 1,000,000 sentence pairs."
       },
       "claim_2": {
-        "item_id": "9a631b9a245b",
+        "item_id": "8ac4c324b991",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
@@ -3767,8 +3767,8 @@
       "difficulty": "moderate",
       "gold_excerpt_id": "data",
       "question": "How many training examples are actually used for the experiments?",
-      "gold_positive": true,
-      "outcome": "FN",
+      "gold_positive": false,
+      "outcome": "TN",
       "judged": true,
       "verdict": "NEUTRAL",
       "rationale": "[a-first=NEUTRAL] Both claims refer to the training set size but describe different stages of the process. Claim 1 states the initial size before any filtering, while Claim 2 describes the size after near-duplicate removal and quality filtering. These are not contradictory as both can be true simultaneously, and they describe different processing stages. | [b-first=NEUTRAL] Claim 1 specifies the number of training examples after filtering, while Claim 2 refers to the initial number of sentence pairs in the corpus before any filtering. These describe different stages of the data processing and can both be true simultaneously.",
@@ -3778,14 +3778,14 @@
       "rationale_b_first": "Claim 1 specifies the number of training examples after filtering, while Claim 2 refers to the initial number of sentence pairs in the corpus before any filtering. These describe different stages of the data processing and can both be true simultaneously.",
       "similarity": 0.2302,
       "claim_1": {
-        "item_id": "99693cddcf80",
+        "item_id": "ca0b2eebb4f3",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
         "text": "The corpus contains over 1,000,000 sentence pairs, which are used as training examples for the experiments."
       },
       "claim_2": {
-        "item_id": "e56b7c63ce42",
+        "item_id": "e9b8f721282d",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "data",
@@ -3799,8 +3799,8 @@
       "difficulty": "moderate",
       "gold_excerpt_id": "data",
       "question": "How many training examples are actually used for the experiments?",
-      "gold_positive": true,
-      "outcome": "FN",
+      "gold_positive": false,
+      "outcome": "TN",
       "judged": true,
       "verdict": "NEUTRAL",
       "rationale": "[a-first=NEUTRAL] Both claims refer to the size of a training set but describe different stages of the process. Claim 1 states the initial size before any filtering, while Claim 2 describes the size after near-duplicate removal and quality filtering. These are different measurements of the same dataset at different stages and do not contradict each other. | [b-first=NEUTRAL] Claim 1 specifies the number of training examples after filtering for quality and near-duplicates, while Claim 2 refers to the initial size of the corpus before any filtering. These describe different stages of the data processing pipeline and do not contradict each other.",
@@ -3810,14 +3810,14 @@
       "rationale_b_first": "Claim 1 specifies the number of training examples after filtering for quality and near-duplicates, while Claim 2 refers to the initial size of the corpus before any filtering. These describe different stages of the data processing pipeline and do not contradict each other.",
       "similarity": 0.3135,
       "claim_1": {
-        "item_id": "9a631b9a245b",
+        "item_id": "8ac4c324b991",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
         "text": "The corpus assembled contains over 1,000,000 sentence pairs."
       },
       "claim_2": {
-        "item_id": "e56b7c63ce42",
+        "item_id": "e9b8f721282d",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "data",
@@ -3842,14 +3842,14 @@
       "rationale_b_first": "Claim 2 includes the information from Claim 1 and adds that these sentence pairs are used as training examples for the experiments. Since Claim 1's statement is a subset of Claim 2's information, it entails Claim 1.",
       "similarity": 0.8385,
       "claim_1": {
-        "item_id": "99693cddcf80",
+        "item_id": "ca0b2eebb4f3",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
         "text": "The corpus contains over 1,000,000 sentence pairs, which are used as training examples for the experiments."
       },
       "claim_2": {
-        "item_id": "9a631b9a245b",
+        "item_id": "8ac4c324b991",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "intro",
@@ -3874,14 +3874,14 @@
       "rationale_b_first": "Both claims state exactly the same fact, that human raters prefer the model over the baseline 90% of the time, using identical wording.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "16cefd08043f",
+        "item_id": "f6f2fcd32e31",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "Human raters prefer the model over the baseline 90% of the time."
       },
       "claim_2": {
-        "item_id": "03ebf40b0905",
+        "item_id": "aebacc528151",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -3906,14 +3906,14 @@
       "rationale_b_first": "Both claims state that human raters prefer the model over the baseline 90% of the time. Claim 2 is more explicit about the comparison to the baseline, but the core factual assertion is the same.",
       "similarity": 0.9091,
       "claim_1": {
-        "item_id": "16cefd08043f",
+        "item_id": "f6f2fcd32e31",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "Human raters prefer the model over the baseline 90% of the time."
       },
       "claim_2": {
-        "item_id": "87abd6b7b8f9",
+        "item_id": "94cb277f6adf",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -3938,14 +3938,14 @@
       "rationale_b_first": "The two claims provide different numerical values for the same metric (the rate at which human raters prefer the model over the baseline), with 55% and 90% being materially different values that cannot both be true simultaneously.",
       "similarity": 0.939,
       "claim_1": {
-        "item_id": "16cefd08043f",
+        "item_id": "f6f2fcd32e31",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "Human raters prefer the model over the baseline 90% of the time."
       },
       "claim_2": {
-        "item_id": "07ec77f4257d",
+        "item_id": "bdbd3c03eb87",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "study",
@@ -3970,14 +3970,14 @@
       "rationale_b_first": "The two claims present different numerical values for the same metric (the rate at which human raters prefer the model over the baseline). Claim 1 states a preference rate of 55% with a confidence interval of 51-59%, while Claim 2 states a preference rate of 90%. These values are materially different and cannot both be true simultaneously, constituting a contradiction.",
       "similarity": 0.8626,
       "claim_1": {
-        "item_id": "16cefd08043f",
+        "item_id": "f6f2fcd32e31",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "Human raters prefer the model over the baseline 90% of the time."
       },
       "claim_2": {
-        "item_id": "5cd4d1291c21",
+        "item_id": "a671c73dd41e",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "study",
@@ -4002,14 +4002,14 @@
       "rationale_b_first": "Both claims state that human raters prefer the model 90% of the time. Claim 2 includes the phrase 'over the baseline,' which is redundant given the context of the question and does not change the core fact expressed in Claim 1.",
       "similarity": 0.9091,
       "claim_1": {
-        "item_id": "03ebf40b0905",
+        "item_id": "aebacc528151",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "Human raters prefer the model over the baseline 90% of the time."
       },
       "claim_2": {
-        "item_id": "87abd6b7b8f9",
+        "item_id": "94cb277f6adf",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -4034,14 +4034,14 @@
       "rationale_b_first": "The two claims provide different numerical values for the same metric (the rate at which human raters prefer the model over the baseline), with 55% and 90% being materially different values that cannot both be true simultaneously.",
       "similarity": 0.939,
       "claim_1": {
-        "item_id": "03ebf40b0905",
+        "item_id": "aebacc528151",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "Human raters prefer the model over the baseline 90% of the time."
       },
       "claim_2": {
-        "item_id": "07ec77f4257d",
+        "item_id": "bdbd3c03eb87",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "study",
@@ -4066,14 +4066,14 @@
       "rationale_b_first": "The two claims present different numerical values for the same metric (the rate at which human raters prefer the model over the baseline). Claim 1 states a 90% preference rate, while Claim 2 states a 55% preference rate with a confidence interval of 51-59%. These values are materially different and cannot both be true simultaneously, thus constituting a contradiction.",
       "similarity": 0.8626,
       "claim_1": {
-        "item_id": "5cd4d1291c21",
+        "item_id": "a671c73dd41e",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "study",
         "text": "Human raters prefer the model over the baseline at a rate of 55% (with a 95% confidence interval of 51-59%), indicating a modest but significant preference."
       },
       "claim_2": {
-        "item_id": "03ebf40b0905",
+        "item_id": "aebacc528151",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -4098,14 +4098,14 @@
       "rationale_b_first": "The two claims provide different numerical values for the frequency at which human raters prefer the model over the baseline, with Claim 1 stating 55% and Claim 2 stating 90%. These values are materially different and cannot both be true simultaneously, constituting a contradiction.",
       "similarity": 0.8257,
       "claim_1": {
-        "item_id": "87abd6b7b8f9",
+        "item_id": "94cb277f6adf",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "Human raters prefer the model 90% of the time."
       },
       "claim_2": {
-        "item_id": "07ec77f4257d",
+        "item_id": "bdbd3c03eb87",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "study",
@@ -4130,14 +4130,14 @@
       "rationale_b_first": "The two claims present different numerical values for the same metric (the rate at which human raters prefer the model over the baseline). Claim 1 states a preference rate of 90%, while Claim 2 states a preference rate of 55% with a confidence interval of 51-59%. These values are materially different and cannot both be true simultaneously, thus they contradict each other.",
       "similarity": 0.7502,
       "claim_1": {
-        "item_id": "5cd4d1291c21",
+        "item_id": "a671c73dd41e",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "study",
         "text": "Human raters prefer the model over the baseline at a rate of 55% (with a 95% confidence interval of 51-59%), indicating a modest but significant preference."
       },
       "claim_2": {
-        "item_id": "87abd6b7b8f9",
+        "item_id": "94cb277f6adf",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -4162,14 +4162,14 @@
       "rationale_b_first": "Claim 2 provides the same core fact as Claim 1, that human raters prefer the model over the baseline at a rate of 55%, and adds additional information about the confidence interval. The extra detail in Claim 2 does not contradict Claim 1 but rather elaborates on it.",
       "similarity": 0.9146,
       "claim_1": {
-        "item_id": "5cd4d1291c21",
+        "item_id": "a671c73dd41e",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "study",
         "text": "Human raters prefer the model over the baseline at a rate of 55% (with a 95% confidence interval of 51-59%), indicating a modest but significant preference."
       },
       "claim_2": {
-        "item_id": "07ec77f4257d",
+        "item_id": "bdbd3c03eb87",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "study",
@@ -4194,14 +4194,14 @@
       "rationale_b_first": "The two claims provide different rankings for the system on the public leaderboard. Claim 1 states the system is ranked #4, while Claim 2 states RankFusion (presumably the same system) is ranked #1. These cannot both be true simultaneously.",
       "similarity": 0.7946,
       "claim_1": {
-        "item_id": "4fa329319372",
+        "item_id": "a557fd9170a1",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "body",
         "text": "RankFusion currently ranks #1 on the public leaderboard."
       },
       "claim_2": {
-        "item_id": "9f7968bdcab9",
+        "item_id": "03da7398749c",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "cr_note",
@@ -4226,14 +4226,14 @@
       "rationale_b_first": "The two claims provide different rankings for the system on the public leaderboard. Claim 1 states the system is ranked #4, while Claim 2 states RankFusion (presumably the same system) is ranked #1. These cannot both be true simultaneously.",
       "similarity": 0.7946,
       "claim_1": {
-        "item_id": "1903deb735b8",
+        "item_id": "2b1ca1cec370",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "body",
         "text": "RankFusion currently ranks #1 on the public leaderboard."
       },
       "claim_2": {
-        "item_id": "9f7968bdcab9",
+        "item_id": "03da7398749c",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "cr_note",
@@ -4258,14 +4258,14 @@
       "rationale_b_first": "Both claims state exactly the same fact that the system currently ranks #4 on the public leaderboard, using identical wording.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "e26fb1f2542a",
+        "item_id": "e6c1e02046ad",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "cr_note",
         "text": "The system currently ranks #4 on the public leaderboard."
       },
       "claim_2": {
-        "item_id": "9f7968bdcab9",
+        "item_id": "03da7398749c",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "cr_note",
@@ -4290,14 +4290,14 @@
       "rationale_b_first": "The two claims provide different rankings for the system on the public leaderboard. Claim 1 states the system is ranked #4, while Claim 2 states RankFusion (which we can infer is the same system) is ranked #1. These cannot both be true simultaneously.",
       "similarity": 0.7946,
       "claim_1": {
-        "item_id": "1ac4061f66ad",
+        "item_id": "63a628751cab",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "body",
         "text": "RankFusion currently ranks #1 on the public leaderboard."
       },
       "claim_2": {
-        "item_id": "9f7968bdcab9",
+        "item_id": "03da7398749c",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "cr_note",
@@ -4322,14 +4322,14 @@
       "rationale_b_first": "Both claims assert that RankFusion currently ranks #1 on the public leaderboard, using identical wording. This is a clear case of two statements affirming the same fact.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "1903deb735b8",
+        "item_id": "2b1ca1cec370",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "body",
         "text": "RankFusion currently ranks #1 on the public leaderboard."
       },
       "claim_2": {
-        "item_id": "4fa329319372",
+        "item_id": "a557fd9170a1",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "body",
@@ -4354,14 +4354,14 @@
       "rationale_b_first": "The two claims provide different rankings for the system on the public leaderboard, which are mutually exclusive.",
       "similarity": 0.7946,
       "claim_1": {
-        "item_id": "e26fb1f2542a",
+        "item_id": "e6c1e02046ad",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "cr_note",
         "text": "The system currently ranks #4 on the public leaderboard."
       },
       "claim_2": {
-        "item_id": "4fa329319372",
+        "item_id": "a557fd9170a1",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "body",
@@ -4386,14 +4386,14 @@
       "rationale_b_first": "Both claims state that RankFusion currently ranks #1 on the public leaderboard, which is an identical assertion in both substance and detail.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "4fa329319372",
+        "item_id": "a557fd9170a1",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "body",
         "text": "RankFusion currently ranks #1 on the public leaderboard."
       },
       "claim_2": {
-        "item_id": "1ac4061f66ad",
+        "item_id": "63a628751cab",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "body",
@@ -4418,14 +4418,14 @@
       "rationale_b_first": "The two claims provide different rankings for the system on the public leaderboard. Claim 1 states the system is ranked #4, while Claim 2 states RankFusion (presumably the same system) is ranked #1. These cannot both be true simultaneously.",
       "similarity": 0.7946,
       "claim_1": {
-        "item_id": "1903deb735b8",
+        "item_id": "2b1ca1cec370",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "body",
         "text": "RankFusion currently ranks #1 on the public leaderboard."
       },
       "claim_2": {
-        "item_id": "e26fb1f2542a",
+        "item_id": "e6c1e02046ad",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "cr_note",
@@ -4450,14 +4450,14 @@
       "rationale_b_first": "Both claims state that RankFusion currently ranks #1 on the public leaderboard, which is an identical assertion in both substance and detail.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "1903deb735b8",
+        "item_id": "2b1ca1cec370",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "body",
         "text": "RankFusion currently ranks #1 on the public leaderboard."
       },
       "claim_2": {
-        "item_id": "1ac4061f66ad",
+        "item_id": "63a628751cab",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "body",
@@ -4482,14 +4482,14 @@
       "rationale_b_first": "The two claims provide different rankings for the system on the public leaderboard, with one stating #1 and the other stating #4. These are conflicting factual assertions.",
       "similarity": 0.7946,
       "claim_1": {
-        "item_id": "e26fb1f2542a",
+        "item_id": "e6c1e02046ad",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "cr_note",
         "text": "The system currently ranks #4 on the public leaderboard."
       },
       "claim_2": {
-        "item_id": "1ac4061f66ad",
+        "item_id": "63a628751cab",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "body",
@@ -4514,14 +4514,14 @@
       "rationale_b_first": "Both claims state exactly the same fact, that the model's F1 on the QA benchmark is 82.3, with identical wording and numerical value.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "8001101b4c8a",
+        "item_id": "d1012701d1ba",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "table",
         "text": "The model's F1 on the QA benchmark is 82.3."
       },
       "claim_2": {
-        "item_id": "235a10f764e1",
+        "item_id": "93a7280bf09d",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "table",
@@ -4546,14 +4546,14 @@
       "rationale_b_first": "Both claims state that the model's F1 score on the QA benchmark is 82.3, which is the same factual assertion despite different phrasing.",
       "similarity": 0.8943,
       "claim_1": {
-        "item_id": "8001101b4c8a",
+        "item_id": "d1012701d1ba",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "table",
         "text": "The model's F1 on the QA benchmark is 82.3."
       },
       "claim_2": {
-        "item_id": "83be90e6b59c",
+        "item_id": "108107443e27",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "table",
@@ -4578,14 +4578,14 @@
       "rationale_b_first": "Both claims report a specific numerical value for the model's F1 score on the QA benchmark, but the values differ materially (79.1 vs 82.3). Since these values are presented as measurements of the same result under the same conditions, they cannot both be true simultaneously, constituting a contradiction.",
       "similarity": 0.8832,
       "claim_1": {
-        "item_id": "8001101b4c8a",
+        "item_id": "d1012701d1ba",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "table",
         "text": "The model's F1 on the QA benchmark is 82.3."
       },
       "claim_2": {
-        "item_id": "de409b7d94ea",
+        "item_id": "81f88f970ed3",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "changelog",
@@ -4610,14 +4610,14 @@
       "rationale_b_first": "Both claims report the model's F1 score on the QA benchmark, but they provide different numerical values (79.1 vs 82.3) that are materially different and cannot both be true simultaneously.",
       "similarity": 0.8832,
       "claim_1": {
-        "item_id": "8001101b4c8a",
+        "item_id": "d1012701d1ba",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "table",
         "text": "The model's F1 on the QA benchmark is 82.3."
       },
       "claim_2": {
-        "item_id": "e37795a0c1a8",
+        "item_id": "cb098462a5c4",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "changelog",
@@ -4642,14 +4642,14 @@
       "rationale_b_first": "Both claims state that the model's F1 score on the QA benchmark is 82.3, which is the same factual assertion despite different phrasing.",
       "similarity": 0.8943,
       "claim_1": {
-        "item_id": "83be90e6b59c",
+        "item_id": "108107443e27",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "table",
         "text": "The model reaches 82.3 F1 on the benchmark."
       },
       "claim_2": {
-        "item_id": "235a10f764e1",
+        "item_id": "93a7280bf09d",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "table",
@@ -4674,14 +4674,14 @@
       "rationale_b_first": "The two claims provide different numerical values for the model's F1 score on the QA benchmark, with one being 82.3 and the other being 79.1. The use of 'corrected' in the second claim suggests that it is a more accurate or refined measurement, implying that the first claim is superseded or incorrect, thus constituting a contradiction.",
       "similarity": 0.8832,
       "claim_1": {
-        "item_id": "de409b7d94ea",
+        "item_id": "81f88f970ed3",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "changelog",
         "text": "The model's corrected F1 on the QA benchmark is 79.1."
       },
       "claim_2": {
-        "item_id": "235a10f764e1",
+        "item_id": "93a7280bf09d",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "table",
@@ -4706,14 +4706,14 @@
       "rationale_b_first": "Both claims report a specific numerical value for the model's F1 score on the QA benchmark, but the values differ materially (79.1 vs 82.3). Since these values cannot both be true simultaneously without one superseding or correcting the other, they are in contradiction.",
       "similarity": 0.8832,
       "claim_1": {
-        "item_id": "235a10f764e1",
+        "item_id": "93a7280bf09d",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "table",
         "text": "The model's F1 on the QA benchmark is 82.3."
       },
       "claim_2": {
-        "item_id": "e37795a0c1a8",
+        "item_id": "cb098462a5c4",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "changelog",
@@ -4738,14 +4738,14 @@
       "rationale_b_first": "The two claims provide different numerical values for the model's F1 score on the QA benchmark, with Claim 1 stating 82.3 and Claim 2 stating 79.1. Since these values are materially different and both refer to the same measurement under the same conditions, they contradict each other.",
       "similarity": 0.7705,
       "claim_1": {
-        "item_id": "de409b7d94ea",
+        "item_id": "81f88f970ed3",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "changelog",
         "text": "The model's corrected F1 on the QA benchmark is 79.1."
       },
       "claim_2": {
-        "item_id": "83be90e6b59c",
+        "item_id": "108107443e27",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "table",
@@ -4770,14 +4770,14 @@
       "rationale_b_first": "Both claims report the model's F1 score on the QA benchmark, but they provide different numerical values (79.1 vs 82.3) that are materially different and cannot both be true simultaneously.",
       "similarity": 0.7705,
       "claim_1": {
-        "item_id": "83be90e6b59c",
+        "item_id": "108107443e27",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "table",
         "text": "The model reaches 82.3 F1 on the benchmark."
       },
       "claim_2": {
-        "item_id": "e37795a0c1a8",
+        "item_id": "cb098462a5c4",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "changelog",
@@ -4802,14 +4802,14 @@
       "rationale_b_first": "Both claims state the exact same fact, that the model's corrected F1 on the QA benchmark is 79.1, using identical wording.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "de409b7d94ea",
+        "item_id": "81f88f970ed3",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "changelog",
         "text": "The model's corrected F1 on the QA benchmark is 79.1."
       },
       "claim_2": {
-        "item_id": "e37795a0c1a8",
+        "item_id": "cb098462a5c4",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "changelog",
@@ -4834,14 +4834,14 @@
       "rationale_b_first": "Claim 1 states that the numbers in the paper reflect the performance of gpt-4-0613, while Claim 2 states that the excerpt does not specify the judge-model version and implies that gpt-4-0314 was used for automatic judgements. These claims are in direct conflict regarding the judge-model version used to produce the numbers in the paper.",
       "similarity": 0.5894,
       "claim_1": {
-        "item_id": "cfe2cc7df590",
+        "item_id": "c0f9dbf588f0",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "setup",
         "text": "The excerpt does not specify which judge-model version produced the numbers in the paper, but it does state that all automatic judgements in the excerpt are produced by gpt-4-0314."
       },
       "claim_2": {
-        "item_id": "93351cfe303c",
+        "item_id": "f5a464e2c2df",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "revision",
@@ -4866,14 +4866,14 @@
       "rationale_b_first": "Claim 1 states that the excerpt does not specify the judge-model version that produced the numbers in the paper, but it mentions that all automatic judgements are produced by gpt-4-0314. Claim 2, however, asserts that the numbers in the paper reflect the performance of gpt-4-0613. These two claims are in direct conflict because they attribute the numbers in the paper to different judge-model versions.",
       "similarity": 0.5894,
       "claim_1": {
-        "item_id": "729e638843b3",
+        "item_id": "3d494f349446",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "revision",
         "text": "The numbers in the paper reflect the performance of gpt-4-0613."
       },
       "claim_2": {
-        "item_id": "cfe2cc7df590",
+        "item_id": "c0f9dbf588f0",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "setup",
@@ -4898,14 +4898,14 @@
       "rationale_b_first": "Claim 1 asserts a specific judge-model version (gpt-4-0314) produced the numbers in the paper, while Claim 2 states that the excerpt does not specify which judge-model version produced the numbers, only that gpt-4-0314 was used for all automatic judgements. This implies that Claim 2 does not confirm the specific claim made in Claim 1, and instead suggests uncertainty about the specific version used for the numbers in the paper.",
       "similarity": 0.8249,
       "claim_1": {
-        "item_id": "cfe2cc7df590",
+        "item_id": "c0f9dbf588f0",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "setup",
         "text": "The excerpt does not specify which judge-model version produced the numbers in the paper, but it does state that all automatic judgements in the excerpt are produced by gpt-4-0314."
       },
       "claim_2": {
-        "item_id": "0b233ac4921f",
+        "item_id": "00f4a16c120a",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "setup",
@@ -4930,14 +4930,14 @@
       "rationale_b_first": "Claim 1 asserts that gpt-4-0613 was used to produce the numbers in the paper, while Claim 2 states that the excerpt does not specify the judge-model version used and implies that gpt-4-0314 was used for automatic judgements. These claims are in direct conflict regarding the specific judge-model version used to produce the numbers in the paper.",
       "similarity": 0.6503,
       "claim_1": {
-        "item_id": "cfe2cc7df590",
+        "item_id": "c0f9dbf588f0",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "setup",
         "text": "The excerpt does not specify which judge-model version produced the numbers in the paper, but it does state that all automatic judgements in the excerpt are produced by gpt-4-0314."
       },
       "claim_2": {
-        "item_id": "4413e7b0c622",
+        "item_id": "b465501cd255",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "revision",
@@ -4962,14 +4962,14 @@
       "rationale_b_first": "Both claims state that the numbers in the paper reflect the performance of gpt-4-0613, affirming the same fact.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "729e638843b3",
+        "item_id": "3d494f349446",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "revision",
         "text": "The numbers in the paper reflect the performance of gpt-4-0613."
       },
       "claim_2": {
-        "item_id": "93351cfe303c",
+        "item_id": "f5a464e2c2df",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "revision",
@@ -4994,14 +4994,14 @@
       "rationale_b_first": "The two claims provide different judge-model versions ('gpt-4-0314' and 'gpt-4-0613') that produced the numbers in the paper, which are mutually exclusive.",
       "similarity": 0.7114,
       "claim_1": {
-        "item_id": "93351cfe303c",
+        "item_id": "f5a464e2c2df",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "revision",
         "text": "The numbers in the paper reflect the performance of gpt-4-0613."
       },
       "claim_2": {
-        "item_id": "0b233ac4921f",
+        "item_id": "00f4a16c120a",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "setup",
@@ -5026,14 +5026,14 @@
       "rationale_b_first": "Both claims affirm that the numbers in the paper were produced using the gpt-4-0613 model. Claim 1 states it directly, while Claim 2 paraphrases it by saying the numbers reflect the performance of the same model.",
       "similarity": 0.812,
       "claim_1": {
-        "item_id": "93351cfe303c",
+        "item_id": "f5a464e2c2df",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "revision",
         "text": "The numbers in the paper reflect the performance of gpt-4-0613."
       },
       "claim_2": {
-        "item_id": "4413e7b0c622",
+        "item_id": "b465501cd255",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "revision",
@@ -5058,14 +5058,14 @@
       "rationale_b_first": "The two claims provide different judge-model versions ('gpt-4-0314' and 'gpt-4-0613') that produced the numbers in the paper, which are mutually exclusive.",
       "similarity": 0.7114,
       "claim_1": {
-        "item_id": "729e638843b3",
+        "item_id": "3d494f349446",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "revision",
         "text": "The numbers in the paper reflect the performance of gpt-4-0613."
       },
       "claim_2": {
-        "item_id": "0b233ac4921f",
+        "item_id": "00f4a16c120a",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "setup",
@@ -5090,14 +5090,14 @@
       "rationale_b_first": "Both claims affirm that the numbers in the paper were produced using the gpt-4-0613 model. Claim 1 states it directly, while Claim 2 uses synonymous language to convey the same fact.",
       "similarity": 0.812,
       "claim_1": {
-        "item_id": "729e638843b3",
+        "item_id": "3d494f349446",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "revision",
         "text": "The numbers in the paper reflect the performance of gpt-4-0613."
       },
       "claim_2": {
-        "item_id": "4413e7b0c622",
+        "item_id": "b465501cd255",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "revision",
@@ -5122,14 +5122,14 @@
       "rationale_b_first": "The two claims provide different specific versions of the judge-model ('gpt-4-0314' vs 'gpt-4-0613') that produced the numbers in the paper, which are mutually exclusive.",
       "similarity": 0.8487,
       "claim_1": {
-        "item_id": "4413e7b0c622",
+        "item_id": "b465501cd255",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "revision",
         "text": "The numbers in the paper were produced using gpt-4-0613."
       },
       "claim_2": {
-        "item_id": "0b233ac4921f",
+        "item_id": "00f4a16c120a",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "setup",
@@ -5154,14 +5154,14 @@
       "rationale_b_first": "The two claims present conflicting information about which version of SQuAD is used for evaluation. Claim 1 states that SQuAD 2.0 is used, while Claim 2 states that SQuAD 1.1 is used. These cannot both be true simultaneously.",
       "similarity": 0.867,
       "claim_1": {
-        "item_id": "9e1e99a716be",
+        "item_id": "8191b1410e9a",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "arxiv_v1",
         "text": "SQuAD 1.1 is used for evaluation."
       },
       "claim_2": {
-        "item_id": "be906a898127",
+        "item_id": "a808e2a4b8ab",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "arxiv_v2",
@@ -5186,14 +5186,14 @@
       "rationale_b_first": "Both claims state exactly the same fact, that SQuAD 2.0 is used for evaluation, without any variation in wording or substance.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "690fb5f1981f",
+        "item_id": "ef3519918b54",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "arxiv_v2",
         "text": "SQuAD 2.0 is used for evaluation."
       },
       "claim_2": {
-        "item_id": "be906a898127",
+        "item_id": "a808e2a4b8ab",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "arxiv_v2",
@@ -5218,14 +5218,14 @@
       "rationale_b_first": "The claims directly contradict each other by specifying different versions of SQuAD for evaluation: Claim 1 states 'SQuAD 1.1' while Claim 2 states 'SQuAD 2.0'.",
       "similarity": 0.7296,
       "claim_1": {
-        "item_id": "be906a898127",
+        "item_id": "a808e2a4b8ab",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "arxiv_v2",
         "text": "SQuAD 2.0 is used for evaluation."
       },
       "claim_2": {
-        "item_id": "d709214c448e",
+        "item_id": "a4494dcc0137",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "arxiv_v1",
@@ -5250,14 +5250,14 @@
       "rationale_b_first": "Both claims state exactly the same fact, that SQuAD 2.0 is used for evaluation, without any variation in wording or substance.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "d1fa08771053",
+        "item_id": "db51e6c09cfd",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "arxiv_v2",
         "text": "SQuAD 2.0 is used for evaluation."
       },
       "claim_2": {
-        "item_id": "be906a898127",
+        "item_id": "a808e2a4b8ab",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "arxiv_v2",
@@ -5282,14 +5282,14 @@
       "rationale_b_first": "The two claims present conflicting information about which version of SQuAD is used for evaluation. Claim 1 states that SQuAD 2.0 is used, while Claim 2 states that SQuAD 1.1 is used. These cannot both be true simultaneously.",
       "similarity": 0.867,
       "claim_1": {
-        "item_id": "9e1e99a716be",
+        "item_id": "8191b1410e9a",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "arxiv_v1",
         "text": "SQuAD 1.1 is used for evaluation."
       },
       "claim_2": {
-        "item_id": "690fb5f1981f",
+        "item_id": "ef3519918b54",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "arxiv_v2",
@@ -5314,14 +5314,14 @@
       "rationale_b_first": "Both claims state that SQuAD 1.1 is used for evaluation, which is the same factual assertion phrased differently.",
       "similarity": 0.8303,
       "claim_1": {
-        "item_id": "9e1e99a716be",
+        "item_id": "8191b1410e9a",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "arxiv_v1",
         "text": "SQuAD 1.1 is used for evaluation."
       },
       "claim_2": {
-        "item_id": "d709214c448e",
+        "item_id": "a4494dcc0137",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "arxiv_v1",
@@ -5346,14 +5346,14 @@
       "rationale_b_first": "The two claims present conflicting versions of SQuAD being used for evaluation, with one specifying SQuAD 1.1 and the other specifying SQuAD 2.0.",
       "similarity": 0.867,
       "claim_1": {
-        "item_id": "d1fa08771053",
+        "item_id": "db51e6c09cfd",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "arxiv_v2",
         "text": "SQuAD 2.0 is used for evaluation."
       },
       "claim_2": {
-        "item_id": "9e1e99a716be",
+        "item_id": "8191b1410e9a",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "arxiv_v1",
@@ -5378,14 +5378,14 @@
       "rationale_b_first": "The claims directly contradict each other by specifying different versions of SQuAD for evaluation: Claim 1 states 'SQuAD 1.1' while Claim 2 states 'SQuAD 2.0'.",
       "similarity": 0.7296,
       "claim_1": {
-        "item_id": "690fb5f1981f",
+        "item_id": "ef3519918b54",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "arxiv_v2",
         "text": "SQuAD 2.0 is used for evaluation."
       },
       "claim_2": {
-        "item_id": "d709214c448e",
+        "item_id": "a4494dcc0137",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "arxiv_v1",
@@ -5410,14 +5410,14 @@
       "rationale_b_first": "Both claims state exactly the same fact, that SQuAD 2.0 is used for evaluation, without any variation in wording or substance.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "d1fa08771053",
+        "item_id": "db51e6c09cfd",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "arxiv_v2",
         "text": "SQuAD 2.0 is used for evaluation."
       },
       "claim_2": {
-        "item_id": "690fb5f1981f",
+        "item_id": "ef3519918b54",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "arxiv_v2",
@@ -5442,14 +5442,14 @@
       "rationale_b_first": "The two claims present different versions of SQuAD for evaluation, with Claim 1 specifying SQuAD 1.1 and Claim 2 specifying SQuAD 2.0, which are distinct and incompatible versions.",
       "similarity": 0.7296,
       "claim_1": {
-        "item_id": "d1fa08771053",
+        "item_id": "db51e6c09cfd",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "arxiv_v2",
         "text": "SQuAD 2.0 is used for evaluation."
       },
       "claim_2": {
-        "item_id": "d709214c448e",
+        "item_id": "a4494dcc0137",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "arxiv_v1",
@@ -5474,14 +5474,14 @@
       "rationale_b_first": "The two claims attribute the production of the 88.5 EM entry in Table 1 to different entities: 'Chen et al. (2021)' in Claim 1 and 'Our system' in Claim 2. These are mutually exclusive assertions.",
       "similarity": 0.8529,
       "claim_1": {
-        "item_id": "20e5c34f61bc",
+        "item_id": "a4c77fec747b",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "claim",
         "text": "Our system produced the 88.5 EM entry in Table 1."
       },
       "claim_2": {
-        "item_id": "cfc3568482cb",
+        "item_id": "56d09a457425",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "tablenote",
@@ -5506,14 +5506,14 @@
       "rationale_b_first": "Claim 2 is a more general statement that aligns with Claim 1, which specifies that 'Chen et al. (2021)' produced the 88.5 EM entry. Both claims agree that a specific system produced the entry in question, and Claim 2 does not contradict the identity of the system provided in Claim 1.",
       "similarity": 0.8633,
       "claim_1": {
-        "item_id": "ec580011cc27",
+        "item_id": "d4bd2e3644e7",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "claim",
         "text": "The system being referred to produced the 88.5 EM entry in Table 1."
       },
       "claim_2": {
-        "item_id": "cfc3568482cb",
+        "item_id": "56d09a457425",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "tablenote",
@@ -5538,14 +5538,14 @@
       "rationale_b_first": "Both claims assert that Chen et al. (2021) produced the 88.5 EM entry in Table 1. The second claim includes additional context ('according to the excerpt') but does not change the core factual assertion.",
       "similarity": 0.9676,
       "claim_1": {
-        "item_id": "86d218f40944",
+        "item_id": "c8e764889408",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "tablenote",
         "text": "The 88.5 EM entry in Table 1 was produced by Chen et al. (2021), according to the excerpt."
       },
       "claim_2": {
-        "item_id": "cfc3568482cb",
+        "item_id": "56d09a457425",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "tablenote",
@@ -5570,14 +5570,14 @@
       "rationale_b_first": "Both claims assert that the 88.5 EM entry in Table 1 was produced by a specific system. Claim 1 specifies that the system is 'Chen et al. (2021)', while Claim 2 refers to 'the system being referred to in the excerpt'. Since the excerpt is likely referring to the same system mentioned by Chen et al., these claims are logically equivalent and entail each other.",
       "similarity": 0.8207,
       "claim_1": {
-        "item_id": "4c72cc1eea1e",
+        "item_id": "aafcbfd3fe19",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "claim",
         "text": "The system being referred to in the excerpt produced the 88.5 EM entry in Table 1."
       },
       "claim_2": {
-        "item_id": "cfc3568482cb",
+        "item_id": "56d09a457425",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "tablenote",
@@ -5602,14 +5602,14 @@
       "rationale_b_first": "Both claims refer to the 88.5 EM entry in Table 1, but they attribute it to different systems. Claim 1 states that 'the system being referred to' produced the entry, while Claim 2 explicitly states that 'our system' produced the entry. These are mutually exclusive assertions.",
       "similarity": 0.962,
       "claim_1": {
-        "item_id": "20e5c34f61bc",
+        "item_id": "a4c77fec747b",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "claim",
         "text": "Our system produced the 88.5 EM entry in Table 1."
       },
       "claim_2": {
-        "item_id": "ec580011cc27",
+        "item_id": "d4bd2e3644e7",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "claim",
@@ -5634,14 +5634,14 @@
       "rationale_b_first": "Claim 1 states that the system of the current agent produced the 88.5 EM entry, while Claim 2 attributes the same entry to Chen et al. (2021). These claims are in direct conflict regarding the source of the 88.5 EM entry.",
       "similarity": 0.8285,
       "claim_1": {
-        "item_id": "86d218f40944",
+        "item_id": "c8e764889408",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "tablenote",
         "text": "The 88.5 EM entry in Table 1 was produced by Chen et al. (2021), according to the excerpt."
       },
       "claim_2": {
-        "item_id": "20e5c34f61bc",
+        "item_id": "a4c77fec747b",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "claim",
@@ -5666,14 +5666,14 @@
       "rationale_b_first": "Both claims assert that a specific system produced the 88.5 EM entry in Table 1. Claim 2 uses slightly different wording but affirms the same fact as Claim 1.",
       "similarity": 0.8722,
       "claim_1": {
-        "item_id": "4c72cc1eea1e",
+        "item_id": "aafcbfd3fe19",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "claim",
         "text": "The system being referred to in the excerpt produced the 88.5 EM entry in Table 1."
       },
       "claim_2": {
-        "item_id": "20e5c34f61bc",
+        "item_id": "a4c77fec747b",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "claim",
@@ -5698,14 +5698,14 @@
       "rationale_b_first": "Claim 1 states that an unspecified system produced the 88.5 EM entry, while Claim 2 specifically attributes the entry to Chen et al. (2021). These claims are in direct conflict regarding the source of the 88.5 EM entry.",
       "similarity": 0.8574,
       "claim_1": {
-        "item_id": "86d218f40944",
+        "item_id": "c8e764889408",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "tablenote",
         "text": "The 88.5 EM entry in Table 1 was produced by Chen et al. (2021), according to the excerpt."
       },
       "claim_2": {
-        "item_id": "ec580011cc27",
+        "item_id": "d4bd2e3644e7",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "claim",
@@ -5730,14 +5730,14 @@
       "rationale_b_first": "Both claims assert that the system being referred to produced the 88.5 EM entry in Table 1. The second claim includes the word 'excerpt' which does not change the core assertion, making the claims logically equivalent.",
       "similarity": 0.9455,
       "claim_1": {
-        "item_id": "4c72cc1eea1e",
+        "item_id": "aafcbfd3fe19",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "claim",
         "text": "The system being referred to in the excerpt produced the 88.5 EM entry in Table 1."
       },
       "claim_2": {
-        "item_id": "ec580011cc27",
+        "item_id": "d4bd2e3644e7",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "claim",
@@ -5762,14 +5762,14 @@
       "rationale_b_first": "Both claims assert that the 88.5 EM entry in Table 1 was produced by the system referred to in the excerpt, which is attributed to Chen et al. (2021). Claim 2 is a more general statement that is entailed by the more specific attribution in Claim 1.",
       "similarity": 0.8479,
       "claim_1": {
-        "item_id": "4c72cc1eea1e",
+        "item_id": "aafcbfd3fe19",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "claim",
         "text": "The system being referred to in the excerpt produced the 88.5 EM entry in Table 1."
       },
       "claim_2": {
-        "item_id": "86d218f40944",
+        "item_id": "c8e764889408",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "tablenote",
@@ -5794,14 +5794,14 @@
       "rationale_b_first": "Claim 1 states that the paper introduced rotary positional embeddings (RoPE), while Claim 2 explicitly states that the paper did not introduce RoPE but adopted them from another source. These are mutually exclusive assertions.",
       "similarity": 0.7518,
       "claim_1": {
-        "item_id": "5ffd5a7691ab",
+        "item_id": "5717b6580d14",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "method",
         "text": "This paper did not introduce rotary positional embeddings (RoPE), but rather adopted them unchanged from Su et al. (2021)."
       },
       "claim_2": {
-        "item_id": "442b505f61e0",
+        "item_id": "ba2f567a77c8",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "contrib",
@@ -5826,14 +5826,14 @@
       "rationale_b_first": "Claim 1 states that the paper introduced RoPE, while Claim 2 states that the paper adopted RoPE unchanged from another source, implying it was not introduced by this paper.",
       "similarity": 0.7423,
       "claim_1": {
-        "item_id": "a01f3e04715e",
+        "item_id": "9f42d7595bc1",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "method",
         "text": "The paper adopted rotary positional embeddings (RoPE) unchanged from Su et al. (2021)."
       },
       "claim_2": {
-        "item_id": "442b505f61e0",
+        "item_id": "ba2f567a77c8",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "contrib",
@@ -5858,14 +5858,14 @@
       "rationale_b_first": "Claim 1 asserts that the paper introduced RoPE, while Claim 2 acknowledges the same claim but expresses doubt about its veracity due to a lack of evidence. The claims do not contradict each other because Claim 2 does not refute the introduction of RoPE; it merely questions the evidence supporting the claim.",
       "similarity": 0.7518,
       "claim_1": {
-        "item_id": "39c1a54d9eb3",
+        "item_id": "bcfb7137c5a2",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "contrib",
         "text": "The paper claims to introduce rotary positional embeddings (RoPE), but this is a statement that requires verification, as the excerpt does not provide evidence of originality or novelty."
       },
       "claim_2": {
-        "item_id": "442b505f61e0",
+        "item_id": "ba2f567a77c8",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "contrib",
@@ -5890,14 +5890,14 @@
       "rationale_b_first": "Claim 1 states that the paper introduced RoPE, while Claim 2 states that the paper adopted RoPE unchanged from another source, implying it was not introduced by this paper.",
       "similarity": 0.7423,
       "claim_1": {
-        "item_id": "17e386f9d3ab",
+        "item_id": "4b9865af2d9b",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "method",
         "text": "The paper adopted rotary positional embeddings (RoPE) unchanged from Su et al. (2021)."
       },
       "claim_2": {
-        "item_id": "442b505f61e0",
+        "item_id": "ba2f567a77c8",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "contrib",
@@ -5922,14 +5922,14 @@
       "rationale_b_first": "Both claims agree that the paper adopted rotary positional embeddings (RoPE) unchanged from Su et al. (2021). Claim 1 includes an additional statement that the paper did not introduce RoPE, but this does not contradict Claim 2; rather, it provides more context that is consistent with Claim 2.",
       "similarity": 0.9676,
       "claim_1": {
-        "item_id": "a01f3e04715e",
+        "item_id": "9f42d7595bc1",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "method",
         "text": "The paper adopted rotary positional embeddings (RoPE) unchanged from Su et al. (2021)."
       },
       "claim_2": {
-        "item_id": "5ffd5a7691ab",
+        "item_id": "5717b6580d14",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "method",
@@ -5954,14 +5954,14 @@
       "rationale_b_first": "Claim 1 explicitly states that the paper did not introduce rotary positional embeddings (RoPE), while Claim 2 suggests that the paper claims to introduce RoPE, though this claim needs verification. These are opposing assertions about the originality of RoPE in the paper.",
       "similarity": 0.9058,
       "claim_1": {
-        "item_id": "39c1a54d9eb3",
+        "item_id": "bcfb7137c5a2",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "contrib",
         "text": "The paper claims to introduce rotary positional embeddings (RoPE), but this is a statement that requires verification, as the excerpt does not provide evidence of originality or novelty."
       },
       "claim_2": {
-        "item_id": "5ffd5a7691ab",
+        "item_id": "5717b6580d14",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "method",
@@ -5986,14 +5986,14 @@
       "rationale_b_first": "Both claims agree that the paper adopted rotary positional embeddings (RoPE) unchanged from Su et al. (2021). Claim 1 includes this fact and adds that the paper did not introduce RoPE, but this additional information does not contradict Claim 2 and is consistent with it.",
       "similarity": 0.9676,
       "claim_1": {
-        "item_id": "17e386f9d3ab",
+        "item_id": "4b9865af2d9b",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "method",
         "text": "The paper adopted rotary positional embeddings (RoPE) unchanged from Su et al. (2021)."
       },
       "claim_2": {
-        "item_id": "5ffd5a7691ab",
+        "item_id": "5717b6580d14",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "method",
@@ -6018,14 +6018,14 @@
       "rationale_b_first": "Claim 1 suggests that the paper introduces RoPE but requires verification of its originality, while Claim 2 explicitly states that the paper adopted RoPE unchanged from another source, implying it is not original.",
       "similarity": 0.9137,
       "claim_1": {
-        "item_id": "a01f3e04715e",
+        "item_id": "9f42d7595bc1",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "method",
         "text": "The paper adopted rotary positional embeddings (RoPE) unchanged from Su et al. (2021)."
       },
       "claim_2": {
-        "item_id": "39c1a54d9eb3",
+        "item_id": "bcfb7137c5a2",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "contrib",
@@ -6050,14 +6050,14 @@
       "rationale_b_first": "Both claims state exactly the same information, that the paper adopted rotary positional embeddings (RoPE) unchanged from Su et al. (2021). Since the claims are identical, they entail each other.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "a01f3e04715e",
+        "item_id": "9f42d7595bc1",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "method",
         "text": "The paper adopted rotary positional embeddings (RoPE) unchanged from Su et al. (2021)."
       },
       "claim_2": {
-        "item_id": "17e386f9d3ab",
+        "item_id": "4b9865af2d9b",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "method",
@@ -6082,14 +6082,14 @@
       "rationale_b_first": "Claim 1 states that the paper adopted RoPE unchanged from Su et al. (2021), implying it did not introduce RoPE. Claim 2, however, suggests that the paper claims to introduce RoPE, but this claim needs verification. These two claims are in direct opposition regarding whether the paper introduced RoPE or not.",
       "similarity": 0.9137,
       "claim_1": {
-        "item_id": "39c1a54d9eb3",
+        "item_id": "bcfb7137c5a2",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "contrib",
         "text": "The paper claims to introduce rotary positional embeddings (RoPE), but this is a statement that requires verification, as the excerpt does not provide evidence of originality or novelty."
       },
       "claim_2": {
-        "item_id": "17e386f9d3ab",
+        "item_id": "4b9865af2d9b",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "method",
@@ -6114,14 +6114,14 @@
       "rationale_b_first": "Both claims agree that Nguyen et al. (2019) created and annotated the IntentBank corpus. Claim 2 provides additional details about the size of the corpus, but does not contradict Claim 1.",
       "similarity": 0.8402,
       "claim_1": {
-        "item_id": "1ae585e573f2",
+        "item_id": "49f35cc6946b",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "The authors of the paper collected and annotated IntentBank, a 12,000-utterance corpus for intent detection."
       },
       "claim_2": {
-        "item_id": "f1724d3e9246",
+        "item_id": "85988094b5c9",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "data",
@@ -6146,14 +6146,14 @@
       "rationale_b_first": "Both claims agree that the IntentBank corpus was created and annotated by the authors of the paper, with Claim 2 providing additional context about Nguyen et al. (2019) and some annotation-error fixes made by the current authors. The core fact of the corpus creation and annotation by the paper's authors is consistent between the two claims.",
       "similarity": 0.8141,
       "claim_1": {
-        "item_id": "9a188c9e1339",
+        "item_id": "21e25589f993",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "data",
         "text": "The IntentBank corpus was created and annotated by Nguyen et al. (2019), with some additional annotation-error fixes made by the current authors."
       },
       "claim_2": {
-        "item_id": "1ae585e573f2",
+        "item_id": "49f35cc6946b",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -6178,14 +6178,14 @@
       "rationale_b_first": "Both claims agree that the authors of the paper collected and annotated the IntentBank corpus. Claim 2 provides additional details about the size of the corpus, but this does not contradict Claim 1; rather, it elaborates on the same fact.",
       "similarity": 0.85,
       "claim_1": {
-        "item_id": "1ae585e573f2",
+        "item_id": "49f35cc6946b",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "The authors of the paper collected and annotated IntentBank, a 12,000-utterance corpus for intent detection."
       },
       "claim_2": {
-        "item_id": "887914b40f23",
+        "item_id": "3fe85bc73d00",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -6210,14 +6210,14 @@
       "rationale_b_first": "Both claims agree that the authors of the paper collected and annotated the IntentBank corpus. Claim 1 provides additional information about the size of the corpus, but the core fact about the origin and annotation is the same.",
       "similarity": 0.85,
       "claim_1": {
-        "item_id": "0dd32360dcd6",
+        "item_id": "e0f468dfda8a",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "The authors of the paper collected and annotated the IntentBank corpus."
       },
       "claim_2": {
-        "item_id": "1ae585e573f2",
+        "item_id": "49f35cc6946b",
         "agent_id": "agent_C",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -6242,14 +6242,14 @@
       "rationale_b_first": "Claim 2 provides additional information about the IntentBank corpus, including the original creators and annotators (Nguyen et al. (2019)) as stated in Claim 1, and mentions additional annotation-error fixes made by the current authors. This does not contradict Claim 1 but rather extends it with more details.",
       "similarity": 0.9352,
       "claim_1": {
-        "item_id": "9a188c9e1339",
+        "item_id": "21e25589f993",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "data",
         "text": "The IntentBank corpus was created and annotated by Nguyen et al. (2019), with some additional annotation-error fixes made by the current authors."
       },
       "claim_2": {
-        "item_id": "f1724d3e9246",
+        "item_id": "85988094b5c9",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "data",
@@ -6274,14 +6274,14 @@
       "rationale_b_first": "Both claims assert that the IntentBank corpus was created and annotated by the same group of people, with Claim 2 using 'authors of the paper' to refer to Nguyen et al. (2019) mentioned in Claim 1.",
       "similarity": 0.9292,
       "claim_1": {
-        "item_id": "887914b40f23",
+        "item_id": "3fe85bc73d00",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "The authors of the paper collected and annotated the IntentBank corpus."
       },
       "claim_2": {
-        "item_id": "f1724d3e9246",
+        "item_id": "85988094b5c9",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "data",
@@ -6306,14 +6306,14 @@
       "rationale_b_first": "Both claims assert that the IntentBank corpus was created and annotated by the same group of people, with Claim 2 using 'authors of the paper' to refer to Nguyen et al. (2019) mentioned in Claim 1.",
       "similarity": 0.9292,
       "claim_1": {
-        "item_id": "0dd32360dcd6",
+        "item_id": "e0f468dfda8a",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "The authors of the paper collected and annotated the IntentBank corpus."
       },
       "claim_2": {
-        "item_id": "f1724d3e9246",
+        "item_id": "85988094b5c9",
         "agent_id": "agent_E",
         "agent_group": "independent",
         "excerpt_id": "data",
@@ -6338,14 +6338,14 @@
       "rationale_b_first": "Claim 1 states that the authors of the paper collected and annotated the IntentBank corpus, which is consistent with Claim 2's assertion that Nguyen et al. (2019) created and annotated the corpus. Claim 2 provides additional information about some annotation-error fixes made by the current authors, but this does not contradict Claim 1; rather, it elaborates on the process. Therefore, the two claims entail the same underlying fact.",
       "similarity": 0.8887,
       "claim_1": {
-        "item_id": "9a188c9e1339",
+        "item_id": "21e25589f993",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "data",
         "text": "The IntentBank corpus was created and annotated by Nguyen et al. (2019), with some additional annotation-error fixes made by the current authors."
       },
       "claim_2": {
-        "item_id": "887914b40f23",
+        "item_id": "3fe85bc73d00",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
@@ -6370,14 +6370,14 @@
       "rationale_b_first": "Both claims attribute the creation and annotation of the IntentBank corpus to Nguyen et al. (2019), with Claim 1 providing additional context about subsequent error fixes by the current authors, which does not contradict Claim 2.",
       "similarity": 0.8887,
       "claim_1": {
-        "item_id": "0dd32360dcd6",
+        "item_id": "e0f468dfda8a",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "The authors of the paper collected and annotated the IntentBank corpus."
       },
       "claim_2": {
-        "item_id": "9a188c9e1339",
+        "item_id": "21e25589f993",
         "agent_id": "agent_B",
         "agent_group": "independent",
         "excerpt_id": "data",
@@ -6402,14 +6402,14 @@
       "rationale_b_first": "Both claims state that the authors of the paper collected and annotated the IntentBank corpus, using identical wording.",
       "similarity": 1.0,
       "claim_1": {
-        "item_id": "0dd32360dcd6",
+        "item_id": "e0f468dfda8a",
         "agent_id": "agent_A",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
         "text": "The authors of the paper collected and annotated the IntentBank corpus."
       },
       "claim_2": {
-        "item_id": "887914b40f23",
+        "item_id": "3fe85bc73d00",
         "agent_id": "agent_D",
         "agent_group": "grp_A",
         "excerpt_id": "abstract",
